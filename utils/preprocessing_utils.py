@@ -1,6 +1,6 @@
 import constants
 import os
-import PIL
+from PIL import Image, ImageFilter
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,9 +19,13 @@ def map_slide_to_bw(path, threshold=0.9, blur_radius=7):
 
 def get_percent_whitespace(data_dir, threshold=0.9, blur_radius=7):
     whitespace = []
+    idx = 0
     for root, dirnames, filenames in os.walk(data_dir):
         for filename in filenames:
             if filename.endswith('.jpg'):
+                idx += 1
+                if idx % 2000 == 0:
+                    print(f"{idx} files processed...")
                 full_path = os.path.join(root, filename)
                 whitespace.append((full_path, np.mean(map_slide_to_bw(full_path, threshold, blur_radius))))
 
@@ -70,4 +74,23 @@ def get_histogram_for_img(path, blur_radius=7):
 
     pixel_vals = np.array(im) / 255
     plt.hist(pixel_vals.reshape(-1))
+
+    img_name = os.path.basename(path)
+
+    plt.title(f"Pixel Intensity Histogram for {img_name}")
+    plt.xlabel("Pixel Intensity")
+    plt.ylabel("# of Pixels")
     plt.show(block=True)
+
+def get_histogram_for_dir(data_dir, bw_threshold=0.9, blur_radius=7):
+    whitespace = get_percent_whitespace(data_dir, bw_threshold, blur_radius)
+    white_vals = np.array([val for _,val in whitespace])
+
+    dir_name = os.path.basename(data_dir[:-1])
+
+    plt.hist(white_vals)
+    plt.title(f"Percent White Space Histogram for {dir_name}")
+    plt.xlabel("% White Space")
+    plt.ylabel("# of images")
+
+    plt.show()
