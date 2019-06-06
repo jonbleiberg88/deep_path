@@ -1,7 +1,9 @@
 import constants
 import os
 import PIL
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def map_slide_to_bw(path, threshold=0.9, blur_radius=7):
@@ -26,10 +28,15 @@ def get_percent_whitespace(data_dir, threshold=0.9, blur_radius=7):
     return whitespace
 
 def threshold(whitespace, threshold = 0.9):
+    initial_count = len(whitespace)
+    remove_count = 0
     for file, percent in whitespace:
         if percent > threshold:
             whitespace.remove((file, percent))
             os.remove(file)
+            remove_count += 1
+
+    print(f'{remove_count} of {initial_count} files removed')
 
     return whitespace
 
@@ -44,8 +51,23 @@ def apply_histogram_thresholding(data_dir, bw_threshold=0.9, remove_threshold=0.
         print("Please specify an export directory for the output csv file")
         return
 
+    print("Calculating white space percentages...")
     whitespace = get_percent_whitespace(data_dir, bw_threshold, blur_radius)
+
+    print("Removing thresholded files...")
     whitespace = threshold(whitespace, remove_threshold)
+
     if export:
+        print("Exporting to csv...")
         whitespace_to_csv(whitespace, export_dir)
-    
+
+def get_histogram_for_img(path, blur_radius=7):
+    im = Image.open(path)
+    # convert to grayscale
+    im = im.convert('L')
+    # add gaussian blur
+    im = im.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+
+    pixel_vals = np.array(im) / 255
+    plt.hist(pixel_vals.reshape(-1))
+    plt.show(block=True)
