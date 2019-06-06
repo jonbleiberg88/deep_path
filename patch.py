@@ -12,19 +12,19 @@ class Patch(object):
         BOTTOM_LEFT  = 3
         BOTTOM_RIGHT = 4
 
-    def __init__(self, img, coords):
+    def __init__(self, coords, img=None):
         """
         Initializer for Patch object
 
         Args:
             img (numpy uint8 array): Image contents of our patch
             coords: Coordinates of the image as returned by openslide DeepZoomGenerator's
-                    get_tile_coordinates method (i.e., of the format 
+                    get_tile_coordinates method (i.e., of the format
                     ((x_topLeft, y_topLeft), level, (width, height))).
 
         Returns:
             Patch object
-        
+
         """
 
         self.img = img
@@ -50,6 +50,8 @@ class Patch(object):
         Returns:
             None (saves output to disk)
         """
+        if self.img is None:
+            return
 
         pil_img = Image.fromarray(self.img)
         pil_img.save(outfile_name + '.jpg')
@@ -63,7 +65,7 @@ class Patch(object):
             patch_vertex (Patch_Vertex): Enum representing which vertex of our patch we want to check
             annotation: (matplotlib.path.Path object): Path object representing the polygonal region enclosed
                                                        by a QuPath annotation
-        
+
         Returns:
             in_annotation (bool): Is the given vertex in our polygon?
 
@@ -85,19 +87,19 @@ class Patch(object):
             raise TypeError("Invalid vertex type provided to vertex_in_annotation")
 
         return in_annotation
-    
+
     def in_annotation(self, annotation):
         """
         Checks to see if ALL of the patch's vertices are contained within a given annotation
         as given by a path object
-        
+
         Args:
             annotation (Path): Path object representing a given annotation
         Returns:
             in_annotation (Boolean): True if patch contained within annotation
         """
-        
-        in_annotation = False 
+
+        in_annotation = False
         if (annotation.contains_point(self.top_left_vertex) and
            annotation.contains_point(self.top_right_vertex) and
            annotation.contains_point(self.bottom_left_vertex) and
@@ -105,7 +107,7 @@ class Patch(object):
             in_annotation = True
 
         return in_annotation
-        
+
 
     def on_annotation_boundary(self, annotation):
         """
@@ -129,4 +131,33 @@ class Patch(object):
         on_annotation_boundary = one_vertex_in and one_vertex_out
 
         return on_annotation_boundary
-            
+
+    def vertices_in_annotation(self, annotation, num_vertices):
+        """
+        Checks to see if the number of the patch's vertices that are contained within
+        a given annotation as given by a Path object exceeds or equals a threshold value
+
+        Args:
+            annotation (Path): Path object representing a given annotation
+            num_vertices (int): threshold for number of vertices
+        Returns:
+            vertices_in_annotation (Boolean): True if the number of vertices contained
+                in the annotation exceeds or equals the supplied threshold value
+        """
+        if num_vertices > 4:
+            return False
+        if num_vertices == 4:
+            return self.in_annotation(annotation)
+
+        vertices_contained = 0
+
+        if annotation.contains_point(self.top_left_vertex):
+            vertices_contained += 1
+        if annotation.contains_point(self.top_right_vertex):
+            vertices_contained += 1
+        if annotation.contains_point(self.bottom_left_vertex):
+            vertices_contained += 1
+        if annotation.contains_point(self.bottom_right_vertex):
+            vertices_contained += 1
+
+        return vertices_contained >= num_vertices

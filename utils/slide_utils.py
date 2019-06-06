@@ -10,9 +10,10 @@ import csv
 from openslide.deepzoom import DeepZoomGenerator
 from matplotlib.path import Path
 from patch import Patch
-from utils.file_utils import write_pickle_to_disk 
+from utils.file_utils import write_pickle_to_disk
 import os
 import sys
+import re
 
 def load_slide(path):
     """
@@ -42,9 +43,9 @@ def get_slide_thumbnail(path, height, width):
     thumbnail = osr.get_thumbnail((height, width))
     return thumbnail
 
-def get_patches_from_slide(slide, tile_size=constants.PATCH_SIZE, overlap=0, limit_bounds=False):
-    """ 
-    Splits an OpenSlide object into nonoverlapping patches
+def get_patch_generator(slide, tile_size=constants.PATCH_SIZE, overlap=constants.OVERLAP, limit_bounds=False):
+    """
+    Returns a generator that splits an OpenSlide object into patches
 
     Args:
         slide: OpenSlide object
@@ -52,34 +53,10 @@ def get_patches_from_slide(slide, tile_size=constants.PATCH_SIZE, overlap=0, lim
         overlap: Number of extra pixels to add to each interior edge of a tile
         limit_bounds: If True, renders only non-empty slide region
     Returns:
-        Array of patches
+        DeepZoomGenerator
     """
-
-    tiles = DeepZoomGenerator(slide, tile_size=tile_size, overlap=overlap, 
-                limit_bounds=limit_bounds) 
-
-    level = len(tiles.level_tiles) - 1
-    x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
-    x, y = 0, 0
-    count, batch_count = 0, 0
-    patches = []
-    coordinate_list = []
-    tiled_dims = (y_tiles, x_tiles)
-
-    while y < y_tiles:
-        while x < x_tiles:
-            new_patch_img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
-            new_patch_coords = tiles.get_tile_coordinates(level, (x,y))
-            if np.shape(new_patch_img) == (tile_size, tile_size, 3):
-                new_patch = Patch(new_patch_img, new_patch_coords)
-                patches.append(new_patch)
-                patch_coordinates = (y,x)
-                coordinate_list.append(patch_coordinates)
-                count += 1
-            x += 1
-        y += 1
-        x = 0
-    return (patches, coordinate_list, tiled_dims)
+    return DeepZoomGenerator(slide, tile_size=tile_size, overlap=overlap,
+                limit_bounds=limit_bounds)
 
 def balance_classes(image_dir):
     """
@@ -96,7 +73,7 @@ def balance_classes(image_dir):
 
     for directory in os.listdir(image_dir):
         class_dirs.append(os.path.join(image_dir, directory))
-    
+
     class_count_list = []
     for class_directory in class_dirs:
         class_count = 0
@@ -106,12 +83,12 @@ def balance_classes(image_dir):
         class_count_list.append(class_count)
 
     max_class_count = 0
-    most_represented_class = "" 
+    most_represented_class = ""
     for image_class, class_count in zip(class_dirs, class_count_list):
         if class_count > max_class_count:
             max_class_count = class_count
             most_represented_class = image_class
-    
+
     num_times_to_copy_list = []
     for class_count in class_count_list:
         ratio = class_count / max_class_count
@@ -123,9 +100,9 @@ def balance_classes(image_dir):
         slide_to_patch_names = []
         for slide in slide_list:
             slide_dir = os.path.join(image_class, slide)
-            slide_to_patch_names.append(os.listdir(slide_dir)) 
+            slide_to_patch_names.append(os.listdir(slide_dir))
 
-        for i in range(num_copy_rounds): 
+        for i in range(num_copy_rounds):
             for (j, slide) in enumerate(slide_list):
                 slide_dir = os.path.join(image_class, slide)
                 for file_name in slide_to_patch_names[j]:
@@ -134,8 +111,8 @@ def balance_classes(image_dir):
                     copy_name = file_path_no_extension + "_" + str(i) + extension
                     shutil.copy(full_file_path, copy_name)
 
-def construct_training_dataset(top_level_directory, 
-        file_extension, 
+def construct_training_dataset(top_level_directory,
+        file_extension,
         output_dir,
         annotation_csv_directory):
     """
@@ -153,9 +130,7 @@ def construct_training_dataset(top_level_directory,
     Returns:
         None (Patches saved to disk)
     """
-    
 
-    stroma_folder   = os.path.join(output_dir, "stroma")
     large_tumor_cells_folder = os.path.join(output_dir, "large_tumor_cells")
     small_tumor_cells_folder = os.path.join(output_dir, "small_tumor_cells")
 
@@ -163,7 +138,6 @@ def construct_training_dataset(top_level_directory,
         shutil.rmtree(output_dir)
 
     os.makedirs(output_dir)
-    os.makedirs(stroma_folder)
     os.makedirs(large_tumor_cells_folder)
     os.makedirs(small_tumor_cells_folder)
 
@@ -173,59 +147,70 @@ def construct_training_dataset(top_level_directory,
 
     for root, dirnames, filenames in os.walk(top_level_directory):
         for filename in filenames:
-            if filename.endswith(file_extension):
+            if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
+
                 full_path = os.path.join(root, filename)
                 slide_name = os.path.splitext(os.path.basename(full_path))[0]
 
                 print("Splitting " + slide_name)
 
-                slide_stroma_dir = os.path.join(stroma_folder, slide_name)
                 slide_large_cells_dir = os.path.join(large_tumor_cells_folder, slide_name)
                 slide_small_cells_dir = os.path.join(small_tumor_cells_folder, slide_name)
 
-                os.makedirs(slide_stroma_dir)
                 os.makedirs(slide_large_cells_dir)
                 os.makedirs(slide_small_cells_dir)
 
                 slide = load_slide(full_path)
 
-                stroma_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
-                    "stroma_csv_files"))
                 large_cells_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
-                    annotation_csv_directory, "large_cell_tumor_csv_files")) 
+                    "large_tumor_csv_files"))
                 small_cells_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
-                    annotation_csv_directory, "small_cell_tumor_csv_files"))
+                    "small_tumor_csv_files"))
 
-                if stroma_path_list == [] and large_cells_path_list == [] and small_cells_path_list == []:
+                if large_cells_path_list == [] and small_cells_path_list == []:
                     continue
 
-                (patches, coordinate_list, tiled_dims) = get_patches_from_slide(slide)
-                counter = 0
-
+                tiles = get_patch_generator(slide)
+                tile_size = constants.PATCH_SIZE + (2 * constants.OVERLAP)
+                level = len(tiles.level_tiles) - 1
+                x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
+                tiled_dims = (y_tiles, x_tiles)
                 slide_name_to_tile_dims_map[slide_name] = tiled_dims
+
+                x, y = 0, 0
+                counter = 0
                 patch_name_list = []
-                for (i, patch) in enumerate(patches):
-                    if patch_in_paths(patch, stroma_path_list): 
-                        patch_name = os.path.join(slide_stroma_dir, slide_name + "_" + str(counter)) 
-                        patch_name_list.append(patch_name)
-                        patch.save_img_to_disk(patch_name)
-                        patch_name_to_coords_map[patch_name] = coordinate_list[i]
-                        counter += 1
-                    elif patch_in_paths(patch, large_cells_path_list): 
-                        patch_name = os.path.join(slide_large_cells_dir, slide_name + "_" + str(counter)) 
-                        patch_name_list.append(patch_name)
-                        patch.save_img_to_disk(patch_name)
-                        patch_name_to_coords_map[patch_name] = coordinate_list[i]
-                        counter += 1
-                    elif patch_in_paths(patch, small_cells_path_list): 
-                        patch_name = os.path.join(slide_small_cells_dir, slide_name + "_" + str(counter)) 
-                        patch_name_list.append(patch_name)
-                        patch.save_img_to_disk(patch_name)
-                        patch_name_to_coords_map[patch_name] = coordinate_list[i]
-                        counter += 1
-                slide_name_to_patches_map[slide_name] = patch_name_list
+                coordinate_list = []
+
+                while y < y_tiles:
+                    while x < x_tiles:
+                        patch_coords = tiles.get_tile_coordinates(level, (x,y))
+                        patch = Patch(patch_coords)
+                        patch_coordinates = (y,x)
+                        coordinate_list.append(patch_coordinates)
+
+                        if patch_in_paths(patch, large_cells_path_list):
+                            patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
+                            if np.shape(patch.img) == (tile_size, tile_size, 3):
+                                patch_name = os.path.join(slide_large_cells_dir, slide_name + "_" + str(counter))
+                                patch_name_list.append(patch_name)
+                                patch.save_img_to_disk(patch_name)
+                                patch_name_to_coords_map[patch_name] = patch_coordinates
+                                counter += 1
+                        elif patch_in_paths(patch, small_cells_path_list):
+                            patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
+                            if np.shape(patch.img) == (tile_size, tile_size, 3):
+                                patch_name = os.path.join(slide_small_cells_dir, slide_name + "_" + str(counter))
+                                patch_name_list.append(patch_name)
+                                patch.save_img_to_disk(patch_name)
+                                patch_name_to_coords_map[patch_name] = patch_coordinates
+                                counter += 1
+                        x += 1
+                    y += 1
+                    x = 0
+
                 print("Total patches for " + slide_name + ": " + str(counter))
-    
+
     if os.path.exists(constants.VISUALIZATION_HELPER_FILE_FOLDER):
         shutil.rmtree(constants.VISUALIZATION_HELPER_FILE_FOLDER)
 
@@ -234,7 +219,7 @@ def construct_training_dataset(top_level_directory,
     write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP, patch_name_to_coords_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP, slide_name_to_tile_dims_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_PATCHES_MAP, slide_name_to_patches_map)
-                
+
 def construct_annotation_path_list(slide_name, annotation_base_path):
     """
     Given the name of a slide, returns a list of polygons representing the annotations
@@ -250,18 +235,18 @@ def construct_annotation_path_list(slide_name, annotation_base_path):
     full_annotation_dir = os.path.join(annotation_base_path, slide_name)
     if not os.path.exists(full_annotation_dir):
         return []
-    
+
     annotation_list = []
-    
+
     for filename in os.listdir(full_annotation_dir):
         if filename.endswith(".csv"):
             annotation_file = os.path.join(full_annotation_dir, filename)
             current_annotation = read_annotation(annotation_file)
             annotation_list.append(current_annotation)
-    
+
     path_list = list(map(construct_annotation_path, annotation_list))
     return path_list
-    
+
 def read_annotation(csv_path):
     """
     Loads the coordinates of an annotation created with QuPath
@@ -271,7 +256,7 @@ def read_annotation(csv_path):
         csv_path (str): Path to csv file containing annotation
 
     Returns:
-        vertex_list (Nx2 numpy array): Nx2 array containing all 
+        vertex_list (Nx2 numpy array): Nx2 array containing all
                                        vertices in the annotaiton
     """
 
@@ -279,14 +264,16 @@ def read_annotation(csv_path):
     reader = csv.reader(f)
     row_count = sum(1 for line in reader)
     vertex_list = np.zeros((row_count, 2))
-    f.close()   
-
+    f.close()
+###### fix
     f = open(csv_path)
     reader = csv.reader(f)
     current_row = 0
     for row in reader:
         vertex_list[current_row,] = row
         current_row += 1
+
+    f.close()
 
     return vertex_list
 
@@ -300,9 +287,9 @@ def construct_annotation_path(vertices):
 
     Returns:
         path (Path object): Path object representing our polygon
-    
+
     """
-    polygon = Path(vertices) 
+    polygon = Path(vertices)
     return polygon
 
 def patch_in_paths(patch, path_list):
@@ -319,7 +306,7 @@ def patch_in_paths(patch, path_list):
 
     in_path = False
     for path in path_list:
-        if patch.in_annotation(path):
+        if patch.vertices_in_annotation(path, constants.NUM_VERTICES_IN_ANNOTATION):
             in_path = True
 
     return in_path

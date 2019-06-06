@@ -1,48 +1,49 @@
-def top_level_path        = buildFilePath(PROJECT_BASE_DIR, 'annotation_csv_files')
-def stroma_path           = buildFilePath(top_level_path, 'stroma_csv_files')
-def large_cell_tumor_path = buildFilePath(top_level_path, 'large_cell_tumor_csv_files')
-def small_cell_tumor_path = buildFilePath(top_level_path, 'small_cell_tumor_csv_files')
+def top_level_path = buildFilePath(PROJECT_BASE_DIR, 'annotation_csv_files')
 
 mkdirs(top_level_path)
-mkdirs(stroma_path)
-mkdirs(large_cell_tumor_path)
-mkdirs(small_cell_tumor_path)
 
 def image_name = getProjectEntry().getImageName()
-stroma_image_path = buildFilePath(image_name, stroma_path)
-large_cell_tumor_image_path = buildFilePath(image_name, large_cell_tumor_path)
-small_cell_tumor_image_path = buildFilePath(image_name, large_cell_tumor_path)
-
-mkdirs(stroma_image_path)
-mkdirs(large_cell_tumor_image_path)
-mkdirs(small_cell_tumor_image_path)
 
 def annotation_objects = getAnnotationObjects()
 def counter = 0
+def annotation_classes = [:]
 
 for (annotation_object in annotation_objects) {
-      
-    //metaClass.methods*.name.sort().unique()
+
+    if (annotation_object.getPathClass() == null) {
+        println("No class specified for Annotation $counter in $image_name")
+        continue
+
+    }
+
     name = counter.toString() + '.csv'
-    if (annotation_object.getPathClass() == getPathClass("Tumor")) {
-        annotation_dir = large_cell_tumor_image_path
+    def class_name = annotation_object.getPathClass().getName()
+    if (annotation_classes.containsKey(class_name)) {
+        annotation_dir = annotation_classes.get(class_name)
+    } else {
+        annotation_dir = create_class_dir(top_level_path, class_name, image_name)
+        annotation_classes.put(class_name, annotation_dir)
     }
-    else if (annotation_object.getPathClass() == getPathClass("Stroma")) {
-        annotation_dir = stroma_image_path
-    }
-    else {
-        annotation_dir = small_cell_tumor_image_path
-    }
-    
+
     annotation_file = buildFilePath(annotation_dir, name)
     def file = new File(annotation_file)
     file.text = ''
 
-    // Assuming that our first annotation object is the only one we care about
     def roi = annotation_object.getROI()
-    
+
     for (point in roi.getPolygonPoints()) {
         file << point.getX() << ',' << point.getY() << System.lineSeparator()
     }
     counter++
+
+
+}
+
+def create_class_dir(top_level_path, path_class, image_name) {
+    def class_name = path_class.replaceAll(" ", "_").toLowerCase()
+    class_path = buildFilePath(top_level_path, (class_name +'_csv_files'), image_name)
+    mkdirs(class_path)
+
+    return class_path
+
 }
