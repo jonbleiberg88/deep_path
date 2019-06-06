@@ -4,24 +4,24 @@ import os
 NUM_FOLDS = 3
 
 #Data directories
-# SLIDE_FILE_DIRECTORY     = "/Volumes/Elements/5:21:19/FL Scans"
-SLIDE_FILE_DIRECTORY     = "/Volumes/Elements/5:21:19/CLL Scans"
+SLIDE_FILE_DIRECTORY     = "/Volumes/Elements/5:21:19/FL Scans"
+# SLIDE_FILE_DIRECTORY     = "/Volumes/Elements/5:21:19/CLL Scans"
 
 SLIDE_FILE_EXTENSION     = ("svs","qptiff")
-OVERLAP                  = 64
+OVERLAP                  = 0
 PATCH_SIZE               = 256 - (OVERLAP * 2)
-NUM_VERTICES_IN_ANNOTATION = 3
+NUM_VERTICES_IN_ANNOTATION = 4
 
 
-# PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
-PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_thresh/"
+# PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
 
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")
 #LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
 #LABEL_FILE               = "/data/ethan/lymphoma_case_codes.csv"
-# ANNOTATION_CSV_DIRECTORY = "/Volumes/Elements/5:21:19/FL_Proj/annotation_csv_files/"
-ANNOTATION_CSV_DIRECTORY = "/Volumes/Elements/5:21:19/CLL_Proj2/annotation_csv_files/"
+ANNOTATION_CSV_DIRECTORY = "/Volumes/Elements/5:21:19/FL_Proj/annotation_csv_files/"
+# ANNOTATION_CSV_DIRECTORY = "/Volumes/Elements/5:21:19/CLL_Proj2/annotation_csv_files/"
 #Constants for pre-trained models
 HOW_MANY_TRAINING_STEPS = 50
 BOTTLENECK_DIR          = "/tmp/bottleneck_" + str(PATCH_SIZE)
