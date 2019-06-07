@@ -109,14 +109,14 @@ def get_histogram_for_dir(data_dir, bw_threshold=0.9, blur_radius=7):
     plt.show()
 
 
-def balance_classes_overlap(data_dir, accept_margin = 1000, max_overlap=64, min_overlap_diff=8):
+def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_overlap_diff=8):
     """
     Given the top level directory pointing to where our image class folders live,
     attempts to balance the number of images belonging to each class
 
     Args:
         data_dir (String): Path to top-level directory of dataset
-        accept_margin (int): Acceptable margin of class Imbalance
+        accept_margin (int or float): Acceptable margin of class Imbalance
         max_overlap (int): Maximum overlap value to try
         min_overlap_diff (int): Minimum space between overlap values
     Returns:
@@ -152,7 +152,12 @@ def balance_classes_overlap(data_dir, accept_margin = 1000, max_overlap=64, min_
     aug_round = 1
     if max_overlap >= 128:
         max_overlap = 127
-    overlap_vals = np.append(np.arange(0,constants.OVERLAP, min_overlap_diff),np.arange(constants.OVERLAP, max_overlap+1, min_overlap_diff)[1:])
+    overlap_vals = np.append(np.arange(0,constants.OVERLAP, min_overlap_diff),
+        np.arange(constants.OVERLAP, max_overlap+1, min_overlap_diff)[1:])
+
+    if type(accept_margin) is float:
+        accept_margin = int(max(class_counts.values()) * accept_margin)
+
     while diff > accept_margin:
 
         if len(overlap_vals) == 0:

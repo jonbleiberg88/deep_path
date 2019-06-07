@@ -13,7 +13,7 @@ PATCH_SIZE               = 256 - (OVERLAP * 2)
 NUM_VERTICES_IN_ANNOTATION = 4
 
 
-PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_thresh/"
+PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
 # PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
 
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
