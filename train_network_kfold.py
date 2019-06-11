@@ -192,7 +192,7 @@ def main(_):
            class_count, FLAGS.final_tensor_name, bottleneck_tensor,
            wants_quantization, FLAGS, is_training=True)
 
-    with tf.Session(graph=graph) as sess:
+    with tf.Session(graph=graph, config=tf.ConfigProto(log_device_placement=True)) as sess:
       # Initialize all weights: for the module to their pretrained values,
       # and for the newly added retraining layer to random initial values.
       init = tf.global_variables_initializer()
