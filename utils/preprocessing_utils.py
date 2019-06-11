@@ -16,6 +16,7 @@ from utils.slide_utils import *
 import os
 import sys
 import re
+from collections import defaultdict
 
 
 
@@ -261,3 +262,32 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
     write_pickle_to_disk(constants.SLIDE_NAME_TO_PATCHES_MAP + "_" + str(aug_round), slide_name_to_patches_map)
 
     return total_count
+
+def fix_filenames(data_dir):
+    max_before_aug = defaultdict(int)
+
+    for class_dir in os.listdir(data_dir):
+        class_path = os.path.join(data_dir, class_dir)
+        for img_dir in os.listdir(class_path):
+            img_path = os.path.join(class_path, img_dir)
+            max_idx = 0
+            for img_name in os.listdir(img_path):
+                if "aug" not in img_name:
+                    idx = int(img_name.rpartition("_")[-1][:-4])
+                    max_idx = max(max_idx, idx)
+            max_before_aug[img_dir] += max_idx
+
+    for class_dir in os.listdir(data_dir):
+        class_path = os.path.join(data_dir, class_dir)
+        for img_dir in os.listdir(class_path):
+            img_path = os.path.join(class_path, img_dir)
+            for img_name in os.listdir(img_path):
+                if "aug" in img_name:
+                    old_path = os.path.join(img_path, img_name)
+
+                    curr_idx = max_before_aug[img_dir] + 1
+                    new_name = img_name.split("_")[0] + "_" + str(curr_idx) + ".jpg"
+                    new_path = os.path.join(img_path, new_name)
+                    os.rename(old_path, new_path)
+
+                    max_before_aug[img_dir] = curr_idx
