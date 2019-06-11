@@ -14,8 +14,8 @@ NUM_VERTICES_IN_ANNOTATION = 4
 
 
 # PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
-PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
-
+# PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Elements/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
+PATCH_OUTPUT_DIRECTORY = "/data/jblei/cancer_project/datasets/FL/256_0_4_processed/data/"
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")
 #LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
@@ -24,7 +24,7 @@ SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cel
 ANNOTATION_CSV_DIRECTORY = "/Volumes/Elements/5:21:19/CLL_Proj2/annotation_csv_files/"
 #Constants for pre-trained models
 HOW_MANY_TRAINING_STEPS = 50
-BOTTLENECK_DIR          = "/tmp/bottleneck_" + str(PATCH_SIZE)
+BOTTLENECK_DIR          = "/data/jblei/.tmp/bottleneck_" + str(PATCH_SIZE)
 MODEL_FILE_FOLDER       = "./output_graph_files_" + str(PATCH_SIZE)
 INPUT_LAYER             = "Placeholder"
 OUTPUT_LAYER            = "final_result"
@@ -42,7 +42,7 @@ def HEATMAP_SUBFOLDER(fold_number):
     return os.path.join(HEATMAP_FOLDER, "fold_" + str(fold_number))
 
 #Visualization helper files
-VISUALIZATION_HELPER_FILE_FOLDER = os.path.join(PATCH_OUTPUT_DIRECTORY,"visualization_helper_files_" + str(PATCH_SIZE))
+VISUALIZATION_HELPER_FILE_FOLDER = os.path.join("/data/jblei/cancer_project/datasets/FL/256_0_4_processed/data/","visualization_helper_files_" + str(PATCH_SIZE))
 PATCH_CONFIDENCE_FOLDER          = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "patch_confidences")
 PATCH_NAME_TO_COORDS_MAP         = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "patch_name_to_coords_map")
 SLIDE_NAME_TO_TILE_DIMS_MAP      = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "slide_name_to_tile_dims_map")
