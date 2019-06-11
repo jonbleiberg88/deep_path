@@ -123,11 +123,15 @@ import argparse
 import collections
 from datetime import datetime
 import hashlib
+import os
 import os.path
 import random
 import re
 import sys
 import pickle
+from collections import defaultdict
+from sklearn.model_selection import KFold
+
 
 import numpy as np
 import tensorflow as tf
@@ -226,9 +230,9 @@ def create_image_lists(image_dir, testing_percentage):
       else:
         for image in os.listdir(os.path.join(image_dir, dir_name, slide_name)):
           training_images.append(image)
-      
+
     with open("testing_slides", "wb") as fp:
-      pickle.dump(testing_slides, fp)    
+      pickle.dump(testing_slides, fp)
 
     result[label_name] = {
         'dir': dir_name,
@@ -239,7 +243,7 @@ def create_image_lists(image_dir, testing_percentage):
   for key in result:
     num_training_images = len(result[key]['training'])
     if num_training_images > max_num_training_images:
-      max_num_training_images = num_training_images 
+      max_num_training_images = num_training_images
 
   for key in result:
     num_training_images = len(result[key]['training'])
@@ -304,13 +308,13 @@ def create_image_lists_kfold(image_dir, num_folds=10):
 
     label_name = re.sub(r'[^a-z0-9]+', ' ', dir_name.lower())
     result = collections.OrderedDict()
-    
+
     kf = KFold(n_splits=num_folds, shuffle=True)
     current_fold = 0
     for train, test in kf.split(slide_list):
       training_slides = np.array(slide_list)[train]
-      testing_slides = np.array(slide_list)[test]    
-       
+      testing_slides = np.array(slide_list)[test]
+
       training_images = []
       testing_images = []
 
@@ -320,8 +324,8 @@ def create_image_lists_kfold(image_dir, num_folds=10):
 
       for testing_slide_name in testing_slides:
         for image in os.listdir(testing_slide_name):
-          testing_images.append(image) 
-      
+          testing_images.append(image)
+
 
       result_list[current_fold][label_name] = {
         'dir': dir_name,
@@ -458,12 +462,12 @@ def create_bottleneck_file(bottleneck_path, image_lists, label_name, index,
   tf.logging.info('Creating bottleneck at ' + bottleneck_path)
   image_path = get_image_path(image_lists, label_name, index,
                               image_dir, category)
-  
+
   image_file_base = os.path.basename(image_path)
   image_file_dir  = os.path.dirname(image_path)
-  slide_name = image_file_base.split('_')[0] 
-  image_path = os.path.join(image_file_dir, slide_name, image_file_base) 
-  
+  slide_name = image_file_base.rpartition('_')[0]
+  image_path = os.path.join(image_file_dir, slide_name, image_file_base)
+
   if not tf.gfile.Exists(image_path):
     tf.logging.fatal('File does not exist %s', image_path)
   image_data = tf.gfile.FastGFile(image_path, 'rb').read()
@@ -688,8 +692,8 @@ def get_random_distorted_bottlenecks(
                                 category)
     image_file_base = os.path.basename(image_path)
     image_file_dir  = os.path.dirname(image_path)
-    slide_name = image_file_base.split('_')[0] 
-    image_path = os.path.join(image_file_dir, slide_name, image_file_base) 
+    slide_name = image_file_base.rpartition('_')[0]
+    image_path = os.path.join(image_file_dir, slide_name, image_file_base)
     if not tf.gfile.Exists(image_path):
       tf.logging.fatal('File does not exist %s', image_path)
     jpeg_data = tf.gfile.FastGFile(image_path, 'rb').read()
@@ -1095,3 +1099,71 @@ def export_model(module_spec, class_count, saved_model_dir):
         },
         legacy_init_op=legacy_init_op)
     builder.save()
+
+
+def split_train_test(data_dir, num_folds, verbose=True):
+    image_class_counts = get_class_counts_for_images(data_dir)
+    class_assignments = assign_folders_to_class(image_class_counts)
+    num_classes = len(class_assignments.keys())
+
+    folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
+
+
+    for class_name in class_assignments.keys():
+        img_list = class_assignments[class_name]
+        kf = KFold(n_splits=num_folds, shuffle=True)
+        split = list(kf.split(img_list))
+        for idx, split in enumerate(split):
+            folds_list[idx]['train'] += list(np.array(img_list)[split[0]])
+            folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
+    if verbose:
+        print_class_counts(folds_list, image_class_counts, num_classes)
+
+    return
+
+def get_class_counts_for_images(data_dir):
+    class_dirs = [dir for dir in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, dir))]
+    image_class_counts = defaultdict(lambda: {dir:0 for dir in class_dirs})
+
+    for dir in class_dirs:
+        full_path = os.path.join(data_dir, dir)
+        image_dirs = [(img ,os.path.join(full_path, img)) for img in os.listdir(full_path)]
+        for img, path in image_dirs:
+            image_class_counts[img][dir] += len(os.listdir(path))
+
+    return image_class_counts
+
+def assign_folders_to_class(image_class_counts):
+    image_lists = defaultdict(list)
+    class_counts = defaultdict(int)
+    for img in image_class_counts.keys():
+        count_dict = image_class_counts[img]
+        max_class = max(count_dict.items(), key=lambda x: x[1])[0]
+        image_lists[max_class].append(img)
+
+    return image_lists
+
+def print_class_counts(folds_list, image_class_counts, num_classes):
+    class_counts = [{'train':defaultdict(int), 'test':defaultdict(int)} for _ in folds_list]
+
+    for idx, fold in enumerate(folds_list):
+        train_imgs = fold['train']
+        test_imgs = fold['test']
+        for img in train_imgs:
+            counts = image_class_counts[img]
+            for key in counts.keys():
+                class_counts[idx]['train'][key] += counts[key]
+
+        for img in test_imgs:
+            counts = image_class_counts[img]
+            for key in counts.keys():
+                class_counts[idx]['test'][key] += counts[key]
+
+    for idx, fold in enumerate(class_counts):
+        print(f"Fold {idx}")
+        for set, counts in fold.items():
+            print(f"{set.title()}:")
+            for name, num in counts.items():
+                print(f"{name.title()}: {num}")
+
+        print("_______________________________________")

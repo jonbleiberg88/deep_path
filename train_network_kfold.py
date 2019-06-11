@@ -15,9 +15,9 @@ from utils.train_utils import add_evaluation_step
 from utils.train_utils import prepare_file_system
 from utils.train_utils import should_distort_images
 from utils.train_utils import create_module_graph
-from utils.train_utils import add_final_retrain_ops 
+from utils.train_utils import add_final_retrain_ops
 from utils.train_utils import cache_bottlenecks
-from utils.train_utils import get_random_cached_bottlenecks 
+from utils.train_utils import get_random_cached_bottlenecks
 from utils.train_utils import get_random_distorted_bottlenecks
 from utils.train_utils import run_final_eval
 from utils.train_utils import save_graph_to_file
@@ -67,29 +67,30 @@ def create_image_lists_kfold(image_dir, num_folds):
   for directory in sorted(os.listdir(image_dir)):
     class_dirs.append(directory)
 
-  
+
   slide_names = sorted(os.listdir(os.path.join(image_dir, class_dirs[0])))
+
   kf = KFold(n_splits=num_folds, shuffle=True)
   train_test_split = list(kf.split(slide_names))
-  print(train_test_split)
+
   # The root directory comes first, so skip it.
-  save_testing_slides = True 
+  save_testing_slides = True
   for class_dir in class_dirs:
     extensions = ['jpg', 'jpeg', 'JPG', 'JPEG']
     dir_name = os.path.basename(class_dir)
 
     label_name = re.sub(r'[^a-z0-9]+', ' ', dir_name.lower())
     result = collections.OrderedDict()
-    
+
     current_fold = 0
     testing_slides_base_names = []
     for train, test in train_test_split:
       #We only need to save the testing slide list for ONE class (since we use the
       #same testing slides across all classes).  Here we save the testing slides
       #and switch the flag to False later
-      
+
       training_slides = np.array(slide_names)[train]
-      testing_slides = np.array(slide_names)[test]    
+      testing_slides = np.array(slide_names)[test]
       if save_testing_slides:
         testing_slide_lists[current_fold].extend(testing_slides)
 
@@ -102,21 +103,26 @@ def create_image_lists_kfold(image_dir, num_folds):
 
       for testing_slide_name in testing_slides:
         for image in os.listdir(os.path.join(image_dir, class_dir, testing_slide_name)):
-          testing_images.append(image)  
-      
+          testing_images.append(image)
+
       result_list[current_fold][label_name] = {
         'dir': dir_name,
         'training': training_images,
         'testing': testing_images,
       }
+
       current_fold += 1
     save_testing_slides = False
-  
+
+
   #To enforce class balance
+  # TO DO - consider applying overlap augmentation...
   for fold in range(len(result_list)):
+    # TO DO: Make more pythonic...
     max_num_training_slides = 0
     for label_name in result_list[fold].keys():
       num_training_slides = len(result_list[fold][label_name]['training'])
+
     if num_training_slides > max_num_training_slides:
       max_num_training_slides = num_training_slides
 
@@ -125,7 +131,7 @@ def create_image_lists_kfold(image_dir, num_folds):
       num_times_to_multiply = max_num_training_slides // num_training_slides - 1
       for i in range(num_times_to_multiply):
         result_list[fold][label_name]['training'].extend(result_list[fold][label_name]['training'])
-            
+
   if os.path.exists(constants.TEST_SLIDE_FOLDER):
       shutil.rmtree(constants.TEST_SLIDE_FOLDER)
 
@@ -136,7 +142,7 @@ def create_image_lists_kfold(image_dir, num_folds):
 
   return result_list
 
- 
+
 def main(_):
   # Needed to make sure the logging output is visible.
   # See https://github.com/tensorflow/tensorflow/issues/3047
@@ -150,13 +156,14 @@ def main(_):
   prepare_file_system(FLAGS)
 
   # Look at the folder structure, and create lists of all the images.
+  ### HERE ###
   image_lists_folds = create_image_lists_kfold(FLAGS.image_dir, constants.NUM_FOLDS)
   network_count = 0
 
   if not os.path.exists(constants.MODEL_FILE_FOLDER):
     os.makedirs(constants.MODEL_FILE_FOLDER)
 
-  for image_lists in image_lists_folds: 
+  for image_lists in image_lists_folds:
 
     class_count = len(image_lists.keys())
     if class_count == 0:

@@ -171,7 +171,7 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
         new_tile_size = 256 - (new_overlap * 2)
 
         print(f"Beginning augmentation round {aug_round} with overlap {new_overlap}")
-        aug_count = augment_class(aug_dir, augment_large, new_tile_size, new_overlap, diff, aug_round)
+        aug_count = augment_class(aug_dir, augment_large, new_tile_size, new_overlap, diff, aug_round, accept_margin)
         diff -= aug_count
         print(f"Added {aug_count} patches in round {aug_round}, imbalance is now {diff} patches.")
 
