@@ -1,6 +1,6 @@
 import constants
 import os
-from pillow import Image, ImageFilter
+from PIL import Image, ImageFilter
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
