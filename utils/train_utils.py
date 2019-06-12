@@ -1117,7 +1117,7 @@ def split_train_test(data_dir, num_folds, verbose=True):
         for idx, split in enumerate(split):
             folds_list[idx]['train'] += list(np.array(img_list)[split[0]])
             folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
-    print(folds_list)
+
     if verbose:
         print_class_counts(folds_list, image_class_counts, num_classes)
 
