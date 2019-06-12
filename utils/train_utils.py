@@ -1112,7 +1112,7 @@ def split_train_test(data_dir, num_folds, verbose=True):
 
     for class_name in class_assignments.keys():
         img_list = class_assignments[class_name]
-        kf = KFold(n_splits=num_folds, shuffle=True)
+        kf = KFold(n_splits=num_folds, shuffle=False)
         split = list(kf.split(img_list))
         for idx, split in enumerate(split):
             folds_list[idx]['train'] += list(np.array(img_list)[split[0]])
