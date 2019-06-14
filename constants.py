@@ -35,8 +35,8 @@ OUTPUT_LAYER            = "final_result"
 TEST_SLIDE_FOLDER       = "./testing_slide_lists_" + str(PATCH_SIZE)
 TEST_SLIDE_LIST         = "testing_slide_list"
 
-FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
-# FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
+# FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 #Visualization output locations
 HISTOGRAM_FOLDER = "histograms"
 def HISTOGRAM_SUBFOLDER(fold_number):
