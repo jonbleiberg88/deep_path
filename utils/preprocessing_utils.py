@@ -286,7 +286,7 @@ def fix_filenames(data_dir):
                     old_path = os.path.join(img_path, img_name)
 
                     curr_idx = max_before_aug[img_dir] + 1
-                    new_name = img_name.split("_")[0] + "_" + str(curr_idx) + ".jpg"
+                    new_name = "_".join(img_name.split("_")[:-2]) + "_" + str(curr_idx) + ".jpg"
                     new_path = os.path.join(img_path, new_name)
                     os.rename(old_path, new_path)
 
