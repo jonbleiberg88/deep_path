@@ -51,5 +51,5 @@ class TransferCNN:
         return self.model
 
     def set_trainable(self, trainable):
-        for layer in self.base_model:
+        for layer in self.base_model.layers:
             layer.trainable = trainable
