@@ -34,12 +34,14 @@ class TransferCNN:
 
         model = Sequential(layer_list)
         self.model = model
-
+        self.set_trainable(False)
+        
         return model
 
     def compile_model(self):
         if self.model is None:
             self.init_model()
+            self.set_trainable(False)
 
         if self.n_classes == 2:
             self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
@@ -47,3 +49,7 @@ class TransferCNN:
             self.model.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=self.metrics)
 
         return self.model
+
+    def set_trainable(self, trainable):
+        for layer in self.base_model:
+            layer.trainable = trainable

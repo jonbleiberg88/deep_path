@@ -230,7 +230,7 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
 
                 tiles = get_patch_generator(slide, tile_size, overlap)
                 img_size = tile_size + (2 * overlap)
-                print(f"SIZE:{img_size}")
+
                 level = len(tiles.level_tiles) - 1
                 x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
                 tiled_dims = (y_tiles, x_tiles)
