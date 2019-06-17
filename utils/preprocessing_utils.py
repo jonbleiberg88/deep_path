@@ -193,7 +193,7 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
 
 
 
-def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round, patch_counts
+def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round, patch_counts,
         accept_margin=1000,
         file_extension = constants.SLIDE_FILE_EXTENSION,
         slide_file_dir=constants.SLIDE_FILE_DIRECTORY,
