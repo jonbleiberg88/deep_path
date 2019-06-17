@@ -28,11 +28,11 @@ SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cel
 ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
 #Constants for pre-trained models
 HOW_MANY_TRAINING_STEPS = 50
-BOTTLENECK_DIR          = "/data/jblei/.tmp/bottleneck_" + str(PATCH_SIZE)
-MODEL_FILE_FOLDER       = "./output_graph_files_" + str(PATCH_SIZE)
+BOTTLENECK_DIR          = "/dp/.tmp/bottleneck_" + str(PATCH_SIZE)
+MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
 INPUT_LAYER             = "Placeholder"
 OUTPUT_LAYER            = "final_result"
-TEST_SLIDE_FOLDER       = "./testing_slide_lists_" + str(PATCH_SIZE)
+TEST_SLIDE_FOLDER       = "/dp/models/testing_slide_lists_" + str(PATCH_SIZE)
 TEST_SLIDE_LIST         = "testing_slide_list"
 
 # FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
