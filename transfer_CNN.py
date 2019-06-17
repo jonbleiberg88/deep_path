@@ -1,12 +1,12 @@
 import tensorflow as tf
 import tensorflow.keras
 from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.layers import Dense, Flatten, BatchNormalization
+from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 
 class TransferCNN:
     def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[512],
-        n_classes=2, use_bn=True, use_dropout=True, optimizer='adam', metrics=['accuracy']):
+        n_classes=2, use_bn=True, use_dropout=False, optimizer='adam', metrics=['accuracy']):
         self.input_shape = input_shape
         self.base_model = base_model(weights='imagenet', include_top=False, input_shape=self.input_shape)
         self.layer_sizes = layer_sizes
@@ -25,7 +25,7 @@ class TransferCNN:
             if self.use_bn:
                 layer_list.append(BatchNormalization())
             if self.use_dropout:
-                layer_list.append()
+                layer_list.append(Dropout())
 
         if n_classes == 2:
             layer_list.append(Dense(1, activation='sigmoid'))
