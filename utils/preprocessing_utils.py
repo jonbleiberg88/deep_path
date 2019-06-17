@@ -159,6 +159,16 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
     if type(accept_margin) is float:
         accept_margin = int(max(class_counts.values()) * accept_margin)
 
+    patch_counts = defaultdict(int)
+
+    for img_dir in os.listdir(aug_dir):
+        img_path = os.path.join(aug_dir, img_dir)
+        max_idx = 0
+        for img_name in os.listdir(img_path):
+            idx = int(img_name.rpartition("_")[-1][:-4])
+            max_idx = max(max_idx, idx)
+        patch_counts[img_dir] = max_idx
+
     while diff > accept_margin:
 
         if len(overlap_vals) == 0:
@@ -172,7 +182,8 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
         new_tile_size = 256 - (new_overlap * 2)
 
         print(f"Beginning augmentation round {aug_round} with overlap {new_overlap}")
-        aug_count = augment_class(aug_dir, augment_large, new_tile_size, new_overlap, diff, aug_round, accept_margin)
+        aug_count, patch_counts = augment_class(aug_dir, augment_large, new_tile_size, new_overlap, diff, aug_round,
+            patch_counts, accept_margin)
         diff -= aug_count
         print(f"Added {aug_count} patches in round {aug_round}, imbalance is now {diff} patches.")
 
@@ -182,14 +193,13 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
 
 
 
-def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
+def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round, patch_counts
         accept_margin=1000,
         file_extension = constants.SLIDE_FILE_EXTENSION,
         slide_file_dir=constants.SLIDE_FILE_DIRECTORY,
         annotation_csv_directory=constants.ANNOTATION_CSV_DIRECTORY):
 
     slide_name_to_tile_dims_map = {}
-    slide_name_to_patches_map = {}
     patch_name_to_coords_map = {}
 
     total_count = 0
@@ -240,7 +250,8 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
                         if patch_in_paths(patch, path_list):
                             patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
                             if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                patch_name = os.path.join(slide_dir, f'{slide_name}_{str(slide_count)}_aug{aug_round}')
+                                patch_name = os.path.join(slide_dir, f'{slide_name}_{str(patch_counts[slide_name] + 1)}')
+                                patch_counts[slide_name] += 1
                                 patch_name_list.append(patch_name)
                                 patch.save_img_to_disk(patch_name)
                                 patch_name_to_coords_map[patch_name] = patch_coordinates
@@ -259,9 +270,8 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
 
     write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP + "_" + str(aug_round), patch_name_to_coords_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP + "_" + str(aug_round), slide_name_to_tile_dims_map)
-    write_pickle_to_disk(constants.SLIDE_NAME_TO_PATCHES_MAP + "_" + str(aug_round), slide_name_to_patches_map)
 
-    return total_count
+    return total_count, patch_counts
 
 def fix_filenames(data_dir):
     max_before_aug = defaultdict(int)
@@ -275,7 +285,7 @@ def fix_filenames(data_dir):
                 if "aug" not in img_name:
                     idx = int(img_name.rpartition("_")[-1][:-4])
                     max_idx = max(max_idx, idx)
-            max_before_aug[img_dir] += max_idx
+            max_before_aug[img_dir] = max_idx
 
     for class_dir in os.listdir(data_dir):
         class_path = os.path.join(data_dir, class_dir)
