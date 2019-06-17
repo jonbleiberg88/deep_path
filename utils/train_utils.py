@@ -1121,7 +1121,7 @@ def split_train_test(data_dir, num_folds, verbose=True):
     if verbose:
         print_class_counts(folds_list, image_class_counts, num_classes)
 
-    return
+    return folds_list
 
 def get_class_counts_for_images(data_dir):
     class_dirs = [dir for dir in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, dir))]

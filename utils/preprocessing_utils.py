@@ -229,7 +229,8 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
                 print("Splitting " + slide_name)
 
                 tiles = get_patch_generator(slide, tile_size, overlap)
-                tile_size = tile_size + (2 * overlap)
+                img_size = tile_size + (2 * overlap)
+                print(f"SIZE:{img_size}")
                 level = len(tiles.level_tiles) - 1
                 x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
                 tiled_dims = (y_tiles, x_tiles)
@@ -249,7 +250,7 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
 
                         if patch_in_paths(patch, path_list):
                             patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
-                            if np.shape(patch.img) == (tile_size, tile_size, 3):
+                            if np.shape(patch.img) == (img_size, img_size, 3):
                                 patch_name = os.path.join(slide_dir, f'{slide_name}_{str(patch_counts[slide_name] + 1)}')
                                 patch_counts[slide_name] += 1
                                 patch_name_list.append(patch_name)
