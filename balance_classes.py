@@ -7,8 +7,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--accept_margin", "-a", type=int)
     parser.add_argument("--accept_thresh", "-at",type=float)
-    parser.add_argument("--max_overlap", "-m", type=int, default=64)
-    parser.add_argument("--min_overlap_difference", "-d", type=int, default=8)
+    parser.add_argument("--max_overlap", "-m", type=int, default=127)
+    parser.add_argument("--min_overlap_difference", "-d", type=int, default=2)
 
     args = parser.parse_args()
 
