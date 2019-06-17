@@ -20,7 +20,7 @@ class TransferCNN:
 
     def init_model(self):
         layer_list = [self.base_model, Flatten()]
-        for units in layer_sizes:
+        for units in self.layer_sizes:
             layer_list.append(Dense(units, activation='relu'))
             if self.use_bn:
                 layer_list.append(BatchNormalization())
@@ -35,7 +35,7 @@ class TransferCNN:
         model = Sequential(layer_list)
         self.model = model
         self.set_trainable(False)
-        
+
         return model
 
     def compile_model(self):
