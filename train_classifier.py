@@ -7,7 +7,7 @@ from prepare_dataset import *
 import constants
 
 def train_fold(data_dir=constants.PATCH_OUTPUT_DIRECTORY, folds_list, fold, epochs=constants.EPOCHS,
-    model_dir=constants.MODEL_FILE_FOLDER):
+        model_dir=constants.MODEL_FILE_FOLDER):
 
     data, labels, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
 
@@ -17,11 +17,11 @@ def train_fold(data_dir=constants.PATCH_OUTPUT_DIRECTORY, folds_list, fold, epoc
     model = TransferCNN().compile_model()
     model.fit_generator(train_gen, epochs, validation_data=test_gen, use_multiprocessing=True, workers=4)
 
-    model.save(os.path.join(model_dir, f"model_fold_{fold}")
+    model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
-    return
 
-def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=5,epochs=2):
+def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.NUM_FOLDS,
+        epochs=constants.EPOCHS):
 
     folds_list = split_train_test(data_dir, num_folds)
 
