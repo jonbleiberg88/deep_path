@@ -6,7 +6,7 @@ from transfer_CNN import TransferCNN
 from prepare_dataset import *
 import constants
 
-def train_fold(data_dir=constants.PATCH_OUTPUT_DIRECTORY, folds_list, fold, epochs=constants.EPOCHS,
+def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER):
 
     data, labels, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
@@ -27,7 +27,7 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
 
     for fold in range(num_folds):
         print(f"Beginning Fold {fold}")
-        train_fold(data_dir, folds_list, fold, epochs)
+        train_fold(folds_list, fold, data_dir, epochs)
         print(f"Fold {fold} is complete!")
 
 
