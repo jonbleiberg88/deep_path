@@ -27,9 +27,9 @@ class TransferCNN:
             if self.use_dropout:
                 layer_list.append(Dropout())
 
-        if n_classes == 2:
+        if self.n_classes == 2:
             layer_list.append(Dense(1, activation='sigmoid'))
-        elif n_classes > 2:
+        elif self.n_classes > 2:
             layer_list.append(Dense(n_classes, activation='softmax'))
 
         model = Sequential(layer_list)
