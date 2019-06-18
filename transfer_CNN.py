@@ -34,7 +34,7 @@ class TransferCNN:
         elif self.n_classes > 2:
             layer_list.append(Dense(n_classes, activation='softmax'))
 
-        self.set_trainable(False)
+        #self.set_trainable(False)
         model = Sequential(layer_list)
         self.model = model
 
@@ -44,7 +44,7 @@ class TransferCNN:
     def compile_model(self):
         if self.model is None:
             self.init_model()
-            self.set_trainable(False)
+            #self.set_trainable(False)
 
         if self.n_classes == 2:
             self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
