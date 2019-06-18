@@ -5,7 +5,7 @@ import tensorflow.keras as keras
 from PIL import Image
 #import constants
 
-class DataGenerator(keras.utils.Sequence):
+class DataGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, labels, batch_size=32, out_dim=(256,256), n_channels=3,
                  n_classes=2, shuffle=True, resize=False):
@@ -59,7 +59,7 @@ class DataGenerator(keras.utils.Sequence):
             y[i] = self.labels[i]
 
         if self.n_classes != 2:
-            y = keras.utils.to_categorical(y, num_classes=self.n_classes)
+            y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
 
     def get_img(self, path):

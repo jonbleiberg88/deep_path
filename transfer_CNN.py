@@ -32,9 +32,10 @@ class TransferCNN:
         elif self.n_classes > 2:
             layer_list.append(Dense(n_classes, activation='softmax'))
 
+        self.set_trainable(False)
         model = Sequential(layer_list)
         self.model = model
-        self.set_trainable(False)
+
 
         return model
 
