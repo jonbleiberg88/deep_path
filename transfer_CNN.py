@@ -4,6 +4,7 @@ from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
+form tenforflow.keras.utils import multi_gpu_model
 
 class TransferCNN:
     def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[512],
@@ -45,7 +46,7 @@ class TransferCNN:
         if self.model is None:
             self.init_model()
             #self.set_trainable(False)
-
+            self.model = multi_gpu_model(self.model, gpus=4)
         if self.n_classes == 2:
             self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
         elif self.n_classes > 2:
