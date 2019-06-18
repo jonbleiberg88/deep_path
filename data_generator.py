@@ -50,12 +50,12 @@ class DataGenerator(tf.keras.utils.Sequence):
         y = np.empty((self.batch_size), dtype=int)
 
         # Generate data
-        for i, ID in list_IDs_temp:
+        for i, index, ID in enumerate(list_IDs_temp):
             # Store sample
             X[i,] = self.get_img(ID)
 
             # Store class
-            y[i] = self.labels[i]
+            y[i] = self.labels[index]
         # X = tf.keras.applications.resnet50.preprocess_input(X)
         if self.n_classes != 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
