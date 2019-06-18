@@ -22,13 +22,13 @@ class TransferCNN:
 
 
     def init_model(self):
-        layer_list = [self.base_model, Flatten()]
-        for units in self.layer_sizes:
-            layer_list.append(Dense(units, activation='relu'))
-            if self.use_bn:
-                layer_list.append(BatchNormalization())
-            if self.use_dropout:
-                layer_list.append(Dropout())
+        layer_list = [self.base_model]
+        # for units in self.layer_sizes:
+        #     layer_list.append(Dense(units, activation='relu'))
+        #     if self.use_bn:
+        #         layer_list.append(BatchNormalization())
+        #     if self.use_dropout:
+        #         layer_list.append(Dropout())
 
         if self.n_classes == 2:
             layer_list.append(Dense(1, activation='sigmoid'))
