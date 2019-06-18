@@ -5,6 +5,7 @@ from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
 #from tensorflow.keras.utils import multi_gpu_model
+# comment
 
 class TransferCNN:
     def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[512],
