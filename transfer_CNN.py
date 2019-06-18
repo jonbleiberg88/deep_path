@@ -1,13 +1,13 @@
 import tensorflow as tf
 import tensorflow.keras
-from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
 #from tensorflow.keras.utils import multi_gpu_model
 
 class TransferCNN:
-    def __init__(self, input_shape=(256,256,3), base_model=InceptionV3,layer_sizes=[256],
+    def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[256],
         n_classes=2, use_bn=True, use_dropout=False,
         optimizer=SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True), metrics=['accuracy']):
         self.input_shape = input_shape
