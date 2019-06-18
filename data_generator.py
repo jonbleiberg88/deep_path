@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 from PIL import Image
-#import constants
+import constants
 
 class DataGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
@@ -68,4 +68,4 @@ class DataGenerator(tf.keras.utils.Sequence):
         im = Image.open(path)
         if self.resize:
             im = im.resize(self.out_dim)
-        return (np.array(im) / 127.5) - np.mean((np.array(im) / 127.5))
+        return (np.array(im) / 255.).astype(np.float32)

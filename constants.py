@@ -32,6 +32,7 @@ HOW_MANY_TRAINING_STEPS = 50
 
 BOTTLENECK_DIR          = "/dp/.tmp/bottleneck_" + str(PATCH_SIZE)
 MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+# MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
 INPUT_LAYER             = "Placeholder"
 OUTPUT_LAYER            = "final_result"
 TEST_SLIDE_FOLDER       = "/dp/models/testing_slide_lists_" + str(PATCH_SIZE)
