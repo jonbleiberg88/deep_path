@@ -17,6 +17,9 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     model = TransferCNN().compile_model()
     model.fit_generator(train_gen, epochs, validation_data=test_gen, use_multiprocessing=True, workers=4)
 
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
     model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
 
@@ -38,4 +41,4 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
 if __name__ == "__main__":
     data_dir=constants.PATCH_OUTPUT_DIRECTORY
     folds_list = split_train_test(data_dir, 2)
-    train_fold(folds_list, 0, data_dir, 5))
+    train_fold(folds_list, 0, data_dir, 5)
