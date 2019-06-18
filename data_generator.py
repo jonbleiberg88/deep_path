@@ -30,7 +30,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
         # Find list of IDs
-        list_IDs_temp = [self.list_IDs[k] for k in indexes]
+        list_IDs_temp = [(k,self.list_IDs[k]) for k in indexes]
 
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
@@ -50,7 +50,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         y = np.empty((self.batch_size), dtype=int)
 
         # Generate data
-        for i, ID in enumerate(list_IDs_temp):
+        for i, ID in list_IDs_temp:
             # Store sample
             X[i,] = self.get_img(ID)
 
