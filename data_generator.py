@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 from PIL import Image
+import pdb
 #import constants
 
 class DataGenerator(tf.keras.utils.Sequence):
@@ -65,6 +66,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         # im = tf.keras.preprocessing.image.load_img(path)
         # return tf.keras.preprocessing.image.img_to_array(im)
         # tf.keras.applications.resnet50.preprocess_input()
+        pdb.set_trace()
         im = Image.open(path)
         if self.resize:
             im = im.resize(self.out_dim)
