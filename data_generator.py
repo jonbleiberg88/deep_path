@@ -68,4 +68,4 @@ class DataGenerator(tf.keras.utils.Sequence):
         im = Image.open(path)
         if self.resize:
             im = im.resize(self.out_dim)
-        return (np.array(im) / 127.5) - 1
+        return (np.array(im) / 127.5) - np.mean((np.array(im) / 127.5))
