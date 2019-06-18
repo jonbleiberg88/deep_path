@@ -11,15 +11,21 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
 
     data, labels, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
 
+    print("Making generators")
     train_gen = DataGenerator(data['train'], labels['train'])
     test_gen = DataGenerator(data['test'], labels['test'])
 
+    print("Compiling model...")
     model = TransferCNN().compile_model()
+
+    print("Fitting...")
     model.fit_generator(train_gen, epochs, validation_data=test_gen, use_multiprocessing=True, workers=4)
 
+    print("Making model dir...")
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
 
+    print("Saving...")
     model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
 
