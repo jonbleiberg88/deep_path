@@ -12,7 +12,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         'Initialization'
         self.out_dim = out_dim
         self.batch_size = batch_size
-        self.labels = labels
+        self.labels = labels.astype(np.float32)
         self.list_IDs = list_IDs
         self.n_channels = n_channels
         self.n_classes = n_classes
@@ -57,8 +57,8 @@ class DataGenerator(tf.keras.utils.Sequence):
             # Store class
             y[i] = self.labels[i]
 
-        if self.n_classes != 2:
-            y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
+        #if self.n_classes != 2:
+        y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
 
     def get_img(self, path):

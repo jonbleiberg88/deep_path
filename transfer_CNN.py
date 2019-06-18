@@ -30,10 +30,10 @@ class TransferCNN:
             if self.use_dropout:
                 layer_list.append(Dropout())
 
-        if self.n_classes == 2:
-            layer_list.append(Dense(1, activation='sigmoid'))
-        elif self.n_classes > 2:
-            layer_list.append(Dense(n_classes, activation='softmax'))
+        # if self.n_classes == 2:
+        #     layer_list.append(Dense(1, activation='sigmoid'))
+        # elif self.n_classes > 2:
+        layer_list.append(Dense(n_classes, activation='softmax'))
 
         self.set_trainable(False)
         model = Sequential(layer_list)
@@ -46,10 +46,8 @@ class TransferCNN:
         if self.model is None:
             self.init_model()
         #self.model = multi_gpu_model(self.model, gpus=4)
-        if self.n_classes == 2:
-            self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
-        elif self.n_classes > 2:
-            self.model.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=self.metrics)
+        #elf.n_classes > 2:
+        self.model.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=self.metrics)
 
         print(self.model.summary())
         return self.model
