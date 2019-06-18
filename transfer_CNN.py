@@ -7,7 +7,7 @@ from tensorflow.keras.optimizers import SGD
 #from tensorflow.keras.utils import multi_gpu_model
 
 class TransferCNN:
-    def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[],
+    def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[512],
         n_classes=2, use_bn=True, use_dropout=False,
         optimizer=SGD(lr=0.1, decay=1e-6, momentum=0.9,nesterov=True), metrics=['accuracy']):
         self.input_shape = input_shape
@@ -23,12 +23,12 @@ class TransferCNN:
 
     def init_model(self):
         layer_list = [self.base_model]
-        # for units in self.layer_sizes:
-        #     layer_list.append(Dense(units, activation='relu'))
-        #     if self.use_bn:
-        #         layer_list.append(BatchNormalization())
-        #     if self.use_dropout:
-        #         layer_list.append(Dropout())
+        for units in self.layer_sizes:
+            layer_list.append(Dense(units, activation='relu'))
+            if self.use_bn:
+                layer_list.append(BatchNormalization())
+            if self.use_dropout:
+                layer_list.append(Dropout())
 
         if self.n_classes == 2:
             layer_list.append(Dense(1, activation='sigmoid'))
