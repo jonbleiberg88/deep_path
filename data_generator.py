@@ -56,13 +56,16 @@ class DataGenerator(tf.keras.utils.Sequence):
 
             # Store class
             y[i] = self.labels[i]
-
+        X = tf.keras.applications.resnet50.preprocess_input(X)
         if self.n_classes != 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
 
     def get_img(self, path):
-        im = Image.open(path)
-        if self.resize:
-            im = im.resize(self.out_dim)
-        return (np.array(im) / 127.5) - 1
+        im = tf.keras.preprocessing.image.load_img(path)
+        return tf.keras.preprocessing.image.img_to_array(im)
+        # tf.keras.applications.resnet50.preprocess_input()
+        # #im = Image.open(path)
+        # if self.resize:
+        #     im = im.resize(self.out_dim)
+        # return (np.array(im) / 127.5) - 1

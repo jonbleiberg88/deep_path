@@ -8,7 +8,7 @@ from tensorflow.keras.optimizers import SGD
 
 class TransferCNN:
     def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[512],
-        n_classes=2, use_bn=False, use_dropout=False,
+        n_classes=2, use_bn=True, use_dropout=False,
         optimizer=SGD(lr=0.1, decay=1e-6, momentum=0.9,nesterov=True), metrics=['accuracy']):
         self.input_shape = input_shape
         self.base_model = base_model(weights='imagenet', include_top=False, input_shape=self.input_shape, pooling='max')
