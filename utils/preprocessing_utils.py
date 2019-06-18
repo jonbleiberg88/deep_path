@@ -17,6 +17,7 @@ import os
 import sys
 import re
 from collections import defaultdict
+from random import shuffle
 
 
 
@@ -204,6 +205,7 @@ def augment_class(class_dir, augment_large, tile_size, overlap, diff, aug_round,
 
     total_count = 0
     for root, dirnames, filenames in os.walk(slide_file_dir):
+        shuffle(filenames)
         for filename in filenames:
             if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
 
