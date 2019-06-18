@@ -57,8 +57,8 @@ class DataGenerator(tf.keras.utils.Sequence):
             # Store class
             y[i] = self.labels[i]
 
-        #if self.n_classes != 2:
-        y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
+        if self.n_classes != 2:
+            y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
 
     def get_img(self, path):
