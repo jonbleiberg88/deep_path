@@ -11,7 +11,7 @@ class TransferCNN:
         n_classes=2, use_bn=True, use_dropout=False,
         optimizer=SGD(lr=0.1, decay=1e-6, momentum=0.9,nesterov=True), metrics=['accuracy']):
         self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=self.input_shape, pooling='max')
+        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=self.input_shape, pooling=None)
         self.layer_sizes = layer_sizes
         self.n_classes = n_classes
         self.use_bn = use_bn
@@ -22,7 +22,7 @@ class TransferCNN:
 
 
     def init_model(self):
-        layer_list = [self.base_model]
+        layer_list = [self.base_model, Flatten()]
         for units in self.layer_sizes:
             layer_list.append(Dense(units, activation='relu'))
             if self.use_bn:
