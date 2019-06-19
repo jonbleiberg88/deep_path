@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
 import tensorflow.keras as Keras
-from data_generator import DataGenerator
+from data_generator import TrainDataGenerator, ValDataGenerator
 from transfer_CNN import TransferCNN
 from prepare_dataset import *
 import constants
@@ -9,11 +9,11 @@ import constants
 def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER):
 
-    data, labels, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
+    train_dict, test_dict, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
 
     print("Making generators")
-    train_gen = DataGenerator(data['train'], labels['train'])
-    test_gen = DataGenerator(data['test'], labels['test'])
+    train_gen = TrainDataGenerator(train_dict)
+    test_gen = ValDataGenerator(test_dict)
 
     print("Compiling model...")
     model = TransferCNN().compile_model()

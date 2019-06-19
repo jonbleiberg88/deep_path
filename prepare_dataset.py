@@ -4,7 +4,6 @@ import numpy as np
 from collections import defaultdict
 from sklearn.model_selection import KFold
 
-
 def get_dataset_for_fold(data_dir, folds_list, fold):
     """
     Given the root directory holding the dataset, and the train test split,
@@ -15,14 +14,14 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
         folds_list (dict of dicts): Output of split_train_test
         fold (int): Fold for which to extract data
     Returns:
-        dict of dicts containing the paths to images in the form
-            data['train' or 'test'] = np.array(IMG_PATHS,...)
-        dict of dicts containing the integer labels for images in the form
-            labels['train' or 'test'] = np.array(IMG_LABELS,...)
+        dict containing the paths, labels for train images in the form
+            train_dict[SLIDE_FOLDER] = [(PATH, LABEL), ...]
+        dict containing the paths, labels for test images in the form
+            test_dict[SLIDE_FOLDER] = [(PATH, LABEL), ...]
         dict to convert between class names and integer labels
     """
-    x_train, train_labels = [], []
-    x_test, test_labels = [], []
+    train_dict = {f:[] for f in folds_list[fold]['train']}
+    test_dict = {f:[] for f in folds_list[fold]['test']}
 
     classes =  os.listdir(data_dir)
     class_to_label = {c:i for i,c in enumerate(classes)}
@@ -33,38 +32,93 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
         slide_folders = os.listdir(class_path)
 
         for slide in slide_folders:
-            if slide in folds_list[0]['train']:
+            if slide in train_dict.keys():
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
-                        x_train.append(os.path.join(slide_path, img))
-                        train_labels.append(class_idx)
-            elif slide in folds_list[0]['test']:
+                        path = os.path.join(slide_path, img)
+                        label = class_idx
+                        train_dict[slide].append((path, label))
+            elif slide in test_dict.keys():
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
-                        x_test.append(os.path.join(slide_path, img))
-                        test_labels.append(class_idx)
+                        path = os.path.join(slide_path, img)
+                        label = class_idx
+                        test_dict[slide].append((path, label))
             else:
                 print(f"{slide} not assigned to train or test...")
 
-    x_train = np.array(x_train)
-    x_test = np.array(x_test)
+    for key in list(train_dict.keys()):
+        if len(train_dict[key]):
+            del train_dict[key]
 
-    train_labels = np.array(train_labels, dtype=np.int8)
-    test_labels = np.array(test_labels, dtype=np.int8)
+    for key in list(test_dict.keys()):
+        if len(test_dict[key]):
+            del test_dict[key]
 
-    rand_perm_train = np.random.permutation(x_train.shape[0])
-    rand_perm_test = np.random.permutation(x_test.shape[0])
+    return train_dict, test_dict, class_to_label
 
-    x_train, train_labels = x_train[rand_perm_train], train_labels[rand_perm_train]
-
-    x_test, test_labels = x_test[rand_perm_test], test_labels[rand_perm_test]
-
-    data = {'train':x_train, 'test':x_test}
-    labels = {'train': train_labels, 'test':test_labels}
-
-    return data, labels, class_to_label
+# def get_dataset_for_fold(data_dir, folds_list, fold):
+#     """
+#     Given the root directory holding the dataset, and the train test split,
+#     gets paths and creates labels for all of the images in the train and test sets
+#
+#     Args:
+#         data_dir (String): Path to top-level directory of dataset
+#         folds_list (dict of dicts): Output of split_train_test
+#         fold (int): Fold for which to extract data
+#     Returns:
+#         dict of dicts containing the paths to images in the form
+#             data['train' or 'test'] = np.array(IMG_PATHS,...)
+#         dict of dicts containing the integer labels for images in the form
+#             labels['train' or 'test'] = np.array(IMG_LABELS,...)
+#         dict to convert between class names and integer labels
+#     """
+#     x_train, train_labels = [], []
+#     x_test, test_labels = [], []
+#
+#     classes =  os.listdir(data_dir)
+#     class_to_label = {c:i for i,c in enumerate(classes)}
+#
+#     for img_class in classes:
+#         class_path = os.path.join(data_dir, img_class)
+#         class_idx = class_to_label[img_class]
+#         slide_folders = os.listdir(class_path)
+#
+#         for slide in slide_folders:
+#             if slide in folds_list[0]['train']:
+#                 slide_path = os.path.join(class_path, slide)
+#                 for img in os.listdir(os.path.join(class_path, slide)):
+#                     if img.endswith('.jpg'):
+#                         x_train.append(os.path.join(slide_path, img))
+#                         train_labels.append(class_idx)
+#             elif slide in folds_list[0]['test']:
+#                 slide_path = os.path.join(class_path, slide)
+#                 for img in os.listdir(os.path.join(class_path, slide)):
+#                     if img.endswith('.jpg'):
+#                         x_test.append(os.path.join(slide_path, img))
+#                         test_labels.append(class_idx)
+#             else:
+#                 print(f"{slide} not assigned to train or test...")
+#
+#     x_train = np.array(x_train)
+#     x_test = np.array(x_test)
+#
+#     train_labels = np.array(train_labels, dtype=np.int8)
+#     test_labels = np.array(test_labels, dtype=np.int8)
+#
+#     rand_perm_train = np.random.permutation(x_train.shape[0])
+#     rand_perm_test = np.random.permutation(x_test.shape[0])
+#
+#     x_train, train_labels = x_train[rand_perm_train], train_labels[rand_perm_train]
+#
+#     x_test, test_labels = x_test[rand_perm_test], test_labels[rand_perm_test]
+#
+#     data = {'train':x_train, 'test':x_test}
+#     labels = {'train': train_labels, 'test':test_labels}
+#
+#     return data, labels, class_to_label
 
 
 def split_train_test(data_dir, num_folds, verbose=True):
