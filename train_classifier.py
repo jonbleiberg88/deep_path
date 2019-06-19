@@ -19,7 +19,7 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     model = TransferCNN().compile_model()
 
     print("Fitting...")
-    model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen, use_multiprocessing=True, workers=4)
+    model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen)
 
     print("Making model dir...")
     if not os.path.exists(model_dir):
