@@ -51,7 +51,8 @@ class DataGenerator(tf.keras.utils.Sequence):
         y = np.empty((self.batch_size), dtype=int)
 
         # Generate data
-        for i, index, ID in enumerate(list_IDs_temp):
+        for i, tup in enumerate(list_IDs_temp):
+            index, ID = tup
             # Store sample
             X[i,] = self.get_img(ID)
 
