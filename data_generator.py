@@ -34,7 +34,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
-        print("get item")
+        # print("get item")
 
         return X, y
 
@@ -59,7 +59,7 @@ class DataGenerator(tf.keras.utils.Sequence):
             # Store class
             y[i] = self.labels[index]
         # X = tf.keras.applications.resnet50.preprocess_input(X)
-        print("data generation")
+        # print("data generation")
         if self.n_classes != 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
