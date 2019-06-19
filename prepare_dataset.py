@@ -50,11 +50,11 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
                 print(f"{slide} not assigned to train or test...")
 
     for key in list(train_dict.keys()):
-        if len(train_dict[key]):
+        if len(train_dict[key]) == 0:
             del train_dict[key]
 
     for key in list(test_dict.keys()):
-        if len(test_dict[key]):
+        if len(test_dict[key]) == 0:
             del test_dict[key]
 
     return train_dict, test_dict, class_to_label
