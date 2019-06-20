@@ -1,24 +1,53 @@
 import os
 
-#Training Parameters
+# Training Parameters
 NUM_FOLDS = 3
 EPOCHS = 5
+BATCH_SIZE = 64
+BATCHES_PER_EPOCH = 400
+
+GPUS = 2
+
+# Dataset Parameters
+BALANCE_CLASSES = True
+WEIGHT_BY_SIZE = True
+
+RESIZE_IMAGES = True
+INPUT_IMAGE_DIM = (256, 256)
+OUTPUT_IMAGE_DIM = (224, 224)
+N_CHANNELS = 3
+
+# Model Parameters
+BASE_ARCHITECTURE = 'ResNet50'
+OUTPUT_POOLING = 'avg'
+INPUT_SHAPE = (*OUTPUT_IMAGE_DIM, N_CHANNELS)
+
+LAYER_SIZES = []
+USE_BATCH_NORM = True
+USE_DROPOUT = True
+DROPOUT_RATE = 0.5
+
+OPTIMIZER = 'adam'
+LEARNING_RATE = 0.1
+
+METRICS = ['accuracy']
+
 
 #Data directories
-# SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
+SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
 # SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
-SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
+# SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
 
 SLIDE_FILE_EXTENSION     = ("svs","qptiff")
 OVERLAP                  = 0
-PATCH_SIZE               = 256 - (OVERLAP * 2)
+PATCH_SIZE               = INPUT_IMAGE_DIM[0] - (OVERLAP * 2)
 NUM_VERTICES_IN_ANNOTATION = 4
 
 
-# OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
+OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
 # PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
 # PATCH_OUTPUT_DIRECTORY = "/data/jblei/cancer_project/datasets/FL/256_0_4_processed/data/"
-OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+# OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")

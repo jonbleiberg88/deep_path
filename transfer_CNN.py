@@ -8,11 +8,11 @@ from tensorflow.keras.utils import multi_gpu_model
 # SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True)
 
 class TransferCNN:
-    def __init__(self, input_shape=(224,224,3), base_model=ResNet50,layer_sizes=[],
-        n_classes=2, use_bn=True, use_dropout=False,
-        optimizer=Adam(lr=0.1), metrics=['accuracy']):
+    def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=ResNet50,layer_sizes=constants.LAYER_SIZES,
+        n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
+        optimizer=Adam(lr=0.1), metrics=constants.METRICS):
         self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, pooling='avg')
+        self.base_model = base_model(weights='imagenet', include_top=False, pooling=constants.OUTPUT_POOLING)
         self.layer_sizes = layer_sizes
         self.n_classes = n_classes
         self.use_bn = use_bn
@@ -23,7 +23,7 @@ class TransferCNN:
 
 
     def init_model(self):
-        layer_list = [self.base_model, Flatten(), BatchNormalization(), Dropout(rate=0.5)]
+        layer_list = [self.base_model, Flatten(), BatchNormalization()]
         for units in self.layer_sizes:
             layer_list.append(Dense(units, activation='relu'))
             if self.use_bn:
@@ -46,7 +46,8 @@ class TransferCNN:
     def compile_model(self):
         if self.model is None:
             self.init_model()
-        self.model = multi_gpu_model(self.model, gpus=2)
+        if constants.GPUS > 1:
+            self.model = multi_gpu_model(self.model, gpus=constants.GPUS)
         if self.n_classes ==2:
             self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
         if self.n_classes > 2:

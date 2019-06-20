@@ -5,12 +5,14 @@ import tensorflow.keras as keras
 from PIL import Image
 import random
 import constants
-
+from collections import defaultdict
 
 class TrainDataGenerator(tf.keras.utils.Sequence):
     """Loads train images for Keras fit_generator function"""
-    def __init__(self, data_dict, batch_size=64, batches_per_epoch=400, out_dim=(224,224), n_channels=3,
-                 n_classes=2, balance_classes=True, shuffle=True, resize=True):
+    def __init__(self, data_dict, batch_size=constants.BATCH_SIZE,
+                    batches_per_epoch=constants.BATCHES_PER_EPOCH, out_dim=constants.OUTPUT_IMAGE_DIM,
+                    resize=constants.RESIZE_IMAGES, n_channels=constants.N_CHANNELS, n_classes=2,
+                    balance_classes=constants.BALANCE_CLASSES, weight_by_size=constants.WEIGHT_BY_SIZE):
         'Initialization'
 
         self.data_dict = data_dict
@@ -29,6 +31,10 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         self.balance_classes = balance_classes
         if not self.balance_classes:
             self.merge_classes()
+
+        self.weight_by_size = weight_by_size
+        if self.weight_by_size:
+            self.get_weights()
 
         self.paths_for_epoch = []
         self.labels_for_epoch = []
@@ -53,17 +59,25 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         self.labels_for_epoch = []
 
         if self.balance_classes:
-            for class_dict in self.data_dict.values():
-                epoch_folders = random.choices(list(class_dict.keys()),
-                    k = int(self.epoch_length / self.n_classes))
+            for class_name, class_dict in self.data_dict.items():
+                if self.weight_by_size:
+                    epoch_folders = random.choices(list(class_dict.keys()),
+                        k = int(self.epoch_length / self.n_classes), weights=self.weights[class_name])
+                else:
+                    epoch_folders = random.choices(list(class_dict.keys()),
+                        k = int(self.epoch_length / self.n_classes))
                 for dir in epoch_folders:
                     folder_data = class_dict[dir]
                     path, label = random.choice(folder_data)
                     self.paths_for_epoch.append(path)
                     self.labels_for_epoch.append(label)
         else:
-            epoch_folders = random.choices(list(self.data_dict.keys()),
-                k = self.epoch_length)
+            if self.weight_by_size:
+                epoch_folders = random.choices(list(self.data_dict.keys()),
+                    k = self.epoch_length, weights=self.weights)
+            else:
+                epoch_folders = random.choices(list(self.data_dict.keys()),
+                    k = self.epoch_length)
             for dir in epoch_folders:
                 folder_data = self.data_dict[dir]
                 path, label = random.choice(folder_data)
@@ -115,6 +129,20 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
                 new_dict[slide].append(data_list)
 
         self.data_dict = new_dict
+
+    def get_weights(self):
+    # Requires Python 3.6 or above to maintain dict ordering....
+        if self.balance_classes:
+            self.weights = defaultdict(list)
+            for img_class, class_dict in self.data_dict.items():
+                for slide_data in class_dict.values():
+                    self.weights[img_class].append(len(slide_data))
+
+        else:
+            self.weights = []
+            for slide_data in self.data_dict.values():
+                self.weights.append(len(slide_data))
+
 
 
 
