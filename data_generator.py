@@ -115,15 +115,15 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         return X, y
 
     def get_img(self, path):
-        # im = Image.open(path)
-        # if self.resize:
-        #     im = im.resize(self.out_dim)
-        # return (np.array(im) / 255.).astype(np.float32)
+        im = Image.open(path)
+        if self.resize:
+            im = im.resize(self.out_dim)
+        return (np.array(im) / 127.5).astype(np.float32) -1.
 
-        im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
-        im = tf.keras.preprocessing.image.img_to_array(im)
-        im = np.expand_dims(im, axis=0)
-        im = preprocess_input(im)
+        # im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
+        # im = tf.keras.preprocessing.image.img_to_array(im)
+        # im = np.expand_dims(im, axis=0)
+        # im = preprocess_input(im)
 
         return np.squeeze(im)
 
@@ -217,16 +217,16 @@ class ValDataGenerator(tf.keras.utils.Sequence):
         return X, y
 
     def get_img(self, path):
-        # im = Image.open(path)
-        # if self.resize:
-        #     im = im.resize(self.out_dim)
-        # return (np.array(im) / 255.).astype(np.float32)
+        im = Image.open(path)
+        if self.resize:
+            im = im.resize(self.out_dim)
+        return (np.array(im) / 127.5).astype(np.float32) - 1.
 
-        im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
-        im = tf.keras.preprocessing.image.img_to_array(im)
-        im = np.expand_dims(im, axis=0)
-        im = preprocess_input(im)
-        return np.squeeze(im)
+        # im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
+        # im = tf.keras.preprocessing.image.img_to_array(im)
+        # im = np.expand_dims(im, axis=0)
+        # im = preprocess_input(im)
+        # return np.squeeze(im)
 
     def extract_paths_and_labels(self):
         self.paths = []
