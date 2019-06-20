@@ -17,6 +17,11 @@ INPUT_IMAGE_DIM = (256, 256)
 OUTPUT_IMAGE_DIM = (224, 224)
 N_CHANNELS = 3
 
+SLIDE_FILE_EXTENSION     = ("svs","qptiff")
+OVERLAP                  = 0
+PATCH_SIZE               = INPUT_IMAGE_DIM[0] - (OVERLAP * 2)
+NUM_VERTICES_IN_ANNOTATION = 4
+
 # Model Parameters
 BASE_ARCHITECTURE = 'ResNet50'
 OUTPUT_POOLING = 'avg'
@@ -32,43 +37,66 @@ LEARNING_RATE = 0.1
 
 METRICS = ['accuracy']
 
+# Data directories
 
-#Data directories
-# SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
-# SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
-SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
+MODE = 'remote'
+# MODE = 'local'
 
-SLIDE_FILE_EXTENSION     = ("svs","qptiff")
-OVERLAP                  = 0
-PATCH_SIZE               = INPUT_IMAGE_DIM[0] - (OVERLAP * 2)
-NUM_VERTICES_IN_ANNOTATION = 4
+DATASET = 'FL'
+# MODE = 'CLL'
 
+if MODE == 'remote':
+    if DATASET == 'FL':
+        SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
+        OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
+        MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
-# OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
-# PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
-# PATCH_OUTPUT_DIRECTORY = "/data/jblei/cancer_project/datasets/FL/256_0_4_processed/data/"
-OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+    elif DATASET == 'CLL':
+        SLIDE_FILE_DIRECTORY     = "/dp/datasets/CLL/raw_slides/slide_imgs"
+        OUTPUT_DIRECTORY = f"/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        ANNOTATION_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/annotations/"
+        MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+
+elif MODE == 'local':
+    if DATASET == 'FL':
+        SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
+        OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
+        ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj/annotation_csv_files/"
+        MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
+        FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
+
+    elif DATASET == 'CLL':
+        SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
+        OUTPUT_DIRECTORY = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
+        ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL_Proj2/annotation_csv_files/"
+        MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
+        FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")
+
 #LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
 #LABEL_FILE               = "/data/ethan/lymphoma_case_codes.csv"
-# ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj/annotation_csv_files/"
-# ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL_Proj2/annotation_csv_files/"
-ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
+
+
+
+
 #Constants for pre-trained models
 HOW_MANY_TRAINING_STEPS = 50
 
 BOTTLENECK_DIR          = "/dp/.tmp/bottleneck_" + str(PATCH_SIZE)
-MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
-# MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
+# MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+
 INPUT_LAYER             = "Placeholder"
 OUTPUT_LAYER            = "final_result"
 TEST_SLIDE_FOLDER       = "/dp/models/testing_slide_lists_" + str(PATCH_SIZE)
 TEST_SLIDE_LIST         = "testing_slide_list"
 
-# FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
-FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
+
 #Visualization output locations
 HISTOGRAM_FOLDER = "histograms"
 def HISTOGRAM_SUBFOLDER(fold_number):
