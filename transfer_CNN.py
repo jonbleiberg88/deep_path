@@ -1,6 +1,6 @@
 import tensorflow as tf
 import tensorflow.keras
-from tensorflow.keras.applications.mobilenet import ResNet50
+from tensorflow.keras.applications.resnet50 import ResNet50
 
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
