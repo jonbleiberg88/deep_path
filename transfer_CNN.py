@@ -1,6 +1,6 @@
 import tensorflow as tf
 import tensorflow.keras
-from tensorflow.keras.applications.resnet_v2_50 import ResNet50V2
+from tensorflow.keras.applications.resnet_v2 import ResNet50V2
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD, Adam
