@@ -6,7 +6,7 @@ EPOCHS = 5
 BATCH_SIZE = 64
 BATCHES_PER_EPOCH = 400
 
-GPUS = 3
+GPUS = 1
 
 # Dataset Parameters
 BALANCE_CLASSES = True
