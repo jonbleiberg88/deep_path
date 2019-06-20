@@ -20,8 +20,11 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
             test_dict[SLIDE_FOLDER] = [(PATH, LABEL), ...]
         dict to convert between class names and integer labels
     """
-    train_dict = {f:[] for f in folds_list[fold]['train']}
-    test_dict = {f:[] for f in folds_list[fold]['test']}
+    train_slides = folds_list[fold]['train']
+    test_slides = folds_list[fold]['test']
+
+    train_dict = defaultdict(lambda: defaultdict(list))
+    test_dict = defaultdict(lambda: defaultdict(list))
 
     classes =  os.listdir(data_dir)
     class_to_label = {c:i for i,c in enumerate(classes)}
@@ -32,30 +35,33 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
         slide_folders = os.listdir(class_path)
 
         for slide in slide_folders:
-            if slide in train_dict.keys():
+            if slide in train_slides:
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
                         label = class_idx
-                        train_dict[slide].append((path, label))
-            elif slide in test_dict.keys():
+                        train_dict[img_class][slide].append((path, label))
+            elif slide in test_slides:
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
                         label = class_idx
-                        test_dict[slide].append((path, label))
+                        test_dict[img_class][slide].append((path, label))
             else:
                 print(f"{slide} not assigned to train or test...")
 
-    for key in list(train_dict.keys()):
-        if len(train_dict[key]) == 0:
-            del train_dict[key]
 
-    for key in list(test_dict.keys()):
-        if len(test_dict[key]) == 0:
-            del test_dict[key]
+        for class_name, class_dict in train_dict.items():
+            for slide in list(class_dict.keys()):
+                if len(class_dict[slide]) == 0:
+                    del train_dict[class_name][slide]
+
+        for class_name, class_dict in test_dict.items():
+            for slide in list(class_dict.keys()):
+                if len(class_dict[slide]) == 0:
+                    del test_dict[class_name][slide]
 
     return train_dict, test_dict, class_to_label
 
