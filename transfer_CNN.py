@@ -23,7 +23,7 @@ class TransferCNN:
 
 
     def init_model(self):
-        layer_list = [self.base_model, Flatten(), BatchNormalization()]
+        layer_list = [self.base_model, Flatten(), BatchNormalization(), Dropout(0.7)]
         for units in self.layer_sizes:
             layer_list.append(Dense(units, activation='relu'))
             if self.use_bn:
