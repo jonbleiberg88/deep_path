@@ -149,8 +149,9 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
 
 class ValDataGenerator(tf.keras.utils.Sequence):
     """Loads validation or test images for Keras fit_generator function"""
-    def __init__(self, data_dict, batch_size=64, out_dim=(224,224), n_channels=3,
-                 n_classes=2, shuffle=True, resize=True):
+    def __init__(self, data_dict, batch_size=constants.BATCH_SIZE, resize=constants.RESIZE_IMAGES,
+                    out_dim=constants.OUTPUT_IMAGE_DIM, n_channels=constants.N_CHANNELS,
+                    n_classes=2, shuffle=True):
         'Initialization'
         self.data_dict = data_dict
 
