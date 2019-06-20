@@ -34,9 +34,9 @@ class TransferCNN:
             if self.use_dropout:
                 layer_list.append(Dropout())
 
-        # if self.n_classes == 2:
-        #     layer_list.append(Dense(1, activation='sigmoid'))
-        if self.n_classes >= 2:
+        if self.n_classes == 2:
+            layer_list.append(Dense(1, activation='sigmoid'))
+        if self.n_classes > 2:
             layer_list.append(Dense(self.n_classes, activation='softmax'))
 
         # self.set_trainable(False)
@@ -51,9 +51,9 @@ class TransferCNN:
             self.init_model()
         if constants.GPUS > 1:
             self.model = multi_gpu_model(self.model, gpus=constants.GPUS)
-        # if self.n_classes == 2:
-        #     self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
-        if self.n_classes >= 2:
+        if self.n_classes == 2:
+            self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
+        if self.n_classes > 2:
             self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=self.metrics)
 
         print(self.model.summary())

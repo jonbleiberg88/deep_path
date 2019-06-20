@@ -109,7 +109,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
             # Store class
             y[i] = self.labels_for_epoch[idx]
 
-        if self.n_classes == 2:
+        if self.n_classes > 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
 
         return X, y
@@ -212,7 +212,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
             # Store class
             y[i] = label
 
-        if self.n_classes == 2:
+        if self.n_classes > 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
 
