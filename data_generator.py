@@ -10,7 +10,7 @@ import constants
 class TrainDataGenerator(tf.keras.utils.Sequence):
     """Loads train images for Keras fit_generator function"""
     def __init__(self, data_dict, batch_size=64, batches_per_epoch=400, out_dim=(256,256), n_channels=3,
-                 n_classes=2, shuffle=True, resize=False):
+                 n_classes=2, balance_classes=True, shuffle=True, resize=False):
         'Initialization'
 
         self.data_dict = data_dict
@@ -25,6 +25,10 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         self.n_classes = n_classes
         self.out_dim = out_dim
         self.resize = resize
+
+        self.balance_classes = balance_classes
+        if not self.balance_classes:
+            self.merge_classes()
 
         self.paths_for_epoch = []
         self.labels_for_epoch = []
@@ -41,26 +45,39 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y = self.__data_generation(batch_ids)
-        self.batch_num += 1
 
         return X, y
 
     def on_epoch_end(self):
         self.paths_for_epoch = []
         self.labels_for_epoch = []
-        self.batch_num = 0
 
-        epoch_folders = random.choices(self.folders, k = self.epoch_length)
-        for dir in epoch_folders:
-            folder_data = self.data_dict[dir]
-            path, label = random.choice(folder_data)
-            self.paths_for_epoch.append(path)
-            self.labels_for_epoch.append(label)
-        print(len(self.paths_for_epoch))
-        print(len(self.labels_for_epoch))
+        if self.balance_classes:
+            for class_dict in self.data_dict.values():
+                epoch_folders = random.choices(list(class_dict.keys()),
+                    k = int(self.epoch_length / self.n_classes))
+                for dir in epoch_folders:
+                    folder_data = class_dict[dir]
+                    path, label = random.choice(folder_data)
+                    self.paths_for_epoch.append(path)
+                    self.labels_for_epoch.append(label)
+        else:
+            epoch_folders = random.choices(list(self.data_dict.keys()),
+                k = self.epoch_length)
+            for dir in epoch_folders:
+                folder_data = self.data_dict[dir]
+                path, label = random.choice(folder_data)
+                self.paths_for_epoch.append(path)
+                self.labels_for_epoch.append(label)
 
         self.paths_for_epoch = np.array(self.paths_for_epoch)
-        self.labels_for_epoch = np.array(self.labels_for_epoch, dtype=np.float32)
+        self.labels_for_epoch = np.array(self.labels_for_epoch, dtype=int)
+
+        shuffle_idxs = np.random.permutation(np.arange(len(self.paths_for_epoch)))
+
+        self.paths_for_epoch = self.paths_for_epoch[shuffle_idxs]
+        self.labels_for_epoch = self.labels_for_epoch[shuffle_idxs]
+
 
     def __data_generation(self, batch_ids):
         'Generates data containing batch_size samples' # X : (n_samples, *out_dim, n_channels)
@@ -88,7 +105,19 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         im = Image.open(path)
         if self.resize:
             im = im.resize(self.out_dim)
-        return (np.array(im) / 255.).astype(np.float32)
+        return (np.array(im) / 127.5).astype(np.float32) - 1.
+
+    def merge_classes(self):
+        new_dict = defaultdict(list)
+
+        for class_dict in self.data_dict.values():
+            for slide, data_list in class_dict.items():
+                new_dict[slide].append(data_list)
+
+        self.data_dict = new_dict
+
+
+
 
 class ValDataGenerator(tf.keras.utils.Sequence):
     """Loads validation or test images for Keras fit_generator function"""
@@ -156,15 +185,16 @@ class ValDataGenerator(tf.keras.utils.Sequence):
         im = Image.open(path)
         if self.resize:
             im = im.resize(self.out_dim)
-        return (np.array(im) / 255.).astype(np.float32)
+        return (np.array(im) / 127.5).astype(np.float32) - 1.
 
     def extract_paths_and_labels(self):
         self.paths = []
         self.labels = []
+        for class_dict in self.data_dict.values():
+            for slide_data_list in class_dict.values():
+                for path, label in slide_data_list:
+                    self.paths.append(path)
+                    self.labels.append(label)
 
-        for slide_data_list in self.data_dict.values():
-            for path, label in slide_data_list:
-                self.paths.append(path)
-                self.labels.append(label)
         self.paths = np.array(self.paths)
         self.labels = np.array(self.labels, dtype =int)
