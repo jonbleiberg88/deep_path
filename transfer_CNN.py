@@ -8,11 +8,11 @@ from tensorflow.keras.utils import multi_gpu_model
 # SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True)
 
 class TransferCNN:
-    def __init__(self, input_shape=(256,256,3), base_model=ResNet50,layer_sizes=[],
+    def __init__(self, input_shape=(224,224,3), base_model=ResNet50,layer_sizes=[],
         n_classes=2, use_bn=True, use_dropout=False,
         optimizer=Adam(lr=0.1), metrics=['accuracy']):
         self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=self.input_shape, pooling='avg')
+        self.base_model = base_model(weights='imagenet', include_top=False, pooling='avg')
         self.layer_sizes = layer_sizes
         self.n_classes = n_classes
         self.use_bn = use_bn
