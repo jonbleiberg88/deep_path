@@ -39,8 +39,8 @@ METRICS = ['accuracy']
 
 # Data directories
 
-# MODE = 'remote'
-MODE = 'local'
+MODE = 'remote'
+# MODE = 'local'
 
 DATASET = 'FL'
 # MODE = 'CLL'
