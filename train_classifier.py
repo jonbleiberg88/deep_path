@@ -45,6 +45,4 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
     return
 
 if __name__ == "__main__":
-    data_dir=constants.PATCH_OUTPUT_DIRECTORY
-    folds_list = split_train_test(data_dir, 2)
-    train_fold(folds_list, 0, data_dir, 5)
+    train_k_folds()

@@ -9,8 +9,8 @@ import constants
 
 class TrainDataGenerator(tf.keras.utils.Sequence):
     """Loads train images for Keras fit_generator function"""
-    def __init__(self, data_dict, batch_size=64, batches_per_epoch=400, out_dim=(256,256), n_channels=3,
-                 n_classes=2, balance_classes=True, shuffle=True, resize=False):
+    def __init__(self, data_dict, batch_size=64, batches_per_epoch=400, out_dim=(224,224), n_channels=3,
+                 n_classes=2, balance_classes=True, shuffle=True, resize=True):
         'Initialization'
 
         self.data_dict = data_dict
@@ -121,8 +121,8 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
 
 class ValDataGenerator(tf.keras.utils.Sequence):
     """Loads validation or test images for Keras fit_generator function"""
-    def __init__(self, data_dict, batch_size=64, out_dim=(256,256), n_channels=3,
-                 n_classes=2, shuffle=True, resize=False):
+    def __init__(self, data_dict, batch_size=64, out_dim=(224,224), n_channels=3,
+                 n_classes=2, shuffle=True, resize=True):
         'Initialization'
         self.data_dict = data_dict
 
