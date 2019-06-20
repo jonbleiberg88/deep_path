@@ -54,7 +54,7 @@ class TransferCNN:
         # if self.n_classes == 2:
         #     self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
         if self.n_classes >= 2:
-            self.model.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=self.metrics)
+            self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=self.metrics)
 
         print(self.model.summary())
         return self.model
