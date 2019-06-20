@@ -10,7 +10,7 @@ GPUS = 2
 
 # Dataset Parameters
 BALANCE_CLASSES = True
-WEIGHT_BY_SIZE = True
+WEIGHT_BY_SIZE = False
 
 RESIZE_IMAGES = True
 INPUT_IMAGE_DIM = (256, 256)
