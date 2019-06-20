@@ -34,9 +34,9 @@ METRICS = ['accuracy']
 
 
 #Data directories
-SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
+# SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
 # SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
-# SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
+SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
 
 SLIDE_FILE_EXTENSION     = ("svs","qptiff")
 OVERLAP                  = 0
@@ -44,10 +44,10 @@ PATCH_SIZE               = INPUT_IMAGE_DIM[0] - (OVERLAP * 2)
 NUM_VERTICES_IN_ANNOTATION = 4
 
 
-OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
+# OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
 # PATCH_OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
 # PATCH_OUTPUT_DIRECTORY = "/data/jblei/cancer_project/datasets/FL/256_0_4_processed/data/"
-# OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")
