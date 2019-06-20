@@ -6,6 +6,8 @@ from PIL import Image
 import random
 import constants
 from collections import defaultdict
+from tensorflow.keras.applications.resnet50 import preprocess_input
+
 
 class TrainDataGenerator(tf.keras.utils.Sequence):
     """Loads train images for Keras fit_generator function"""
@@ -113,13 +115,17 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         return X, y
 
     def get_img(self, path):
-        # im = tf.keras.preprocessing.image.load_img(path)
-        # return tf.keras.preprocessing.image.img_to_array(im)
-        # tf.keras.applications.resnet50.preprocess_input()
-        im = Image.open(path)
-        if self.resize:
-            im = im.resize(self.out_dim)
-        return (np.array(im) / 127.5).astype(np.float32) - 1.
+        # im = Image.open(path)
+        # if self.resize:
+        #     im = im.resize(self.out_dim)
+        # return (np.array(im) / 127.5).astype(np.float32) - 1.
+
+        im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
+        im = tf.keras.preprocessing.image.img_to_array(im)
+        im = np.expand_dims(im, axis=0)
+        im = preprocess_input(im)
+        
+        return np.squeeze(im)
 
     def merge_classes(self):
         new_dict = defaultdict(list)
@@ -211,10 +217,16 @@ class ValDataGenerator(tf.keras.utils.Sequence):
         return X, y
 
     def get_img(self, path):
-        im = Image.open(path)
-        if self.resize:
-            im = im.resize(self.out_dim)
-        return (np.array(im) / 127.5).astype(np.float32) - 1.
+        # im = Image.open(path)
+        # if self.resize:
+        #     im = im.resize(self.out_dim)
+        # return (np.array(im) / 127.5).astype(np.float32) - 1.
+
+        im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
+        im = tf.keras.preprocessing.image.img_to_array(im)
+        im = np.expand_dims(im, axis=0)
+        im = preprocess_input(im)
+        return np.squeeze(im)
 
     def extract_paths_and_labels(self):
         self.paths = []
