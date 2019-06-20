@@ -12,7 +12,7 @@ import constants
 class TransferCNN:
     def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=ResNet50,layer_sizes=constants.LAYER_SIZES,
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
-        optimizer=Adam(lr=0.1), metrics=constants.METRICS):
+        optimizer=SGD(lr=0.01, decay=1e-6, momentum=0.9,nesterov=True), metrics=constants.METRICS):
         self.input_shape = input_shape
         self.base_model = base_model(weights=None, include_top=False, pooling=constants.OUTPUT_POOLING)
         self.layer_sizes = layer_sizes
