@@ -12,6 +12,7 @@ GPUS = 2
 BALANCE_CLASSES = True
 WEIGHT_BY_SIZE = False
 
+USE_AUGMENTATION = True
 RESIZE_IMAGES = True
 INPUT_IMAGE_DIM = (256, 256)
 OUTPUT_IMAGE_DIM = (299, 299)
@@ -21,6 +22,9 @@ SLIDE_FILE_EXTENSION     = ("svs","qptiff")
 OVERLAP                  = 0
 PATCH_SIZE               = INPUT_IMAGE_DIM[0] - (OVERLAP * 2)
 NUM_VERTICES_IN_ANNOTATION = 4
+
+USE_TTA = True
+TTA_AUG_TIMES = 5
 
 # Model Parameters
 BASE_ARCHITECTURE = 'ResNet50'
@@ -40,8 +44,8 @@ METRICS = ['accuracy']
 
 # Data directories
 
-MODE = 'remote'
-# MODE = 'local'
+# MODE = 'remote'
+MODE = 'local'
 
 DATASET = 'FL'
 # MODE = 'CLL'

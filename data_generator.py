@@ -7,6 +7,7 @@ import random
 import constants
 from collections import defaultdict
 from tensorflow.keras.applications.inception_v3 import preprocess_input
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class TrainDataGenerator(tf.keras.utils.Sequence):
@@ -14,7 +15,8 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
     def __init__(self, data_dict, batch_size=constants.BATCH_SIZE,
                     batches_per_epoch=constants.BATCHES_PER_EPOCH, out_dim=constants.OUTPUT_IMAGE_DIM,
                     resize=constants.RESIZE_IMAGES, n_channels=constants.N_CHANNELS, n_classes=2,
-                    balance_classes=constants.BALANCE_CLASSES, weight_by_size=constants.WEIGHT_BY_SIZE):
+                    balance_classes=constants.BALANCE_CLASSES, weight_by_size=constants.WEIGHT_BY_SIZE,
+                    use_aug=constants.USE_AUGMENTATION):
         'Initialization'
 
         self.data_dict = data_dict
@@ -37,6 +39,14 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         self.weight_by_size = weight_by_size
         if self.weight_by_size:
             self.get_weights()
+
+        self.use_aug = use_aug
+        if self.use_aug:
+            self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
+                                            height_shift_range=0.1,horizontal_flip=True,
+                                            vertical_flip=True, data_format='channels_last',
+                                            shear_range=0.01, fill_mode='reflect',
+                                            zoom_range=[0.9, 1.25])
 
         self.paths_for_epoch = []
         self.labels_for_epoch = []
@@ -122,6 +132,8 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
 
         im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
         im = tf.keras.preprocessing.image.img_to_array(im)
+        if self.use_aug:
+            im = self.aug.random_transform(im)
         im = np.expand_dims(im, axis=0)
         im = preprocess_input(im)
 
@@ -239,3 +251,107 @@ class ValDataGenerator(tf.keras.utils.Sequence):
 
         self.paths = np.array(self.paths)
         self.labels = np.array(self.labels, dtype =int)
+
+
+class TestDataGenerator(tf.keras.utils.Sequence):
+    def __init__(self, data_dict, use_tta=constants.USE_TTA, aug_times=constants.TTA_AUG_TIMES,
+                    batch_size=constants.BATCH_SIZE, resize=constants.RESIZE_IMAGES,
+                    out_dim=constants.OUTPUT_IMAGE_DIM, n_channels=constants.N_CHANNELS,
+                    n_classes=2):
+        'Initialization'
+        self.data_dict = data_dict
+
+        self.use_tta = use_tta
+
+        if self.use_tta:
+            self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
+                                            height_shift_range=0.1,horizontal_flip=True,
+                                            vertical_flip=True, data_format='channels_last',
+                                            shear_range=0.01, fill_mode='reflect',
+                                            zoom_range=[0.9, 1.25])
+            self.aug_times = aug_times
+
+        self.batch_size = batch_size
+        self.out_dim = out_dim
+
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.resize = resize
+
+        self.extract_paths_and_labels()
+        self.on_epoch_end()
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(np.floor(len(self.paths) / self.batch_size))
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
+
+        # Find list of IDs
+        batch_paths = self.paths[indexes]
+        batch_labels = self.labels[indexes]
+
+        # Generate data
+        X, y = self.__data_generation(batch_paths, batch_labels)
+        # print("get item")
+
+        return X, y
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.paths))
+
+    def __data_generation(self, batch_paths, batch_labels):
+        'Generates data containing batch_size samples' # X : (n_samples, *out_dim, n_channels)
+        # Initialization
+        X = np.empty((self.batch_size, *self.out_dim, self.n_channels))
+        y = np.empty((self.batch_size), dtype=int)
+
+        # Generate data
+        for i, data in enumerate(zip(batch_paths, batch_labels)):
+            path, label = data
+            # Store sample
+            X[i,] = self.get_img(path)
+
+            # Store class
+            y[i] = label
+
+        if self.n_classes > 2:
+            y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
+        return X, y
+
+    def get_img(self, path):
+        # im = Image.open(path)
+        # if self.resize:
+        #     im = im.resize(self.out_dim)
+        # return (np.array(im) / 127.5).astype(np.float32) - 1.
+
+        im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
+        im = tf.keras.preprocessing.image.img_to_array(im)
+        if self.use_tta:
+            im = self.aug.random_transform(im)
+        im = np.expand_dims(im, axis=0)
+        im = preprocess_input(im)
+        return np.squeeze(im)
+
+    def extract_paths_and_labels(self):
+        self.paths = []
+        self.labels = []
+        for class_dict in self.data_dict.values():
+            for slide_data_list in class_dict.values():
+                for path, label in slide_data_list:
+                    if self.use_tta:
+                        for _ in range(self.aug_times):
+                            self.paths.append(path)
+                            self.labels.append(label)
+                    else:
+                        self.paths.append(path)
+                        self.labels.append(label)
+
+        self.paths = np.array(self.paths)
+        self.labels = np.array(self.labels, dtype=int)
+
+    # def 
