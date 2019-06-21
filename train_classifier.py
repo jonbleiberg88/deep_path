@@ -22,7 +22,7 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     scheduler = SGDRScheduler(min_lr=1e-5, max_lr=0.03,lr_decay=0.9, cycle_length=2)
 
     print("Fitting...")
-    hist = model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen,
+    hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
                                 validation_steps=None, callbacks=[scheduler])
 
     print("Making model dir...")
