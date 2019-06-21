@@ -19,7 +19,7 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
 
     print("Compiling model...")
     model = TransferCNN().compile_model()
-    scheduler = SGDRScheduler(min_lr=1e-5, max_lr=0.1,lr_decay=0.9, cycle_length=2)
+    scheduler = SGDRScheduler(min_lr=1e-5, max_lr=0.03,lr_decay=0.9, cycle_length=2)
 
     print("Fitting...")
     hist = model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen,
