@@ -35,16 +35,25 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
 
     folds_list = split_train_test(data_dir, num_folds)
 
+    val_losses = np.zeros(num_folds)
+    val_accs = np.zeros(num_folds)
+
     for fold in range(num_folds):
         print(f"Beginning Fold {fold}")
         val_loss, val_acc = train_fold(folds_list, fold, data_dir, epochs)
-        print(val_loss, val_acc)
+
+        val_losses[fold] = val_loss[-1]
+        val_accs[fold] = val_acc[-1]
+
         print(f"Fold {fold} is complete!")
 
 
     print("Training complete!")
 
-    return
+    return val_losses, val_accs
 
 if __name__ == "__main__":
-    train_k_folds()
+    val_losses, val_accs = train_k_folds()
+
+    print(f"Validation Loss: Mean: {np.mean(val_losses)}, Max: {np.max(val_losses)}, Min: {np.min(val_losses)})
+    print(f"Validation Accuracy: Mean: {np.mean(val_accs)}, Max: {np.max(val_accs)}, Min: {np.min(val_accs)})
