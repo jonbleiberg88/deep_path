@@ -154,7 +154,7 @@ class LRFinder(Callback):
 
         ax.set_yscale('log')
         ax.set_xlabel('Iteration')
-        ax.ylabel('Learning rate')
+        ax.set_ylabel('Learning rate')
 
         fig.set_savefig(out_path)
 

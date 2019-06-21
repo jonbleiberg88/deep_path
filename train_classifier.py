@@ -18,7 +18,8 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     test_gen = ValDataGenerator(test_dict)
 
     print("Compiling model...")
-    model = TransferCNN().compile_model()
+    with tf.device('/cpu:0'):
+        model = TransferCNN().compile_model()
 
     print("Fitting...")
     hist = model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen, validation_steps=None)

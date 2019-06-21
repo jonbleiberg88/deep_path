@@ -15,8 +15,8 @@ def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=cons
                          max_lr=3,
                          steps_per_epoch=constants.BATCHES_PER_EPOCH,
                          epochs=epochs)
-
-    model = TransferCNN().compile_model()
+    with tf.device('/cpu:0'):
+        model = TransferCNN().compile_model()
 
     model.fit_generator(data_gen, None, epochs=epochs, callbacks=[lr_finder])
 
