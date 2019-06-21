@@ -1,8 +1,9 @@
 import constants
 
 import matplotlib.pyplot as plt
-from tf.keras.callbacks import Callback
-import tf.keras.backend as K
+import tensorflow as tf
+from tensorflow.keras.callbacks import Callback
+import tensorflow.keras.backend as K
 import numpy as np
 
 class SGDRScheduler(Callback):
