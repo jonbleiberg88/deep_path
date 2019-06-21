@@ -39,8 +39,9 @@ class TransferCNN:
             layer_list.append(Dense(1, activation='sigmoid'))
         if self.n_classes > 2:
             layer_list.append(Dense(self.n_classes, activation='softmax'))
-
-        # self.set_trainable(False)
+            
+        if constants.FREEZE:
+            self.set_trainable(False)
         model = Sequential(layer_list)
         self.model = model
 

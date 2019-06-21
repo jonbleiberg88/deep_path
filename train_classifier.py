@@ -19,7 +19,7 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     model = TransferCNN().compile_model()
 
     print("Fitting...")
-    model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen, validation_steps=None)
+    hist = model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen, validation_steps=None)
 
     print("Making model dir...")
     if not os.path.exists(model_dir):
@@ -28,6 +28,7 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     print("Saving...")
     model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
+    return hist.history['val_loss'], hist.history['val_acc']
 
 def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.NUM_FOLDS,
         epochs=constants.EPOCHS):
@@ -36,7 +37,8 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
 
     for fold in range(num_folds):
         print(f"Beginning Fold {fold}")
-        train_fold(folds_list, fold, data_dir, epochs)
+        val_loss, val_acc = train_fold(folds_list, fold, data_dir, epochs)
+        print(val_loss, val_acc)
         print(f"Fold {fold} is complete!")
 
 
