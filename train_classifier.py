@@ -18,11 +18,12 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
     test_gen = ValDataGenerator(test_dict)
 
     print("Compiling model...")
-    with tf.device('/cpu:0'):
-        model = TransferCNN().compile_model()
+    model = TransferCNN().compile_model()
+    scheduler = SGDRScheduler(min_lr=1e-5, max_lr=0.03,lr_decay=0.9, cycle_length=1)
 
     print("Fitting...")
-    hist = model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen, validation_steps=None)
+    hist = model.fit_generator(train_gen, None,epochs=5,validation_data=test_gen,
+                                validation_steps=None, callbacks=[scheduler])
 
     print("Making model dir...")
     if not os.path.exists(model_dir):
