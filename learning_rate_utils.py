@@ -156,7 +156,7 @@ class LRFinder(Callback):
         ax.set_xlabel('Iteration')
         ax.set_ylabel('Learning rate')
 
-        fig.set_savefig(out_path)
+        fig.savefig(out_path)
 
     def plot_loss(self, out_path):
         '''Helper function to quickly observe the learning rate experiment results.'''

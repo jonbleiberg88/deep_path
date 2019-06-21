@@ -52,7 +52,7 @@ class TransferCNN:
         if self.model is None:
             self.init_model()
         if constants.GPUS > 1:
-            self.model = multi_gpu_model(self.model, gpus=constants.GPUS)
+            self.model = multi_gpu_model(self.model, gpus=constants.GPUS, cpu_merge=False)
         if self.n_classes == 2:
             self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
         if self.n_classes > 2:
