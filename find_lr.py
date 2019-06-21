@@ -4,7 +4,8 @@ from data_generator import TrainDataGenerator
 from prepare_dataset import *
 import constants
 
-def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=constants.NUM_FOLDS):
+def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=constants.NUM_FOLDS,
+                        epochs=3):
     folds_list = split_train_test(data_dir, num_folds)
     train_dict, _, _ = get_dataset_for_fold(data_dir, folds_list, 0)
 
@@ -13,11 +14,11 @@ def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=cons
     lr_finder = LRFinder(min_lr=1e-5,
                          max_lr=3,
                          steps_per_epoch=constants.BATCHES_PER_EPOCH,
-                         epochs=3)
+                         epochs=epochs)
 
     model = TransferCNN().compile_model()
 
-    model.fit_generator(data_gen, callbacks=[lr_finder])
+    model.fit_generator(data_gen, None, epochs=epochs, callbacks=[lr_finder])
 
     lr_finder.plot_lr('lr.png')
     lr_finder.plot_loss('loss.png')
