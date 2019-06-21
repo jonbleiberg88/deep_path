@@ -20,6 +20,7 @@ def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=cons
     model.fit_generator(data_gen, callbacks=[lr_finder])
 
     lr_finder.plot_lr('lr.png')
+    lr_finder.plot_loss('loss.png')
 
 
 if __name__ == '__main__':

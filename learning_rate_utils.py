@@ -145,13 +145,18 @@ class LRFinder(Callback):
 
         K.set_value(self.model.optimizer.lr, self.clr())
 
-    def plot_lr(self):
+    def plot_lr(self, out_path):
         '''Helper function to quickly inspect the learning rate schedule.'''
-        plt.plot(self.history['iterations'], self.history['lr'])
-        plt.yscale('log')
-        plt.xlabel('Iteration')
-        plt.ylabel('Learning rate')
-        plt.show()
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        ax.plot(self.history['iterations'], self.history['lr'])
+        
+        ax.yscale('log')
+        ax.xlabel('Iteration')
+        ax.ylabel('Learning rate')
+
+        fig.savefig(out_path)
 
     def plot_loss(self, out_path):
         '''Helper function to quickly observe the learning rate experiment results.'''
