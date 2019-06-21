@@ -153,10 +153,15 @@ class LRFinder(Callback):
         plt.ylabel('Learning rate')
         plt.show()
 
-    def plot_loss(self):
+    def plot_loss(self, out_path):
         '''Helper function to quickly observe the learning rate experiment results.'''
-        plt.plot(self.history['lr'], self.history['loss'])
-        plt.xscale('log')
-        plt.xlabel('Learning rate')
-        plt.ylabel('Loss')
-        plt.show()
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        ax.plot(self.history['lr'], self.history['loss'])
+
+        ax.xscale('log')
+        ax.xlabel('Learning rate')
+        ax.ylabel('Loss')
+
+        fig.savefig(out_path)
