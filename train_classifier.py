@@ -4,7 +4,9 @@ import tensorflow.keras as Keras
 from data_generator import TrainDataGenerator, ValDataGenerator
 from transfer_CNN import TransferCNN
 from prepare_dataset import *
+from learning_rate_utils import SGDRScheduler
 import constants
+
 
 def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER):

@@ -1,0 +1,26 @@
+from learning_rate_utils import *
+from transfer_CNN import TransferCNN
+from data_generator import TrainDataGenerator
+from prepare_dataset import *
+import constants
+
+def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=constants.NUM_FOLDS):
+    folds_list = split_train_test(data_dir, num_folds)
+    train_dict, _, _ = get_dataset_for_fold(data_dir, folds_list, 0)
+
+    data_gen = TrainDataGenerator(train_dict)
+
+    lr_finder = LRFinder(min_lr=1e-5,
+                         max_lr=3,
+                         steps_per_epoch=constants.BATCHES_PER_EPOCH,
+                         epochs=3)
+
+    model = TransferCNN().compile_model
+
+    model.fit_generator(data_gen, callbacks=[lr_finder])
+
+    lr_finder.plot_lr()
+
+
+if __name__ == '__main__':
+    find_learning_rate()

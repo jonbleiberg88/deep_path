@@ -14,7 +14,7 @@ import constants
 class TransferCNN:
     def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=InceptionV3,layer_sizes=constants.LAYER_SIZES,
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
-        optimizer=SGD(lr=0.01, decay=1e-6, momentum=0.9,nesterov=True), metrics=constants.METRICS):
+        optimizer='adam', metrics=constants.METRICS):
         self.input_shape = input_shape
         self.base_model = base_model(weights='imagenet', include_top=False, pooling=constants.OUTPUT_POOLING)
         self.layer_sizes = layer_sizes
@@ -39,7 +39,7 @@ class TransferCNN:
             layer_list.append(Dense(1, activation='sigmoid'))
         if self.n_classes > 2:
             layer_list.append(Dense(self.n_classes, activation='softmax'))
-            
+
         if constants.FREEZE:
             self.set_trainable(False)
         model = Sequential(layer_list)

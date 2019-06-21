@@ -5,7 +5,7 @@ import tensorflow.keras as keras
 from PIL import Image
 import random
 import constants
-from collections import defaultdict
+from collections import defaultdict, Counter
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
@@ -181,6 +181,14 @@ class ValDataGenerator(tf.keras.utils.Sequence):
         self.shuffle = shuffle
         self.resize = resize
 
+        self.use_aug = constants.USE_TTA
+        if self.use_aug:
+            self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
+                                             height_shift_range=0.1,horizontal_flip=True,
+                                             vertical_flip=True, data_format='channels_last',
+                                             shear_range=0.01, fill_mode='reflect',
+                                             zoom_range=[0.9, 1.25])
+
         self.extract_paths_and_labels()
         self.on_epoch_end()
 
@@ -236,6 +244,8 @@ class ValDataGenerator(tf.keras.utils.Sequence):
 
         im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
         im = tf.keras.preprocessing.image.img_to_array(im)
+        if self.use_aug:
+            im = self.aug.random_transform(im)
         im = np.expand_dims(im, axis=0)
         im = preprocess_input(im)
         return np.squeeze(im)
@@ -254,6 +264,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
 
 
 class TestDataGenerator(tf.keras.utils.Sequence):
+    """ Generates data batches for test set prediction, optionally with test time augmentation"""
     def __init__(self, data_dict, use_tta=constants.USE_TTA, aug_times=constants.TTA_AUG_TIMES,
                     batch_size=constants.BATCH_SIZE, resize=constants.RESIZE_IMAGES,
                     out_dim=constants.OUTPUT_IMAGE_DIM, n_channels=constants.N_CHANNELS,
@@ -262,7 +273,6 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.data_dict = data_dict
 
         self.use_tta = use_tta
-
         if self.use_tta:
             self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
                                             height_shift_range=0.1,horizontal_flip=True,
@@ -354,4 +364,20 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.paths = np.array(self.paths)
         self.labels = np.array(self.labels, dtype=int)
 
-    # def 
+    def extract_TTA_preds(self, preds, return_dict=True):
+        predictions = {p:Counter() for p in self.paths}
+
+        for pred, path in zip(preds, self.paths):
+             predictions[path][pred] += 1
+
+        for path, pred_counter in predictions.items():
+            predictions[path] = pred_counter.most_common(1)[0][0]
+
+        if return_dict:
+            return predictions
+        else:
+            items = list(predictions.items())
+            paths = np.array([path for path, _ in items])
+            preds = np.array([pred for _,pred in items])
+
+            return paths, preds
