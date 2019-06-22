@@ -99,7 +99,7 @@ class SGDRScheduler(Callback):
             for i, l in enumerate(cycle_lens):
                 steps = self.steps_per_epoch * l
                 fracs[idx:steps+idx] = np.linspace(0,1,steps)
-                max_lrs[idx:steps+idx] = np.repeat(self.max_lr * (self.decay ** i), steps)
+                max_lrs[idx:steps+idx] = np.repeat(self.max_lr * (self.lr_decay ** i), steps)
                 idx += steps
 
             self.lrs = self.min_lr + 0.5 * (max_lrs - self.min_lr) * (1 + np.cos(fracs * np.pi))
