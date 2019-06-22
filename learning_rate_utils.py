@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import Callback
 import tensorflow.keras.backend as K
 import numpy as np
+from math import ceil
 
 class SGDRScheduler(Callback):
     '''Cosine annealing learning rate scheduler with periodic restarts.
@@ -33,6 +34,7 @@ class SGDRScheduler(Callback):
     def __init__(self,
                  min_lr,
                  max_lr,
+                 epochs= constants.EPOCHS,
                  steps_per_epoch=constants.BATCHES_PER_EPOCH,
                  lr_decay=1,
                  cycle_length=10,
@@ -42,15 +44,17 @@ class SGDRScheduler(Callback):
         self.max_lr = max_lr
         self.lr_decay = lr_decay
 
+
         self.batch_since_restart = 0
         self.next_restart = cycle_length
 
+        self.epochs = epochs
         self.steps_per_epoch = steps_per_epoch
 
         self.cycle_length = cycle_length
         self.mult_factor = mult_factor
 
-        self.history = {}
+        self.calculate_lrs()
 
     def clr(self):
         '''Calculate the learning rate.'''
@@ -59,32 +63,47 @@ class SGDRScheduler(Callback):
         return lr
 
     def on_train_begin(self, logs={}):
-        '''Initialize the learning rate to the minimum value at the start of training.'''
-        logs = logs or {}
-        K.set_value(self.model.optimizer.lr, self.max_lr)
+        '''Initialize the learning rate to the max value at the start of training.'''
+        self.idx = 1
+        K.set_value(self.model.optimizer.lr, self.lrs[0])
 
     def on_batch_end(self, batch, logs={}):
-        '''Record previous batch statistics and update the learning rate.'''
-        logs = logs or {}
-        self.history.setdefault('lr', []).append(K.get_value(self.model.optimizer.lr))
-        for k, v in logs.items():
-            self.history.setdefault(k, []).append(v)
+        '''Update the learning rate.'''
+        K.set_value(self.model.optimizer.lr, self.lrs[self.idx])
+        self.idx += 1
 
-        self.batch_since_restart += 1
-        K.set_value(self.model.optimizer.lr, self.clr())
+    def calculate_lrs(self):
+        if self.mult_factor == 1:
+            n_cycles = ceil(self.epochs / self.cycle_length)
 
-    def on_epoch_end(self, epoch, logs={}):
-        '''Check for end of current cycle, apply restarts when necessary.'''
-        if epoch + 1 == self.next_restart:
-            self.batch_since_restart = 0
-            self.cycle_length = np.ceil(self.cycle_length * self.mult_factor)
-            self.next_restart += self.cycle_length
-            self.max_lr *= self.lr_decay
-            self.best_weights = self.model.get_weights()
+            fracs = np.tile(np.linspace(0, 1, num=self.steps_per_epoch * self.epochs), n_cycles)
+            max_lrs = np.repeat([self.lr_decay ** i for i in range(n_cycles)],
+                                    repeats=self.steps_per_epoch * self.cycle_length)
 
-    def on_train_end(self, logs={}):
-        '''Set weights to the values from the end of the most recent cycle for best performance.'''
-        self.model.set_weights(self.best_weights)
+            self.lrs = self.min_lr + 0.5 * (max_lrs - self.min_lr) * (1 + np.cos(fracs * np.pi))
+
+        else:
+            num_epochs = 0
+            cycle_lens = []
+
+            while num_epochs < self.epochs:
+                num_epochs += self.cycle_length
+                cycle_lens.append(self.cycle_length)
+                self.cycle_length = ceil(self.cycle_length * self.mult_factor)
+
+            num_steps = num_epochs * self.steps_per_epoch
+            fracs = np.zeros(num_steps)
+            max_lrs = np.zeros(num_steps)
+
+            idx = 0
+            for i, l in enumerate(cycle_lens):
+                steps = self.steps_per_epoch * l
+                fracs[idx:steps+idx] = np.linspace(0,1,steps)
+                max_lrs[idx:steps+idx] = np.repeat(self.max_lr * (self.decay ** i), steps)
+                idx += steps
+
+            self.lrs = self.min_lr + 0.5 * (max_lrs - self.min_lr) * (1 + np.cos(fracs * np.pi))
+
 
 class LRFinder(Callback):
 
