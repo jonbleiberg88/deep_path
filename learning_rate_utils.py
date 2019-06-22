@@ -53,6 +53,7 @@ class SGDRScheduler(Callback):
 
         self.cycle_length = cycle_length
         self.mult_factor = mult_factor
+        self.problem = 0
 
         self.calculate_lrs()
 
@@ -71,7 +72,8 @@ class SGDRScheduler(Callback):
         '''Update the learning rate.'''
         K.set_value(self.model.optimizer.lr, self.lrs[self.idx])
         if idx >= self.num_steps:
-            print "Issueee!"
+            self.problem += 1
+            print(f"Issueee!: #{self.problem}")
         else:
             self.idx += 1
 
