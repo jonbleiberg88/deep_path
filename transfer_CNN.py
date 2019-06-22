@@ -1,8 +1,8 @@
 import tensorflow as tf
 import tensorflow.keras
 from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
-
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.xception import Xception, preprocess_input
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD, Adam
@@ -12,7 +12,7 @@ import constants
 # SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True)
 
 class TransferCNN:
-    def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=InceptionV3,layer_sizes=constants.LAYER_SIZES,
+    def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=Xception,layer_sizes=constants.LAYER_SIZES,
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
         optimizer='adam', metrics=constants.METRICS):
         self.input_shape = input_shape
