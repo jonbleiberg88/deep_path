@@ -71,7 +71,7 @@ class SGDRScheduler(Callback):
     def on_batch_end(self, batch, logs={}):
         '''Update the learning rate.'''
         K.set_value(self.model.optimizer.lr, self.lrs[self.idx])
-        if idx >= self.num_steps:
+        if self.idx >= self.num_steps:
             self.problem += 1
             print(f"Issueee!: #{self.problem}")
         else:
