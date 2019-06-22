@@ -65,13 +65,13 @@ class SGDRScheduler(Callback):
 
     def on_train_begin(self, logs={}):
         '''Initialize the learning rate to the max value at the start of training.'''
-        self.idx = 1
-        K.set_value(self.model.optimizer.lr, self.lrs[0])
+        self.idx = 0
+        K.set_value(self.model.optimizer.lr, self.max_lr)
 
     def on_batch_end(self, batch, logs={}):
         '''Update the learning rate.'''
         K.set_value(self.model.optimizer.lr, self.lrs[self.idx])
-        if self.idx >= self.num_steps:
+        if self.idx >= len(self.lrs):
             self.problem += 1
             print(f"Issueee!: #{self.problem}")
         else:
