@@ -70,7 +70,10 @@ class SGDRScheduler(Callback):
     def on_batch_end(self, batch, logs={}):
         '''Update the learning rate.'''
         K.set_value(self.model.optimizer.lr, self.lrs[self.idx])
-        self.idx += 1
+        if idx >= self.num_steps:
+            print "Issueee!"
+        else:
+            self.idx += 1
 
     def calculate_lrs(self):
         if self.mult_factor == 1:
@@ -91,9 +94,9 @@ class SGDRScheduler(Callback):
                 cycle_lens.append(self.cycle_length)
                 self.cycle_length = ceil(self.cycle_length * self.mult_factor)
 
-            num_steps = num_epochs * self.steps_per_epoch
-            fracs = np.zeros(num_steps)
-            max_lrs = np.zeros(num_steps)
+            self.num_steps = num_epochs * self.steps_per_epoch
+            fracs = np.zeros(self.num_steps)
+            max_lrs = np.zeros(self.num_steps)
 
             idx = 0
             for i, l in enumerate(cycle_lens):
