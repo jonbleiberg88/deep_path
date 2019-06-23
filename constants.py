@@ -2,9 +2,9 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 6
+EPOCHS = 10
 BATCH_SIZE = 32
-BATCHES_PER_EPOCH = 200
+BATCHES_PER_EPOCH = 400
 
 GPUS = 2
 
