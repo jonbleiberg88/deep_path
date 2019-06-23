@@ -2,11 +2,11 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 6
+EPOCHS = 2
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
-GPUS = 3
+GPUS = 1
 
 # Dataset Parameters
 BALANCE_CLASSES = True
@@ -30,7 +30,7 @@ TTA_AUG_TIMES = 5
 BASE_ARCHITECTURE = 'ResNet50'
 OUTPUT_POOLING = 'avg'
 INPUT_SHAPE = (*OUTPUT_IMAGE_DIM, N_CHANNELS)
-FREEZE = False
+FREEZE = True
 
 LAYER_SIZES = []
 USE_BATCH_NORM = True
