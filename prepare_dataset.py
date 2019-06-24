@@ -163,6 +163,7 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
         if verbose:
             print_class_counts(folds_list, image_class_counts, num_classes)
     else:
+        img_list = []
         folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
         for class_dir in os.listdir(data_dir):
             full_path = os.path.join(data_dir, class_dir)
