@@ -176,6 +176,11 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
             folds_list[idx]['train'] += list(np.array(img_list)[split[0]])
             folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
 
+        if verbose:
+            image_class_counts = get_class_counts_for_images(data_dir)
+            class_assignments = assign_folders_to_class(image_class_counts)
+            num_classes = len(class_assignments.keys())
+            print_class_counts(folds_list, image_class_counts, num_classes)
 
     return folds_list
 
