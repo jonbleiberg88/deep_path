@@ -63,6 +63,9 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
                 if len(class_dict[slide]) == 0:
                     del test_dict[class_name][slide]
 
+        for class_name, class_dict in train_dict.items():
+            print(f"{class_name}: {len(list(class_dict.keys()))}")
+
     return train_dict, test_dict, class_to_label
 
 # def get_dataset_for_fold(data_dir, folds_list, fold):

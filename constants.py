@@ -94,7 +94,7 @@ SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cel
 HOW_MANY_TRAINING_STEPS = 50
 
 BOTTLENECK_DIR          = "/dp/.tmp/bottleneck_" + str(PATCH_SIZE)
-# MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
 
 INPUT_LAYER             = "Placeholder"
 OUTPUT_LAYER            = "final_result"

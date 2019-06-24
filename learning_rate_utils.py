@@ -28,6 +28,7 @@ class SGDRScheduler(Callback):
         cycle_length: Initial number of epochs in a cycle.
         mult_factor: Scale epochs_to_restart after each full cycle completion.
     # References
+    Adapted from:
         Blog post: jeremyjordan.me/nn-learning-rate
         Original paper: http://arxiv.org/abs/1608.03983
     '''
@@ -146,35 +147,32 @@ class LRFinder(Callback):
         self.iteration = 0
         self.history = {}
 
+        self.get_lrs()
+
     def clr(self):
         '''Calculate the learning rate.'''
         x = self.iteration / self.total_iterations
         return self.min_lr + (self.max_lr-self.min_lr) * x
 
-    def on_train_begin(self, logs=None):
+    def on_train_begin(self):
         '''Initialize the learning rate to the minimum value at the start of training.'''
         logs = logs or {}
         K.set_value(self.model.optimizer.lr, self.min_lr)
 
-    def on_batch_end(self, epoch, logs=None):
+    def on_batch_end(self):
         '''Record previous batch statistics and update the learning rate.'''
-        logs = logs or {}
         self.iteration += 1
+        K.set_value(self.model.optimizer.lr, self.lrs[self.iteration])
 
-        self.history.setdefault('lr', []).append(K.get_value(self.model.optimizer.lr))
-        self.history.setdefault('iterations', []).append(self.iteration)
-
-        for k, v in logs.items():
-            self.history.setdefault(k, []).append(v)
-
-        K.set_value(self.model.optimizer.lr, self.clr())
+    def get_lrs(self):
+        self.lrs = np.linspace(self.min_lr, self.max_lr, num=self.total_iterations)
 
     def plot_lr(self, out_path):
         '''Helper function to quickly inspect the learning rate schedule.'''
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        ax.plot(self.history['iterations'], self.history['lr'])
+        ax.plot(np.array(range(self.total_iterations)), self.lrs)
 
         ax.set_yscale('log')
         ax.set_xlabel('Iteration')
