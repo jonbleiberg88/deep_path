@@ -169,7 +169,7 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
             full_path = os.path.join(data_dir, class_dir)
             img_list += os.listdir(full_path)
 
-        img_list = set(img_list)
+        img_list = list(set(img_list))
         kf = KFold(n_splits=num_folds, shuffle=True)
         split = list(kf.split(img_list))
         for idx, split in enumerate(split):
