@@ -9,6 +9,8 @@ BATCHES_PER_EPOCH = 200
 GPUS = 2
 
 # Dataset Parameters
+STRATIFY = False
+
 BALANCE_CLASSES = True
 WEIGHT_BY_SIZE = True
 

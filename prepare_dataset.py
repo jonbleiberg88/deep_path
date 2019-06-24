@@ -130,7 +130,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
 #     return data, labels, class_to_label
 
 
-def split_train_test(data_dir, num_folds, verbose=True):
+def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STRATIFY):
     """
     Given the root directory holding the dataset and a number of folds, splits the dataset
     into train and test set by patient
@@ -143,23 +143,37 @@ def split_train_test(data_dir, num_folds, verbose=True):
         folds_list (dict of dicts): Split of slide folder into train and test set for each
             fold, in the format folds_list[fold_number]['train' or 'test'] = [SLIDE NAMES,...]
     """
-    image_class_counts = get_class_counts_for_images(data_dir)
-    class_assignments = assign_folders_to_class(image_class_counts)
-    num_classes = len(class_assignments.keys())
+    if stratified:
+        image_class_counts = get_class_counts_for_images(data_dir)
+        class_assignments = assign_folders_to_class(image_class_counts)
+        num_classes = len(class_assignments.keys())
 
-    folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
+        folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
 
 
-    for class_name in class_assignments.keys():
-        img_list = class_assignments[class_name]
+        for class_name in class_assignments.keys():
+            img_list = class_assignments[class_name]
+            kf = KFold(n_splits=num_folds, shuffle=True)
+            split = list(kf.split(img_list))
+            for idx, split in enumerate(split):
+                folds_list[idx]['train'] += list(np.array(img_list)[split[0]])
+                folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
+
+        if verbose:
+            print_class_counts(folds_list, image_class_counts, num_classes)
+    else:
+        folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
+        for class_dir in os.listdir(data_dir):
+            full_path = os.path.join(data_dir, class_dir)
+            img_list += os.listdir(full_path)
+
+        img_list = set(img_list)
         kf = KFold(n_splits=num_folds, shuffle=True)
         split = list(kf.split(img_list))
         for idx, split in enumerate(split):
             folds_list[idx]['train'] += list(np.array(img_list)[split[0]])
             folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
 
-    if verbose:
-        print_class_counts(folds_list, image_class_counts, num_classes)
 
     return folds_list
 

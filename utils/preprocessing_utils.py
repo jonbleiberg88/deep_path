@@ -111,6 +111,9 @@ def get_histogram_for_dir(data_dir, bw_threshold=0.9, blur_radius=7):
     plt.show()
 
 
+def augment_all()
+
+
 def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_overlap_diff=8):
     """
     Given the top level directory pointing to where our image class folders live,
