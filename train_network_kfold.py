@@ -123,8 +123,9 @@ def create_image_lists_kfold(image_dir, num_folds):
     for label_name in result_list[fold].keys():
       num_training_slides = len(result_list[fold][label_name]['training'])
 
-    if num_training_slides > max_num_training_slides:
-      max_num_training_slides = num_training_slides
+    # indent??
+      if num_training_slides > max_num_training_slides:
+        max_num_training_slides = num_training_slides
 
     for label_name in result_list[fold].keys():
       num_training_slides = len(result_list[fold][label_name]['training'])
