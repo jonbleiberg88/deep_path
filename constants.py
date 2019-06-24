@@ -2,7 +2,7 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 4
+EPOCHS = 6
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
@@ -10,7 +10,7 @@ GPUS = 2
 
 # Dataset Parameters
 BALANCE_CLASSES = True
-WEIGHT_BY_SIZE = False
+WEIGHT_BY_SIZE = True
 
 USE_AUGMENTATION = True
 RESIZE_IMAGES = True
