@@ -111,7 +111,95 @@ def get_histogram_for_dir(data_dir, bw_threshold=0.9, blur_radius=7):
     plt.show()
 
 
-def augment_all()
+def augment_all(class_dir, tile_size, overlap, diff, aug_round, patch_counts,
+        max_images = 10e6,
+        file_extension = constants.SLIDE_FILE_EXTENSION,
+        slide_file_dir=constants.SLIDE_FILE_DIRECTORY,
+        annotation_csv_directory=constants.ANNOTATION_CSV_DIRECTORY):
+
+    slide_name_to_tile_dims_map = {}
+    patch_name_to_coords_map = {}
+
+    total_count = 0
+    for root, dirnames, filenames in os.walk(slide_file_dir):
+        for filename in filenames:
+            if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
+
+                full_path = os.path.join(root, filename)
+                slide_name = os.path.splitext(os.path.basename(full_path))[0]
+
+                slide_large_cells_dir = os.path.join(constants.LARGE_CELL_PATCHES, slide_name)
+                slide_small_cells_dir = os.path.join(constants.SMALL_CELL_PATCHES, slide_name)
+
+                slide = load_slide(full_path)
+
+                large_path_list, small_path_list = [], []
+
+                large_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
+                        "large_tumor_csv_files"))
+                small_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
+                        "small_tumor_csv_files"))
+
+                if large_path_list == [] and small_path_list == []:
+                    continue
+
+                print("Splitting " + slide_name)
+
+                tiles = get_patch_generator(slide, tile_size, overlap)
+                img_size = tile_size + (2 * overlap)
+
+                level = len(tiles.level_tiles) - 1
+                x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
+                tiled_dims = (y_tiles, x_tiles)
+                slide_name_to_tile_dims_map[slide_name] = tiled_dims
+
+                x, y = 0, 0
+                slide_count = 0
+                patch_name_list = []
+                coordinate_list = []
+
+                while y < y_tiles:
+                    while x < x_tiles:
+                        patch_coords = tiles.get_tile_coordinates(level, (x,y))
+                        patch = Patch(patch_coords)
+                        patch_coordinates = (y,x)
+                        coordinate_list.append(patch_coordinates)
+
+                        if patch_in_paths(patch, small_path_list):
+                            patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
+                            if np.shape(patch.img) == (img_size, img_size, 3):
+                                patch_name = os.path.join(slide_small_cells_dir, f'{slide_name}_{str(patch_counts[slide_name] + 1)}')
+                                patch_counts[slide_name] += 1
+                                patch_name_list.append(patch_name)
+                                patch.save_img_to_disk(patch_name)
+                                patch_name_to_coords_map[patch_name] = patch_coordinates
+                                total_count += 1
+                                slide_count += 1
+                        elif patch_in_paths(patch, large_path_list):
+                            patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
+                            if np.shape(patch.img) == (img_size, img_size, 3):
+                                patch_name = os.path.join(slide_large_cells_dir, f'{slide_name}_{str(patch_counts[slide_name] + 1)}')
+                                patch_counts[slide_name] += 1
+                                patch_name_list.append(patch_name)
+                                patch.save_img_to_disk(patch_name)
+                                patch_name_to_coords_map[patch_name] = patch_coordinates
+                                total_count += 1
+                                slide_count += 1
+                        if total_count > max_images:
+                            break
+                        x += 1
+                    if total_count > max_images:
+                        break
+                    y += 1
+                    x = 0
+
+                print("Total patches for " + slide_name + ": " + str(slide_count))
+
+    write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP + "_" + str(aug_round), patch_name_to_coords_map)
+    write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP + "_" + str(aug_round), slide_name_to_tile_dims_map)
+
+    return total_count, patch_counts):
+
 
 
 def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_overlap_diff=8):

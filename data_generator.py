@@ -45,7 +45,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
             self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
                                             height_shift_range=0.1,horizontal_flip=True,
                                             vertical_flip=True, data_format='channels_last',
-                                            shear_range=0.01, fill_mode='reflect',
+                                            fill_mode='reflect',
                                             zoom_range=[0.9, 1.25])
 
         self.paths_for_epoch = []
