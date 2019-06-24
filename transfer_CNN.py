@@ -60,7 +60,6 @@ class TransferCNN:
         if self.n_classes > 2:
             self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=self.metrics)
 
-        print(self.model.summary())
         return self.model
 
     def set_trainable(self, trainable):

@@ -19,6 +19,8 @@ def train_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epoc
 
     print("Compiling model...")
     model = TransferCNN().compile_model()
+    if fold == 0:
+        print(model.summary())
     scheduler = SGDRScheduler(min_lr=1e-6, max_lr=0.01,lr_decay=0.5, cycle_length=2)
 
     print("Fitting...")
