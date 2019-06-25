@@ -89,6 +89,11 @@ SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cel
 #LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
 #LABEL_FILE               = "/data/ethan/lymphoma_case_codes.csv"
 
+# quPath constants
+ANNOTATION_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Annotations"
+IMAGE_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
+PROJECT_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj"
+PROJECT_FILE = "project.qpproj"
 
 
 

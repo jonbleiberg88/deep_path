@@ -110,16 +110,63 @@ def get_histogram_for_dir(data_dir, bw_threshold=0.9, blur_radius=7):
 
     plt.show()
 
+def run_overlap_augmentation(data_dir, max_images=10e5, accept_margin = 0.1, max_overlap=64, min_overlap_diff=8):
+    patch_counts = defaultdict(int)
 
-def augment_all(class_dir, tile_size, overlap, diff, aug_round, patch_counts,
-        max_images = 10e6,
-        file_extension = constants.SLIDE_FILE_EXTENSION,
+    for class_dir in os.listdir(data_dir):
+        class_path = os.path.join(data_dir, class_dir)
+        for img_dir in os.listdir(class_path):
+            img_path = os.path.join(class_path, img_dir)
+            max_idx = 0
+            for img_name in os.listdir(img_path):
+                idx = int(img_name.rpartition("_")[-1][:-4])
+                max_idx = max(max_idx, idx)
+            patch_counts[img_dir] = max_idx
+
+    prev_image_count = sum(list(patch_counts.values()))
+
+    aug_round = 1
+    if max_overlap >= 128:
+        max_overlap = 127
+    overlap_vals = np.append(np.arange(0,constants.OVERLAP, min_overlap_diff),
+        np.arange(constants.OVERLAP, max_overlap+1, min_overlap_diff)[1:])
+
+    if type(accept_margin) is float:
+        accept_margin = int(max(class_counts.values()) * accept_margin)
+
+    total_image_count = prev_image_count
+
+    while max_images > total_image_count:
+
+        if len(overlap_vals) == 0:
+            print("All possible overlap values exhausted")
+            return
+
+        idx = np.random.randint(0, len(overlap_vals))
+        new_overlap = overlap_vals[idx]
+        overlap_vals = np.delete(overlap_vals,idx)
+
+        new_tile_size = 256 - (new_overlap * 2)
+
+        print(f"Beginning augmentation round {aug_round} with overlap {new_overlap}")
+        aug_count, aug_small, aug_large, patch_counts = augment_all_classes(new_tile_size, new_overlap, total_image_count, aug_round,
+            patch_counts)
+        total_image_count += aug_count
+        print(f"Added {aug_small} small patches and {aug_large} large patches {aug_count} patches")
+        print( f"Total patches added in round {aug_round}: {aug_count}")
+
+        aug_round += 1
+
+
+
+def augment_all_classes(tile_size, overlap,
+        img_count, aug_round, patch_counts,
         slide_file_dir=constants.SLIDE_FILE_DIRECTORY,
+        file_extension = constants.SLIDE_FILE_EXTENSION,
         annotation_csv_directory=constants.ANNOTATION_CSV_DIRECTORY):
 
     slide_name_to_tile_dims_map = {}
     patch_name_to_coords_map = {}
-
     total_count = 0
     for root, dirnames, filenames in os.walk(slide_file_dir):
         for filename in filenames:
@@ -154,7 +201,7 @@ def augment_all(class_dir, tile_size, overlap, diff, aug_round, patch_counts,
                 slide_name_to_tile_dims_map[slide_name] = tiled_dims
 
                 x, y = 0, 0
-                slide_count = 0
+                large_count, small_count = 0, 0
                 patch_name_list = []
                 coordinate_list = []
 
@@ -164,6 +211,8 @@ def augment_all(class_dir, tile_size, overlap, diff, aug_round, patch_counts,
                         patch = Patch(patch_coords)
                         patch_coordinates = (y,x)
                         coordinate_list.append(patch_coordinates)
+                        slide_large_count = 0
+                        slide_small_count = 0
 
                         if patch_in_paths(patch, small_path_list):
                             patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
@@ -173,8 +222,7 @@ def augment_all(class_dir, tile_size, overlap, diff, aug_round, patch_counts,
                                 patch_name_list.append(patch_name)
                                 patch.save_img_to_disk(patch_name)
                                 patch_name_to_coords_map[patch_name] = patch_coordinates
-                                total_count += 1
-                                slide_count += 1
+                                slide_small_count += 1
                         elif patch_in_paths(patch, large_path_list):
                             patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
                             if np.shape(patch.img) == (img_size, img_size, 3):
@@ -183,22 +231,23 @@ def augment_all(class_dir, tile_size, overlap, diff, aug_round, patch_counts,
                                 patch_name_list.append(patch_name)
                                 patch.save_img_to_disk(patch_name)
                                 patch_name_to_coords_map[patch_name] = patch_coordinates
-                                total_count += 1
-                                slide_count += 1
-                        if total_count > max_images:
-                            break
+                                slide_large_count += 1
+
                         x += 1
-                    if total_count > max_images:
-                        break
                     y += 1
                     x = 0
 
-                print("Total patches for " + slide_name + ": " + str(slide_count))
+                total_count += slide_small_count + slide_large_count
+                large_count += slide_large_count
+                small_count += slide_small_count
+
+                print(f"Total patches for {slide_name}: {slide_large_count + slide_small_count}")
+                print(f"Large: {slide_large_count};  Small: {slide_small_count}")
 
     write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP + "_" + str(aug_round), patch_name_to_coords_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP + "_" + str(aug_round), slide_name_to_tile_dims_map)
 
-    return total_count, patch_counts):
+    return total_count, small_count, large_count, patch_counts:
 
 
 
