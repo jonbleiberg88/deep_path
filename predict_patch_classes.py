@@ -102,7 +102,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
     return losses, accs
 
 if __name__ == "__main__":
-    losses, accs = train_k_folds()
+    losses, accs = train_and_predict_all()
 
     print(f"Test Loss: Mean: {np.mean(losses):.2f}, Median: {np.median(losses):.2f}, Max: {np.max(losses):.2f}, Min: {np.min(losses):.2f}")
     print(f"Test Accuracy: Mean: {np.mean(accs)*100:.2f}, Median: {np.median(accs)*100:.2f},Max: {np.max(accs)*100:.2f}, Min: {np.min(accs)*100:.2f}")
