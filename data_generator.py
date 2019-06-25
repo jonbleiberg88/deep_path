@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 from PIL import Image
+from sklearn.metrics import log_loss
 import random
 import constants
 from collections import defaultdict, Counter
@@ -350,6 +351,9 @@ class TestDataGenerator(tf.keras.utils.Sequence):
     def extract_paths_and_labels(self):
         self.paths = []
         self.labels = []
+        if self.use_tta:
+            self.unique_paths, self.unique_labels = [], []
+
         for class_dict in self.data_dict.values():
             for slide_data_list in class_dict.values():
                 for path, label in slide_data_list:
@@ -357,6 +361,9 @@ class TestDataGenerator(tf.keras.utils.Sequence):
                         for _ in range(self.aug_times):
                             self.paths.append(path)
                             self.labels.append(label)
+                        self.unique_paths.append(path)
+                        self.unique_labels.append(label)
+
                     else:
                         self.paths.append(path)
                         self.labels.append(label)
@@ -364,14 +371,20 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.paths = np.array(self.paths)
         self.labels = np.array(self.labels, dtype=int)
 
+        if self.use_tta:
+            self.unique_paths = np.array(self.unique_paths)
+            self.unique_labels = np.array(self.unique_labels)
+
     def extract_TTA_preds(self, preds, return_dict=True):
-        predictions = {p:Counter() for p in self.paths}
+        predict_lists = {p:[] for p in self.unique_paths}
+        predictions = {p:0 for p in self.unique_paths}
 
         for pred, path in zip(preds, self.paths):
-             predictions[path][pred] += 1
+             predict_lists[path].append(pred)
 
-        for path, pred_counter in predictions.items():
-            predictions[path] = pred_counter.most_common(1)[0][0]
+        for path, pred_list in predict_lists.items():
+            pred = mean(pred_list)
+            predictions[path] = pred
 
         if return_dict:
             return predictions
@@ -381,3 +394,19 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             preds = np.array([pred for _,pred in items])
 
             return paths, preds
+
+    def eval(preds):
+        if self.use_tta:
+            loss = log_loss(self.unique_labels, preds)
+            pred_class = np.rint(preds)
+            accuracy = np.mean(pred_class == self.unique_labels)
+
+
+            return accuracy
+
+        else:
+            loss = log_loss(self.labels, preds)
+            pred_class = np.rint(preds)
+            accuracy = np.mean(pred_class == self.labels)
+
+            return loss, accuracy

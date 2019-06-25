@@ -46,8 +46,8 @@ METRICS = ['accuracy']
 
 # Data directories
 
-MODE = 'remote'
-# MODE = 'local'
+# MODE = 'remote'
+MODE = 'local'
 
 DATASET = 'FL'
 # MODE = 'CLL'
@@ -83,6 +83,7 @@ elif MODE == 'local':
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
 
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
+PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")
 

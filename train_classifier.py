@@ -61,5 +61,5 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
 if __name__ == "__main__":
     val_losses, val_accs = train_k_folds()
 
-    print(f"Validation Loss: Mean: {np.mean(val_losses):.2f}, Max: {np.max(val_losses):.2f}, Min: {np.min(val_losses):.2f}")
-    print(f"Validation Accuracy: Mean: {np.mean(val_accs)*100:.2f}, Max: {np.max(val_accs)*100:.2f}, Min: {np.min(val_accs)*100:.2f}")
+    print(f"Validation Loss: Mean: {np.mean(val_losses):.2f}, Median: {np.median(val_losses):.2f}, Max: {np.max(val_losses):.2f}, Min: {np.min(val_losses):.2f}")
+    print(f"Validation Accuracy: Mean: {np.mean(val_accs)*100:.2f}, Median: {np.median(val_accs)*100:.2f}, Max: {np.max(val_accs)*100:.2f}, Min: {np.min(val_accs)*100:.2f}")
