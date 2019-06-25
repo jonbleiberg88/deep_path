@@ -383,7 +383,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
              predict_lists[path].append(pred)
 
         for path, pred_list in predict_lists.items():
-            pred = mean(pred_list)
+            pred = np.mean(pred_list)
             predictions[path] = pred
 
         if return_dict:
