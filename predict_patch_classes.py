@@ -54,6 +54,7 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
 
     print(f"Predicting {predict_slide}...")
     preds = model.predict_generator(predict_gen, None)
+    print(preds.shape)
     if predict_gen.use_tta:
         paths, preds = predict_gen.extract_TTA_preds(preds)
     else:
