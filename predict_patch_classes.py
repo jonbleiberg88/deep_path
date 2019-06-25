@@ -30,6 +30,7 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
         os.makedirs(predict_dir)
 
     train_dict, test_dict, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
+    print(test_dict)
     if len(test_dict.keys()) == 0:
         print(f"No image files found for fold {fold}")
         return -1, -1
