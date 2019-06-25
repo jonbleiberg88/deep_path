@@ -23,6 +23,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
     """
     train_slides = folds_list[fold]['train']
     test_slides = folds_list[fold]['test']
+    print(test_slides)
 
     train_dict = defaultdict(lambda: defaultdict(list))
     test_dict = defaultdict(lambda: defaultdict(list))
@@ -36,6 +37,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
         slide_folders = os.listdir(class_path)
 
         for slide in slide_folders:
+            print(slide)
             if slide in train_slides:
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
@@ -44,7 +46,6 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
                         label = class_idx
                         train_dict[img_class][slide].append((path, label))
             elif slide in test_slides:
-                print('hi')
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
