@@ -2,9 +2,9 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 1
+EPOCHS = 6
 BATCH_SIZE = 32
-BATCHES_PER_EPOCH = 50
+BATCHES_PER_EPOCH = 200
 
 GPUS = 2
 
@@ -26,7 +26,7 @@ PATCH_SIZE               = INPUT_IMAGE_DIM[0] - (OVERLAP * 2)
 NUM_VERTICES_IN_ANNOTATION = 4
 
 USE_TTA = True
-TTA_AUG_TIMES = 5
+TTA_AUG_TIMES = 3
 
 # Model Parameters
 BASE_ARCHITECTURE = 'ResNet50'

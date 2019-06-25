@@ -68,7 +68,7 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
 
     loss, accuracy = predict_gen.eval(preds)
 
-    print(f"Test Loss: {loss:.2f}; Test Accuracy: {accuracy*100:.2f}")
+    print(f"Test Loss: {loss:.2f}; Test Accuracy: {accuracy*100:.2f}%")
 
     print(f"Saving predictions...")
     preds_df = pd.DataFrame({'filepath': paths, 'prediction': preds})
