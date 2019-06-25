@@ -395,7 +395,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
             return paths, preds
 
-    def eval(preds):
+    def eval(self, preds):
         if self.use_tta:
             loss = log_loss(self.unique_labels, preds)
             pred_class = np.rint(preds)
