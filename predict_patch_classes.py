@@ -24,7 +24,7 @@ def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
     return folds_list
 
 def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
-        model_dir=constants.MODEL_FILE_FOLDER, predict_dir=constants.PREDICTIONS_DIRECTORY):
+        model_dir=constants.MODEL_FILE_FOLDER, predict_dir=constants.PREDICTIONS_DIRECTORY, show_val=False):
 
     if not os.path.isdir(predict_dir):
         os.makedirs(predict_dir)
@@ -39,7 +39,9 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
 
     print("Making generators...")
     train_gen = TrainDataGenerator(train_dict)
-    test_gen = ValDataGenerator(test_dict)
+    if show_val:
+        test_gen = ValDataGenerator(test_dict)
+
     predict_gen = TestDataGenerator(test_dict)
 
     print("Compiling model...")
@@ -49,8 +51,11 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
     scheduler = SGDRScheduler(min_lr=1e-6, max_lr=0.01,lr_decay=0.5, cycle_length=2)
 
     print("Fitting...")
-    model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
+    if show_val:
+        model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
                                 validation_steps=None, callbacks=[scheduler])
+    else:
+        model.fit_generator(train_gen, None,epochs=epochs, callbacks=[scheduler])
 
     print(f"Predicting {predict_slide}...")
     preds = model.predict_generator(predict_gen, None, verbose=1)
@@ -63,7 +68,7 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
 
     loss, accuracy = predict_gen.eval(preds)
 
-    print(f"Test Loss: {loss:.2f}; Test Accuracy: {accuracy:.2f}")
+    print(f"Test Loss: {loss:.2f}; Test Accuracy: {accuracy*100:.2f}")
 
     print(f"Saving predictions...")
     preds_df = pd.DataFrame({'filepath': paths, 'prediction': preds})
