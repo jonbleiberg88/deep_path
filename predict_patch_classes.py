@@ -59,6 +59,8 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
     else:
         paths = predict_gen.paths()
 
+    print(preds.shape)
+    print(predict_gen.unique_labels.shape)
     loss, accuracy = predict_gen.eval(preds)
     print(f"Test Loss: {loss:.2f}; Test Accuracy: {accuracy:.2f}")
 
