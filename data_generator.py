@@ -375,7 +375,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             self.unique_paths = np.array(self.unique_paths)
             self.unique_labels = np.array(self.unique_labels)
 
-    def extract_TTA_preds(self, preds, return_dict=True):
+    def extract_TTA_preds(self, preds, return_dict=False):
         predict_lists = {p:[] for p in self.unique_paths}
         predictions = {p:0 for p in self.unique_paths}
 
