@@ -44,6 +44,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
                         label = class_idx
                         train_dict[img_class][slide].append((path, label))
             elif slide in test_slides:
+                print('hi')
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
@@ -54,15 +55,15 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
                 print(f"{slide} not assigned to train or test...")
 
 
-        # for class_name, class_dict in train_dict.items():
-        #     for slide in list(class_dict.keys()):
-        #         if len(class_dict[slide]) == 0:
-        #             del train_dict[class_name][slide]
-        #
-        # for class_name, class_dict in test_dict.items():
-        #     for slide in list(class_dict.keys()):
-        #         if len(class_dict[slide]) == 0:
-        #             del test_dict[class_name][slide]
+        for class_name, class_dict in train_dict.items():
+            for slide in list(class_dict.keys()):
+                if len(class_dict[slide]) == 0:
+                    del train_dict[class_name][slide]
+
+        for class_name, class_dict in test_dict.items():
+            for slide in list(class_dict.keys()):
+                if len(class_dict[slide]) == 0:
+                    del test_dict[class_name][slide]
         if constants.STRATIFY:
             for class_name, class_dict in train_dict.items():
                 print(f"{class_name}: {len(list(class_dict.keys()))}")
