@@ -35,7 +35,7 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
         print(f"No image files found for fold {fold}")
         return -1, -1
 
-    predict_slide = list(test_dict.keys())[0]
+    predict_slide = list(test_dict.values[0]
 
     print("Making generators...")
     train_gen = TrainDataGenerator(train_dict)
