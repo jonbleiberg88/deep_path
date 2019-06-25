@@ -18,7 +18,7 @@ def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
     folds_list = [{'train':[], 'test': []} for _ in range(len(img_list))]
 
     for idx, img in enumerate(img_list):
-        folds_list[idx]['train'] = list(img_list - set(img))
+        folds_list[idx]['train'] = list(img_list - set([img]))
         folds_list[idx]['test'] = [img]
 
     return folds_list
