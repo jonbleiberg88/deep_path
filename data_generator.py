@@ -407,7 +407,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             accuracy = np.mean(pred_class == self.unique_labels)
 
 
-            return accuracy
+            return loss, accuracy
 
         else:
             loss = log_loss(self.labels, preds, labels=[0,1])
