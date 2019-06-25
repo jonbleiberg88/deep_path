@@ -77,7 +77,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
         epochs=constants.EPOCHS):
 
     folds_list = create_leave_one_out_lists(data_dir)
-    num_slides = len(folds_list.keys())
+    num_slides = len(folds_list)
 
     losses = np.zeros(num_slides)
     accs = np.zeros(num_slides)
