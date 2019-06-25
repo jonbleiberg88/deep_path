@@ -23,7 +23,6 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
     """
     train_slides = folds_list[fold]['train']
     test_slides = folds_list[fold]['test']
-    print(test_slides)
 
     train_dict = defaultdict(lambda: defaultdict(list))
     test_dict = defaultdict(lambda: defaultdict(list))
@@ -37,7 +36,6 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
         slide_folders = os.listdir(class_path)
 
         for slide in slide_folders:
-            print(slide)
             if slide in train_slides:
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
@@ -65,6 +63,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
             for slide in list(class_dict.keys()):
                 if len(class_dict[slide]) == 0:
                     del test_dict[class_name][slide]
+
         if constants.STRATIFY:
             for class_name, class_dict in train_dict.items():
                 print(f"{class_name}: {len(list(class_dict.keys()))}")
