@@ -397,6 +397,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
     def eval(self, preds):
         if self.use_tta:
+            print(preds)
             loss = log_loss(self.unique_labels, preds)
             pred_class = np.rint(preds)
             accuracy = np.mean(pred_class == self.unique_labels)
