@@ -292,6 +292,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.extract_paths_and_labels()
         self.on_epoch_end()
         print(self.__len__())
+        print(f"Paths: {len(self.paths)}")
 
     def __len__(self):
         'Denotes the number of batches per epoch'
