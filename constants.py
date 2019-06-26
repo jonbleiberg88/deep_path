@@ -26,6 +26,7 @@ STRATIFY = False
 BALANCE_CLASSES = True
 WEIGHT_BY_SIZE = True
 
+
 USE_AUGMENTATION = True
 # Augmentation Parameters
 ROTATION_RANGE = 15
@@ -78,6 +79,7 @@ if MODE == 'remote':
         SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
         OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
+        SA_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
@@ -93,6 +95,7 @@ if MODE == 'jupyter':
         SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/FL/raw_slides/slide_imgs"
         OUTPUT_DIRECTORY = f"/tf/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/annotations/"
+        SA_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 

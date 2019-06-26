@@ -6,11 +6,15 @@ from data_generator import TrainDataGenerator, ValDataGenerator, TestDataGenerat
 from transfer_CNN import TransferCNN
 from prepare_dataset import *
 from learning_rate_utils import SGDRScheduler
+from utils.file_utils import write_pickle_to_disk
 import constants
 
 def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
     img_list = []
-    for class_dir in os.listdir(data_dir):
+    classes = os.listdir(data_dir)
+    class_to_label = {c:i for i,c in enumerate(classes)}
+
+    for class_dir in classes:
         full_path = os.path.join(data_dir, class_dir)
         img_list += os.listdir(full_path)
     img_list = set(img_list)
@@ -21,15 +25,16 @@ def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
         folds_list[idx]['train'] = list(img_list - set([img]))
         folds_list[idx]['test'] = [img]
 
-    return folds_list
+    return folds_list, class_to_label
+    
 
-def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
+def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER, predict_dir=constants.PREDICTIONS_DIRECTORY, show_val=False):
 
     if not os.path.isdir(predict_dir):
         os.makedirs(predict_dir)
 
-    train_dict, test_dict, class_to_label = get_dataset_for_fold(data_dir, folds_list, fold)
+    train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label)
 
     if len(test_dict.keys()) == 0:
         print(f"No image files found for fold {fold}")
@@ -87,7 +92,9 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
 def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
         epochs=constants.EPOCHS):
 
-    folds_list = create_leave_one_out_lists(data_dir)
+    folds_list, class_to_label = create_leave_one_out_lists(data_dir)
+    write_pickle_to_disk(f'{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label',
+                            class_to_label)
     num_slides = len(folds_list)
 
     losses = np.zeros(num_slides)
@@ -96,7 +103,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
 
     for fold in range(num_slides):
         print(f"Beginning Fold {fold}")
-        loss, acc = train_and_predict_fold(folds_list, fold, data_dir, epochs)
+        loss, acc = train_and_predict_fold(folds_list, fold, class_to_label, data_dir, epochs)
         if loss == -1 and acc == -1:
             empty.append(fold)
         else:

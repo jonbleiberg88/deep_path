@@ -5,7 +5,7 @@ import constants
 from collections import defaultdict
 from sklearn.model_selection import KFold
 
-def get_dataset_for_fold(data_dir, folds_list, fold):
+def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label):
     """
     Given the root directory holding the dataset, and the train test split,
     gets paths and creates labels for all of the images in the train and test sets
@@ -27,10 +27,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
     train_dict = defaultdict(lambda: defaultdict(list))
     test_dict = defaultdict(lambda: defaultdict(list))
 
-    classes =  os.listdir(data_dir)
-    class_to_label = {c:i for i,c in enumerate(classes)}
-
-    for img_class in classes:
+    for img_class in os.listdir(data_dir):
         class_path = os.path.join(data_dir, img_class)
         class_idx = class_to_label[img_class]
         slide_folders = os.listdir(class_path)
@@ -68,7 +65,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold):
             for class_name, class_dict in train_dict.items():
                 print(f"{class_name}: {len(list(class_dict.keys()))}")
 
-    return train_dict, test_dict, class_to_label
+    return train_dict, test_dict
 
 # def get_dataset_for_fold(data_dir, folds_list, fold):
 #     """
@@ -145,10 +142,14 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
         folds_list (dict of dicts): Split of slide folder into train and test set for each
             fold, in the format folds_list[fold_number]['train' or 'test'] = [SLIDE NAMES,...]
     """
+    classes = os.listdir(data_dir)
+    class_to_label = {c:i for i,c in enumerate(classes)}
+
     if stratified:
         image_class_counts = get_class_counts_for_images(data_dir)
         class_assignments = assign_folders_to_class(image_class_counts)
         num_classes = len(class_assignments.keys())
+
 
         folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
 
@@ -166,6 +167,7 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
     else:
         img_list = []
         folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
+
         for class_dir in os.listdir(data_dir):
             full_path = os.path.join(data_dir, class_dir)
             img_list += os.listdir(full_path)
@@ -183,7 +185,7 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
             num_classes = len(class_assignments.keys())
             print_class_counts(folds_list, image_class_counts, num_classes)
 
-    return folds_list
+    return folds_list, class_to_label
 
 def get_class_counts_for_images(data_dir):
     """
