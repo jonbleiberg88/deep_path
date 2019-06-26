@@ -326,26 +326,17 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *out_dim, n_channels)
         # Initialization
         size = len(batch_paths)
-        if size == 1:
-            print("here 1")
-            X = np.empty((*self.out_dim, self.n_channels))
-            X = np.expand_dims(self.get_img(batch_paths[0]), axis=0)
-            y = np.empty((size), dtype=int)
-            y[0] = batch_labels[0]
-            return X,y
+        X = np.empty((size, *self.out_dim, self.n_channels))
+        y = np.empty((size), dtype=int)
 
-        else:
-            X = np.empty((size, *self.out_dim, self.n_channels))
-            y = np.empty((size), dtype=int)
+        # Generate data
+        for i, data in enumerate(zip(batch_paths, batch_labels)):
+            path, label = data
+            # Store sample
+            X[i,] = self.get_img(path)
 
-            # Generate data
-            for i, data in enumerate(zip(batch_paths, batch_labels)):
-                path, label = data
-                # Store sample
-                X[i,] = self.get_img(path)
-
-                # Store class
-                y[i] = label
+            # Store class
+            y[i] = label
 
         if self.n_classes > 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
@@ -391,6 +382,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         if len(self.paths) % self.batch_size == 1:
             self.paths.append(self.paths[-1])
             self.labels.append(self.labels[-1])
+            print('appending')
 
         if self.use_tta:
             self.unique_paths = np.array(self.unique_paths)
