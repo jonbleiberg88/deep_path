@@ -376,13 +376,15 @@ class TestDataGenerator(tf.keras.utils.Sequence):
                         self.paths.append(path)
                         self.labels.append(label)
 
-        self.paths = np.array(self.paths)
-        self.labels = np.array(self.labels, dtype=int)
-
         if len(self.paths) % self.batch_size == 2:
             self.paths.append(self.paths[-1])
             self.labels.append(self.labels[-1])
             print('appending')
+
+        self.paths = np.array(self.paths)
+        self.labels = np.array(self.labels, dtype=int)
+
+
 
         if self.use_tta:
             self.unique_paths = np.array(self.unique_paths)
