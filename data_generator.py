@@ -329,7 +329,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         if size == 1:
             print("here 1")
             X = np.empty((*self.out_dim, self.n_channels))
-            X = self.get_img(batch_paths[0])
+            X = np.expand_dims(self.get_img(batch_paths[0]), axis=0)
             y = np.empty((size), dtype=int)
             y[0] = batch_labels[0]
             return X,y
