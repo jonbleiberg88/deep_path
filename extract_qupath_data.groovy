@@ -29,7 +29,7 @@ for (annotation_object in annotation_objects) {
     }
 
     name = counter.toString() + '.csv'
-    def class_name = annotation_object.getPathClass().getName()
+    def class_name = annotation_object.getPathClass().getName().replaceAll(" ", "_").toLowerCase()
     if (annotation_classes.containsKey(class_name)) {
         annotation_dir = annotation_classes.get(class_name)
     } else {
@@ -54,8 +54,7 @@ for (annotation_object in annotation_objects) {
 
 }
 
-def create_class_dir(polygon_dir, path_class, image_name) {
-    def class_name = path_class.replaceAll(" ", "_").toLowerCase()
+def create_class_dir(polygon_dir, class_name, image_name) {
     class_path = buildFilePath(polygon_dir, (class_name +'_csv_files'), image_name)
     mkdirs(class_path)
 

@@ -123,8 +123,8 @@ elif MODE == 'local':
 
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
-LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor_cells")
-SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor_cells")
+LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor")
+SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 
 #LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
 #LABEL_FILE               = "/data/ethan/lymphoma_case_codes.csv"
