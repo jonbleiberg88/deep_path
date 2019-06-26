@@ -312,6 +312,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         # Generate data
         X, y = self.__data_generation(batch_paths, batch_labels)
         if index > 180:
+            print(batch_paths)
             print(X.shape)
 
         return X, y
