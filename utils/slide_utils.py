@@ -142,7 +142,6 @@ def construct_training_dataset(top_level_directory,
     os.makedirs(small_tumor_cells_folder)
 
     slide_name_to_tile_dims_map = {}
-    slide_name_to_patches_map = {}
     patch_name_to_coords_map = {}
 
     for root, dirnames, filenames in os.walk(top_level_directory):
@@ -218,7 +217,6 @@ def construct_training_dataset(top_level_directory,
 
     write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP, patch_name_to_coords_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP, slide_name_to_tile_dims_map)
-    write_pickle_to_disk(constants.SLIDE_NAME_TO_PATCHES_MAP, slide_name_to_patches_map)
 
 def construct_annotation_path_list(slide_name, annotation_base_path):
     """
