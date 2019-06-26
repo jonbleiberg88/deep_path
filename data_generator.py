@@ -317,6 +317,11 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         'Updates indexes after each epoch'
         self.indexes = np.arange(len(self.paths))
 
+    def on_train_end(self):
+        if self.append_fix and not self.use_tta:
+            self.paths = self.paths[:-1]
+            self.labels = self.labels[:-1]
+
     def __data_generation(self, batch_paths, batch_labels):
         'Generates data containing batch_size samples' # X : (n_samples, *out_dim, n_channels)
         # Initialization
@@ -415,12 +420,22 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             return loss, accuracy
 
         else:
-            if self.append_fix:
-                preds = preds[:-1]
-                self.labels = self.labels[:-1]
-                
             loss = log_loss(self.labels, preds, labels=[0,1], eps=1e-8)
             pred_class = np.rint(preds)
             accuracy = np.mean(pred_class == self.labels)
 
             return loss, accuracy
+
+    def get_labels(self):
+        if self.use_tta:
+            return self.unique_labels
+        else:
+            return self.labels
+
+    def get_predictions(self, preds):
+        if self.use_tta:
+            return extract_TTA_preds(preds)
+        else:
+            if self.append_fix:
+                preds = preds[:-1]
+            return self.paths, preds

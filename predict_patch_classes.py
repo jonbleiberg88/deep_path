@@ -60,18 +60,15 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
     print(f"Predicting {predict_slide}...")
     preds = model.predict_generator(predict_gen, None, verbose=1)
 
-    if predict_gen.use_tta:
-        paths, preds = predict_gen.extract_TTA_preds(preds)
-    else:
-        paths = predict_gen.paths()
-
+    paths, preds = predict_gen.get_predictions(preds)
 
     loss, accuracy = predict_gen.eval(preds)
 
     print(f"Test Loss: {loss:.2f}; Test Accuracy: {accuracy*100:.2f}%")
 
     print(f"Saving predictions...")
-    preds_df = pd.DataFrame({'filepath': paths, 'labels':predict_gen.labels,'prediction': preds})
+
+    preds_df = pd.DataFrame({'filepath': paths, 'labels':predict_gen.get_labels(),'prediction': preds})
     preds_df.to_csv(f"{predict_dir}/{predict_slide}.csv")
 
 
