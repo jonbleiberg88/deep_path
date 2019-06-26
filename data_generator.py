@@ -434,7 +434,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
     def get_predictions(self, preds):
         if self.use_tta:
-            return extract_TTA_preds(preds)
+            return self.extract_TTA_preds(preds)
         else:
             if self.append_fix:
                 preds = preds[:-1]
