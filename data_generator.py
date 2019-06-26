@@ -328,19 +328,24 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         size = len(batch_paths)
         if size == 1:
             print("here 1")
-        X = np.empty((size, *self.out_dim, self.n_channels))
-        y = np.empty((size), dtype=int)
+            X = np.empty((*self.out_dim, self.n_channels))
+            X = self.get_img(batch_paths[0])
+            y = np.empty((size), dtype=int)
+            y[0] = batch_labels[0]
+            return X,y
 
-        # Generate data
-        if size == 1:
-            print('here2')
-        for i, data in enumerate(zip(batch_paths, batch_labels)):
-            path, label = data
-            # Store sample
-            X[i,] = self.get_img(path)
+        else:
+            X = np.empty((size, *self.out_dim, self.n_channels))
+            y = np.empty((size), dtype=int)
 
-            # Store class
-            y[i] = label
+            # Generate data
+            for i, data in enumerate(zip(batch_paths, batch_labels)):
+                path, label = data
+                # Store sample
+                X[i,] = self.get_img(path)
+
+                # Store class
+                y[i] = label
 
         if self.n_classes > 2:
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
