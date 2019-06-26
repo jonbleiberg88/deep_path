@@ -326,10 +326,14 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *out_dim, n_channels)
         # Initialization
         size = len(batch_paths)
+        if size == 1:
+            print("here 1")
         X = np.empty((size, *self.out_dim, self.n_channels))
         y = np.empty((size), dtype=int)
 
         # Generate data
+        if size == 1:
+            print('here2')
         for i, data in enumerate(zip(batch_paths, batch_labels)):
             path, label = data
             # Store sample
