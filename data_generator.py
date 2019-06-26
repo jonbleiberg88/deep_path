@@ -302,7 +302,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         'Generate one batch of data'
         # Generate indexes of the batch
         if (index + 1) * self.batch_size > len(self.indexes):
-            indexes = self.indexes[index*self.batch_size:-1]
+            indexes = self.indexes[index*self.batch_size:]
             print(indexes)
         else:
             indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
