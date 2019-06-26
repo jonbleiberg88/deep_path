@@ -303,6 +303,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         # Generate indexes of the batch
         if (index + 1) * self.batch_size > len(self.indexes):
             indexes = self.indexes[index*self.batch_size:-1]
+            print(indexes)
         else:
             indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
@@ -376,7 +377,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
                         self.paths.append(path)
                         self.labels.append(label)
 
-        if len(self.paths) % self.batch_size == 2:
+        if len(self.paths) % self.batch_size == 1:
             self.paths.append(self.paths[-1])
             self.labels.append(self.labels[-1])
             print('appending')
