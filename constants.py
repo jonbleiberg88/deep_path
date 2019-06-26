@@ -67,8 +67,8 @@ METRICS = ['accuracy']
 
 # Data directories
 
-# MODE = 'remote'
-MODE ='jupyter'
+MODE = 'remote'
+# MODE ='jupyter'
 # MODE = 'local'
 
 DATASET = 'FL'
