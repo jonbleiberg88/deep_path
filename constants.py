@@ -72,7 +72,7 @@ MODE = 'remote'
 # MODE = 'local'
 
 DATASET = 'FL'
-# MODE = 'CLL'
+# DATASET = 'CLL'
 
 if MODE == 'remote':
     if DATASET == 'FL':
@@ -114,12 +114,24 @@ elif MODE == 'local':
         MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
+        # QuPath constants
+        ANNOTATION_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Annotations"
+        IMAGE_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
+        PROJECT_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj"
+        PROJECT_FILE = "project.qpproj"
+
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
-        OUTPUT_DIRECTORY = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_processed/"
+        OUTPUT_DIRECTORY = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/test/"
         ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL_Proj2/annotation_csv_files/"
         MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+
+        # QuPath constants
+        ANNOTATION_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Annotations"
+        IMAGE_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
+        PROJECT_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL_Proj2"
+        PROJECT_FILE = "project.qpproj"
 
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
@@ -129,11 +141,6 @@ SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 #LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
 #LABEL_FILE               = "/data/ethan/lymphoma_case_codes.csv"
 
-# quPath constants
-ANNOTATION_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Annotations"
-IMAGE_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
-PROJECT_DIR = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj"
-PROJECT_FILE = "project.qpproj"
 
 
 
