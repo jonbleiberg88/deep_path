@@ -43,11 +43,14 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
 
         self.use_aug = use_aug
         if self.use_aug:
-            self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
-                                            height_shift_range=0.1,horizontal_flip=True,
-                                            vertical_flip=True, data_format='channels_last',
-                                            fill_mode='reflect',
-                                            zoom_range=[0.9, 1.25])
+            self.aug = ImageDataGenerator(rotation_range=constants.ROTATION_RANGE,
+                                            width_shift_range=constants.WIDTH_SHIFT_RANGE,
+                                            height_shift_range=constants.HEIGHT_SHIFT_RANGE,
+                                            horizontal_flip=constants.HORIZONTAL_FLIP,
+                                            vertical_flip=constants.VERTICAL_FLIP,
+                                            zoom_range=constants.ZOOM_RANGE,
+                                            fill_mode=constants.FILL_MODE,
+                                            data_format='channels_last')
 
         self.paths_for_epoch = []
         self.labels_for_epoch = []
@@ -184,11 +187,14 @@ class ValDataGenerator(tf.keras.utils.Sequence):
 
         self.use_aug = constants.USE_TTA
         if self.use_aug:
-            self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
-                                             height_shift_range=0.1,horizontal_flip=True,
-                                             vertical_flip=True, data_format='channels_last',
-                                             fill_mode='reflect',
-                                             zoom_range=[0.9, 1.25])
+            self.aug = ImageDataGenerator(rotation_range=constants.ROTATION_RANGE,
+                                            width_shift_range=constants.WIDTH_SHIFT_RANGE,
+                                            height_shift_range=constants.HEIGHT_SHIFT_RANGE,
+                                            horizontal_flip=constants.HORIZONTAL_FLIP,
+                                            vertical_flip=constants.VERTICAL_FLIP,
+                                            zoom_range=constants.ZOOM_RANGE,
+                                            fill_mode=constants.FILL_MODE,
+                                            data_format='channels_last')
 
         self.extract_paths_and_labels()
         self.on_epoch_end()
@@ -275,11 +281,14 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
         self.use_tta = use_tta
         if self.use_tta:
-            self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
-                                            height_shift_range=0.1,horizontal_flip=True,
-                                            vertical_flip=True, data_format='channels_last',
-                                            fill_mode='reflect',
-                                            zoom_range=[0.9, 1.25])
+            self.aug = ImageDataGenerator(rotation_range=constants.ROTATION_RANGE,
+                                            width_shift_range=constants.WIDTH_SHIFT_RANGE,
+                                            height_shift_range=constants.HEIGHT_SHIFT_RANGE,
+                                            horizontal_flip=constants.HORIZONTAL_FLIP,
+                                            vertical_flip=constants.VERTICAL_FLIP,
+                                            zoom_range=constants.ZOOM_RANGE,
+                                            fill_mode=constants.FILL_MODE,
+                                            data_format='channels_last')
             self.aug_times = aug_times
 
         self.batch_size = batch_size
