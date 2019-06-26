@@ -48,9 +48,12 @@ def train_and_predict_fold(folds_list, fold, data_dir=constants.PATCH_OUTPUT_DIR
     model = TransferCNN().compile_model()
     if fold == 0:
         print(model.summary())
-    scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
-                                lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
-                                mult_factor=constants.CYCLE_MULT)
+    if USE_SGDR:
+        scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
+                                    lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
+                                    mult_factor=constants.CYCLE_MULT)
+    else:
+        scheduler = None
 
     print("Fitting...")
     if show_val:

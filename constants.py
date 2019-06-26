@@ -6,7 +6,11 @@ EPOCHS = 2
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
-# Learning Rate Parameters
+OPTIMIZER = 'adam'
+LEARNING_RATE = 0.01
+
+USE_SGDR = True
+# SGDR Parameters
 MIN_LR = 1e-6
 MAX_LR = 0.01
 LR_DECAY = 0.5
@@ -56,14 +60,14 @@ USE_BATCH_NORM = True
 USE_DROPOUT = True
 DROPOUT_RATE = 0.5
 
-OPTIMIZER = 'adam'
-LEARNING_RATE = 0.1
+
 
 METRICS = ['accuracy']
 
 # Data directories
 
-MODE = 'remote'
+# MODE = 'remote'
+MODE ='jupyter'
 # MODE = 'local'
 
 DATASET = 'FL'
@@ -82,6 +86,21 @@ if MODE == 'remote':
         OUTPUT_DIRECTORY = f"/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/annotations/"
         MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+
+if MODE == 'jupyter':
+    if DATASET == 'FL':
+        SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/FL/raw_slides/slide_imgs"
+        OUTPUT_DIRECTORY = f"/tf/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/annotations/"
+        MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
+
+    elif DATASET == 'CLL':
+        SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/CLL/raw_slides/slide_imgs"
+        OUTPUT_DIRECTORY = f"/tf/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/CLL/raw_slides/annotations/"
+        MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
 
 elif MODE == 'local':
