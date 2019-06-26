@@ -25,7 +25,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
 
 
     print("Fitting...")
-    if USE_SGDR:
+    if constants.USE_SGDR:
         scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
                                     mult_factor=constants.CYCLE_MULT)

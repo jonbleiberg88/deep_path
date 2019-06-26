@@ -26,7 +26,7 @@ def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
         folds_list[idx]['test'] = [img]
 
     return folds_list, class_to_label
-    
+
 
 def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER, predict_dir=constants.PREDICTIONS_DIRECTORY, show_val=False):
@@ -53,7 +53,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     model = TransferCNN().compile_model()
     if fold == 0:
         print(model.summary())
-    if USE_SGDR:
+    if constants.USE_SGDR:
         scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
                                     mult_factor=constants.CYCLE_MULT)
