@@ -94,8 +94,6 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
 
     for fold in range(num_slides):
         print(f"Beginning Fold {fold}")
-        if folds_list[fold]['test'][0] != 'FLT02_Scan3':
-            continue
         loss, acc = train_and_predict_fold(folds_list, fold, data_dir, epochs)
         if loss == -1 and acc == -1:
             empty.append(fold)

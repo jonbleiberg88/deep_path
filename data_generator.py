@@ -288,11 +288,10 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.resize = resize
+        self.append_fix = False
 
         self.extract_paths_and_labels()
         self.on_epoch_end()
-        print(self.__len__())
-        print(f"Paths: {len(self.paths)}")
 
     def __len__(self):
         'Denotes the number of batches per epoch'
@@ -303,7 +302,6 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         # Generate indexes of the batch
         if (index + 1) * self.batch_size > len(self.indexes):
             indexes = self.indexes[index*self.batch_size:]
-            print(indexes)
         else:
             indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
@@ -313,10 +311,6 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y = self.__data_generation(batch_paths, batch_labels)
-        if index > 180:
-            print(batch_paths)
-            print(X.shape)
-
         return X, y
 
     def on_epoch_end(self):
@@ -376,11 +370,11 @@ class TestDataGenerator(tf.keras.utils.Sequence):
                     else:
                         self.paths.append(path)
                         self.labels.append(label)
-
+        # Fix for Keras bug with batch size of 1 passed to predict_on_batch
         if len(self.paths) % self.batch_size == 1:
             self.paths.append(self.paths[-1])
             self.labels.append(self.labels[-1])
-            print('appending')
+            self.append_fix = True
 
         self.paths = np.array(self.paths)
         self.labels = np.array(self.labels, dtype=int)
@@ -421,6 +415,10 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             return loss, accuracy
 
         else:
+            if self.append_fix:
+                preds = preds[:-1]
+                self.labels = self.labels[:-1]
+                
             loss = log_loss(self.labels, preds, labels=[0,1], eps=1e-8)
             pred_class = np.rint(preds)
             accuracy = np.mean(pred_class == self.labels)
