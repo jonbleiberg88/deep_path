@@ -187,7 +187,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
             self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
                                              height_shift_range=0.1,horizontal_flip=True,
                                              vertical_flip=True, data_format='channels_last',
-                                             shear_range=0.01, fill_mode='reflect',
+                                             fill_mode='reflect',
                                              zoom_range=[0.9, 1.25])
 
         self.extract_paths_and_labels()
@@ -278,7 +278,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             self.aug = ImageDataGenerator(rotation_range=15, width_shift_range=0.1,
                                             height_shift_range=0.1,horizontal_flip=True,
                                             vertical_flip=True, data_format='channels_last',
-                                            shear_range=0.01, fill_mode='reflect',
+                                            fill_mode='reflect',
                                             zoom_range=[0.9, 1.25])
             self.aug_times = aug_times
 
@@ -291,6 +291,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
         self.extract_paths_and_labels()
         self.on_epoch_end()
+        print(self.__len__())
 
     def __len__(self):
         'Denotes the number of batches per epoch'
