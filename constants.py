@@ -26,6 +26,14 @@ STRATIFY = False
 BALANCE_CLASSES = True
 WEIGHT_BY_SIZE = True
 
+# Preprocessing Parameters
+REMOVE_BLANK_TILES = True
+BLACK_WHITE_THRESHOLD = 0.9
+REMOVE_THRESHOLD = 0.9
+BLUR_RADIUS = 7
+EXPORT_RESULTS = False
+EXPORT_DIR = None
+
 
 USE_AUGMENTATION = True
 # Augmentation Parameters

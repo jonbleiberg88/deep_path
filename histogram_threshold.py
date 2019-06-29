@@ -8,11 +8,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--dir", "-d", help = "Directory where the dataset is stored", required=False, default=constants.PATCH_OUTPUT_DIRECTORY)
-    parser.add_argument("--black_white_threshold", "-bw", type=float, required=False, default=0.9)
-    parser.add_argument("--remove_threshold", "-t", type=float, required=False, default=0.9)
-    parser.add_argument("--blur_radius", "-r", type=int, required=False, default=7)
-    parser.add_argument("--export", "-e", action="store_true")
-    parser.add_argument("--out_dir", "-o", required="--export" in sys.argv)
+    parser.add_argument("--black_white_threshold", "-bw", type=float, required=False, default=constants.BLACK_WHITE_THRESHOLD)
+    parser.add_argument("--remove_threshold", "-t", type=float, required=False, default=constants.REMOVE_THRESHOLD)
+    parser.add_argument("--blur_radius", "-r", type=int, required=False, default=constants.BLUR_RADIUS)
+    parser.add_argument("--export", "-e", action="store_true", default=constants.EXPORT_RESULTS)
+    parser.add_argument("--out_dir", "-o", required="--export" in sys.argv, default=constants.EXPORT_DIR)
 
     args = parser.parse_args()
 
