@@ -247,7 +247,7 @@ def augment_all_classes(tile_size, overlap,
     write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP + "_" + str(aug_round), patch_name_to_coords_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP + "_" + str(aug_round), slide_name_to_tile_dims_map)
 
-    return total_count, small_count, large_count, patch_counts:
+    return total_count, small_count, large_count, patch_counts
 
 
 
