@@ -179,7 +179,7 @@ class LRFinder(Callback):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        ax.plot(self.history['lr'], self.history['loss'])
+        ax.plot(self.lrs, self.history['loss'])
 
         ax.set_xscale('log')
         ax.set_xlabel('Learning rate')
