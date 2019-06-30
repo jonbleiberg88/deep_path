@@ -253,6 +253,7 @@ def process_all_predictions():
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
         process_predictions(slide)
+        print("")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
