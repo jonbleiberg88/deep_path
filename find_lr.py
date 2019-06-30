@@ -18,10 +18,10 @@ def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=cons
     # with tf.device('/cpu:0'):
     model = TransferCNN().compile_model()
 
-    model.fit_generator(data_gen, None, epochs=epochs, callbacks=[lr_finder])
+    history = model.fit_generator(data_gen, None, epochs=epochs, callbacks=[lr_finder])
 
     lr_finder.plot_lr(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/lr.png")
-    lr_finder.plot_loss(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/loss.png")
+    lr_finder.plot_loss(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/loss.png", history)
 
 
 if __name__ == '__main__':

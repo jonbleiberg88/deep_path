@@ -145,7 +145,6 @@ class LRFinder(Callback):
         self.max_lr = max_lr
         self.total_iterations = steps_per_epoch * epochs
         self.iteration = 0
-        self.history = {}
 
         self.get_lrs()
 
@@ -174,12 +173,12 @@ class LRFinder(Callback):
 
         fig.savefig(out_path)
 
-    def plot_loss(self, out_path):
+    def plot_loss(self, out_path, history):
         '''Helper function to quickly observe the learning rate experiment results.'''
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        ax.plot(self.lrs, self.history['loss'])
+        ax.plot(self.lrs, history['loss'])
 
         ax.set_xscale('log')
         ax.set_xlabel('Learning rate')
