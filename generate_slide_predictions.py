@@ -153,6 +153,7 @@ def visualize_predictions(preds_array, slide, label_to_class, mode='save'):
         if not os.path.isdir(viz_dir):
             os.makedirs(viz_dir)
         plt.savefig(f"{viz_dir}/{slide}.png")
+        plt.clf()
 
 def process_label(label):
     """
