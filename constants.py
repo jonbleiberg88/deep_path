@@ -9,8 +9,8 @@ BATCHES_PER_EPOCH = 200
 OPTIMIZER = 'adam'
 LEARNING_RATE = 0.01
 
-USE_SGDR = True
 # SGDR Parameters
+USE_SGDR = True
 MIN_LR = 1e-6
 MAX_LR = 0.01
 LR_DECAY = 0.5
@@ -72,6 +72,11 @@ DROPOUT_RATE = 0.5
 
 
 METRICS = ['accuracy']
+
+# Post Processing Parameters
+KNN_SMOOTH = True
+KNN_RANGE = 1
+SMOOTH_FACTOR = 0.7
 
 # Data directories
 
@@ -173,7 +178,6 @@ def HEATMAP_SUBFOLDER(fold_number):
     return os.path.join(HEATMAP_FOLDER, "fold_" + str(fold_number))
 
 #Visualization helper files
-#VISUALIZATION_HELPER_FILE_FOLDER = os.path.join("/data/jblei/cancer_project/datasets/FL/256_0_4_processed/data/","visualization_helper_files_" + str(PATCH_SIZE))
 VISUALIZATION_HELPER_FILE_FOLDER = os.path.join(OUTPUT_DIRECTORY, "visualization_helper_files")
 
 PATCH_CONFIDENCE_FOLDER          = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "patch_confidences")

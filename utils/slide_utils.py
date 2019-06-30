@@ -131,8 +131,8 @@ def construct_training_dataset(top_level_directory,
         None (Patches saved to disk)
     """
 
-    large_tumor_cells_folder = os.path.join(output_dir, "large_tumor_cells")
-    small_tumor_cells_folder = os.path.join(output_dir, "small_tumor_cells")
+    large_tumor_cells_folder = os.path.join(output_dir, "large_tumor")
+    small_tumor_cells_folder = os.path.join(output_dir, "small_tumor")
 
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
