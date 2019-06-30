@@ -6,8 +6,8 @@ import constants
 
 def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=constants.NUM_FOLDS,
                         epochs=3):
-    folds_list = split_train_test(data_dir, num_folds)
-    train_dict, _, _ = get_dataset_for_fold(data_dir, folds_list, 0)
+    folds_list, class_to_label = split_train_test(data_dir, num_folds)
+    train_dict, _, _ = get_dataset_for_fold(data_dir, folds_list, 0, class_to_label)
 
     data_gen = TrainDataGenerator(train_dict)
 
