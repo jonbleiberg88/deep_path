@@ -119,7 +119,7 @@ def get_sa_for_slide(slide_name):
 
     return sa_dict
 
-def visualize_predictions(preds_array, slide, mode='save'):
+def visualize_predictions(preds_array, slide, label_to_class, mode='save'):
     """
     Visualizes class label predictions for a given slide, either printed to
     jupyter notebook or saved in a file in the visualization helper files folder
@@ -127,6 +127,7 @@ def visualize_predictions(preds_array, slide, mode='save'):
     Args:
         preds_array (numpy array): Array of predicted confidences from create_preds_array
         slide (str): name of slide to visualize
+        label_to_class (dict): dictionary to convert labels to class names
         mode (str, optional): Either 'save', which saves the visualization to disk or
             'jupyter' which can show the visualization in an IPython console. Defaults
             to 'save'.
@@ -165,7 +166,7 @@ def process_label(label):
     """
     return label.replace("_"," ").title()
 
-def get_metrics(num_per_class, sa_dict, preds_array):
+def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
     """
     Calculates the predicted and true surface area ratios for each class
 
@@ -176,6 +177,7 @@ def get_metrics(num_per_class, sa_dict, preds_array):
             Output of get_sa_for_slide.
         preds_array (2D ndarray): Predicted class confidence values for the slide.
             Output of knn_smooth or create_preds_array.
+        class_to_label (dict): dictionary to convert class names to labels
 
     Returns:
         (defaultdict): Dict containing the true and predicted class surface area ratios
@@ -230,10 +232,10 @@ def process_predictions(slide):
 
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
-    visualize_predictions(preds_array, slide)
+    visualize_predictions(preds_array, slide, label_to_class)
 
     sa_dict = get_sa_for_slide(slide)
-    results_dict = get_metrics(num_per_class, sa_dict, preds_array)
+    results_dict = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
     return results_dict
 
 def process_all_predictions():
