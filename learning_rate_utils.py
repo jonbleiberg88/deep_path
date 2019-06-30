@@ -153,7 +153,7 @@ class LRFinder(Callback):
         '''Initialize the learning rate to the minimum value at the start of training.'''
         K.set_value(self.model.optimizer.lr, self.min_lr)
 
-    def on_batch_end(self, logs={}):
+    def on_batch_end(self, batch, logs={}):
         '''Record previous batch statistics and update the learning rate.'''
         self.iteration += 1
         K.set_value(self.model.optimizer.lr, self.lrs[self.iteration])
