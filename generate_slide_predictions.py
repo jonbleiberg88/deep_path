@@ -200,9 +200,11 @@ def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
             mean_confidence = np.nanmean(preds_array)
             print(f"Results for class {process_label(class_name)}:")
             print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}; Mean Confidence: {mean_confidence:.2f}")
+            print()
         else:
             print(f"Results for class {process_label(class_name)}:")
             print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}")
+            print()
 
     return results_dict
 
@@ -253,7 +255,8 @@ def process_all_predictions():
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
         process_predictions(slide)
-        print("")
+        print()
+        print()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
