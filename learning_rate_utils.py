@@ -146,6 +146,7 @@ class LRFinder(Callback):
         self.total_iterations = steps_per_epoch * epochs
         self.iteration = 0
 
+        self.losses = np.zeros(total_iterations)
         self.get_lrs()
 
     def on_train_begin(self, logs={}):
@@ -155,6 +156,7 @@ class LRFinder(Callback):
     def on_batch_end(self, batch, logs={}):
         '''Record previous batch statistics and update the learning rate.'''
         K.set_value(self.model.optimizer.lr, self.lrs[self.iteration])
+        self.losses[self.iteration] = logs.get('loss')
         self.iteration += 1
 
     def get_lrs(self):
@@ -173,12 +175,12 @@ class LRFinder(Callback):
 
         fig.savefig(out_path)
 
-    def plot_loss(self, out_path, history):
+    def plot_loss(self, out_path):
         '''Helper function to quickly observe the learning rate experiment results.'''
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        ax.plot(self.lrs, history.history['loss'])
+        ax.plot(self.lrs, self.losses)
 
         ax.set_xscale('log')
         ax.set_xlabel('Learning rate')
