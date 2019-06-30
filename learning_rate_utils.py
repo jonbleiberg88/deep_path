@@ -155,8 +155,8 @@ class LRFinder(Callback):
 
     def on_batch_end(self, batch, logs={}):
         '''Record previous batch statistics and update the learning rate.'''
-        self.iteration += 1
         K.set_value(self.model.optimizer.lr, self.lrs[self.iteration])
+        self.iteration += 1
 
     def get_lrs(self):
         self.lrs = np.linspace(self.min_lr, self.max_lr, num=self.total_iterations)
