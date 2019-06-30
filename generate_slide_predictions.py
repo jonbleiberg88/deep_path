@@ -198,11 +198,11 @@ def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
 
         if class_to_label[class_name] == 1:
             mean_confidence = np.nanmean(preds_array)
-            print(f"Results for class {process_label(class_name)}:")
+            print(f"Class {process_label(class_name)}:")
             print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}; Mean Confidence: {mean_confidence:.2f}")
             print()
         else:
-            print(f"Results for class {process_label(class_name)}:")
+            print(f"Class {process_label(class_name)}:")
             print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}")
             print()
 
