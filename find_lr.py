@@ -11,7 +11,7 @@ def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=cons
 
     data_gen = TrainDataGenerator(train_dict)
 
-    lr_finder = LRFinder(min_lr=1e-5,
+    lr_finder = LRFinder(min_lr=1e-7,
                          max_lr=3,
                          steps_per_epoch=constants.BATCHES_PER_EPOCH,
                          epochs=epochs)
@@ -20,8 +20,8 @@ def find_learning_rate(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=cons
 
     model.fit_generator(data_gen, None, epochs=epochs, callbacks=[lr_finder])
 
-    lr_finder.plot_lr('lr.png')
-    lr_finder.plot_loss('loss.png')
+    lr_finder.plot_lr(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/lr.png')
+    lr_finder.plot_loss(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/loss.png")
 
 
 if __name__ == '__main__':

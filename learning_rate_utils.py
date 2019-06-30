@@ -149,14 +149,8 @@ class LRFinder(Callback):
 
         self.get_lrs()
 
-    def clr(self):
-        '''Calculate the learning rate.'''
-        x = self.iteration / self.total_iterations
-        return self.min_lr + (self.max_lr-self.min_lr) * x
-
     def on_train_begin(self):
         '''Initialize the learning rate to the minimum value at the start of training.'''
-        logs = logs or {}
         K.set_value(self.model.optimizer.lr, self.min_lr)
 
     def on_batch_end(self):
