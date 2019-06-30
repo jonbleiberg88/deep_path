@@ -27,7 +27,7 @@ def create_preds_array(slide_name):
 
     preds_file = f"{constants.PREDICTIONS_DIRECTORY}/{slide_name}.csv"
     df = pd.read_csv(preds_file)
-    patch_to_coords = load_pickle_from_disk(f"{vis}/patch_name_to_coords_map")
+    patch_to_coords = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/patch_name_to_coords_map")
     coords_list = []
 
     for _, row in df.iterrows():
