@@ -146,7 +146,7 @@ class LRFinder(Callback):
         self.total_iterations = steps_per_epoch * epochs
         self.iteration = 0
 
-        self.losses = np.zeros(total_iterations)
+        self.losses = np.zeros(self.total_iterations)
         self.get_lrs()
 
     def on_train_begin(self, logs={}):
