@@ -224,7 +224,7 @@ def process_predictions(slide):
     class_to_label['large_tumor'] = 0
     class_to_label['small_tumor'] = 1
     ###
-    label_to_class = {v,k for k,v in class_to_label.items()}
+    label_to_class = {v:k for k,v in class_to_label.items()}
 
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
