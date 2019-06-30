@@ -219,6 +219,13 @@ def process_predictions(slide):
     if constants.KNN_SMOOTH:
         preds_array = knn_smooth(preds_array, coords)
 
+    class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
+    ### DELETE on NEXT RUN
+    class_to_label['large_tumor'] = 0
+    class_to_label['small_tumor'] = 1
+    ###
+    label_to_class = {v,k for k,v in class_to_label.items()}
+
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
     visualize_predictions(preds_array, slide)
