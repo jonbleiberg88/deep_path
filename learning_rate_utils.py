@@ -149,7 +149,7 @@ class LRFinder(Callback):
 
         self.get_lrs()
 
-    def on_train_begin(self):
+    def on_train_begin(self, logs={}):
         '''Initialize the learning rate to the minimum value at the start of training.'''
         K.set_value(self.model.optimizer.lr, self.min_lr)
 
