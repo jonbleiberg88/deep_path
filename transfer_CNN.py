@@ -35,7 +35,7 @@ class TransferCNN:
             if self.use_bn:
                 layer_list.append(BatchNormalization())
             if self.use_dropout:
-                layer_list.append(Dropout())
+                layer_list.append(Dropout(rate=constants.DROPOUT_RATE))
 
         if self.n_classes == 2:
             layer_list.append(Dense(1, activation='sigmoid'))
