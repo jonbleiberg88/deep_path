@@ -74,7 +74,7 @@ DROPOUT_RATE = 0.5
 METRICS = ['accuracy']
 
 # Post Processing Parameters
-KNN_SMOOTH = True
+KNN_SMOOTH = False
 KNN_RANGE = 1
 SMOOTH_FACTOR = 0.7
 
