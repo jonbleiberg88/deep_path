@@ -5,6 +5,9 @@ from collections import defaultdict
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import re
+import openslide
 
 import constants
 from utils.file_utils import load_pickle_from_disk
@@ -37,7 +40,7 @@ def create_preds_array(slide_name):
         preds_array[coords] = row['prediction']
         coords_list.append(coords)
 
-    return preds_array, coords_list
+    return preds_array, coords_list, dims
 
 def knn_smooth(preds_array, coords, knn_range=constants.KNN_RANGE, smooth_factor=constants.SMOOTH_FACTOR):
     """
@@ -119,7 +122,7 @@ def get_sa_for_slide(slide_name):
 
     return sa_dict
 
-def visualize_predictions(preds_array, slide, label_to_class, mode='save'):
+def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save'):
     """
     Visualizes class label predictions for a given slide, either printed to
     jupyter notebook or saved in a file in the visualization helper files folder
@@ -136,17 +139,26 @@ def visualize_predictions(preds_array, slide, label_to_class, mode='save'):
         None (output printed or saved to disk based on mode setting)
 
     """
-    cmap = plt.get_cmap('gray')
-    cmap.set_bad(color='red')
+    path = get_slide_path(slide)
+    slide_obj = openslide.OpenSlide(path)
+    im = slide_obj.get_thumbnail((dims[1], dims[0])).resize((dims[1], dims[0]))
+    dpi = 100
+    dims_in = (dims[0] / dpi, dims[1] / dpi)
 
+    fig = plt.figure(figsize=dims_in, dpi=dpi)
+    ax = plt.gca()
+    ax.imshow(im)
+    arr = ax.imshow(preds_array, interpolation='none', cmap=plt.cm.seismic, vmin=0, vmax=1, alpha=0.5)
+    ax.set_title(f"{slide} Classification Confidences")
+    divider = make_axes_locatable(ax)
 
-    plt.imshow(preds_array, interpolation='nearest', cmap=cmap, vmin=0, vmax=1)
-    plt.title(f"{slide} Classification Confidences")
-    cbar = plt.colorbar(ticks=[0.0, 0.5, 1.0])
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    cbar = plt.colorbar(arr, ticks=[0.0, 0.5, 1.0], cax=cax)
     cbar.set_ticklabels([process_label(label_to_class[0]), '', process_label(label_to_class[1])])
 
     if mode == 'jupyter':
         plt.show()
+        plt.close([args_0])
 
     elif mode == 'save':
         viz_dir = f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/visualizations"
@@ -166,6 +178,16 @@ def process_label(label):
         (str): A formatted version of the class label for printing
     """
     return label.replace("_"," ").title()
+
+def get_slide_path(slide):
+    if "Scan" in slide:
+        path = f"{constants.SLIDE_FILE_DIRECTORY}/" + "/".join(slide.split("_")) + f"/{slide}.qptiff"
+    else:
+        prefix = re.split("[0-9]+", slide)[0]
+        img_num = int(re.findall("[0-9]+", slide)[0])
+
+        path = f"{constants.SLIDE_FILE_DIRECTORY}/{prefix}{img_num:02}/{slide}.svs"
+    return path
 
 def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
     """
@@ -223,20 +245,16 @@ def process_predictions(slide):
 
     """
 
-    preds_array, coords = create_preds_array(slide)
+    preds_array, coords, dims = create_preds_array(slide)
     if constants.KNN_SMOOTH:
         preds_array = knn_smooth(preds_array, coords)
 
     class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
-    ### DELETE on NEXT RUN
-    class_to_label['large_tumor'] = 0
-    class_to_label['small_tumor'] = 1
-    ###
     label_to_class = {v:k for k,v in class_to_label.items()}
 
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
-    visualize_predictions(preds_array, slide, label_to_class)
+    visualize_predictions(preds_array, slide, label_to_class, dims)
 
     sa_dict = get_sa_for_slide(slide)
     results_dict = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
