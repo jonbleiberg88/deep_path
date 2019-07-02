@@ -48,8 +48,6 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
         epochs=constants.EPOCHS):
 
     folds_list, class_to_label = split_train_test(data_dir, num_folds)
-    write_pickle_to_disk(f'{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label',
-                            class_to_label)
 
     val_losses = np.zeros(num_folds)
     val_accs = np.zeros(num_folds)
