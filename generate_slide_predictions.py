@@ -145,7 +145,7 @@ def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save')
     slide_obj = openslide.OpenSlide(path)
     im = slide_obj.get_thumbnail((dims[1], dims[0])).resize((dims[1], dims[0]))
     dpi = 100
-    dims_in = (dims[0] / dpi, dims[1] / dpi)
+    dims_in = (dims[1] / dpi, dims[0] / dpi)
 
     fig = plt.figure(figsize=dims_in, dpi=dpi)
     ax = plt.gca()
