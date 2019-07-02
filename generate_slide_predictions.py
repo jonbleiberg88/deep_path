@@ -150,7 +150,7 @@ def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save')
     fig = plt.figure(figsize=dims_in, dpi=dpi)
     ax = plt.gca()
     ax.imshow(im, alpha = 0.7)
-    arr = ax.imshow(preds_array, interpolation='none', cmap=plt.cm.seismic, vmin=0, vmax=1, alpha=0.4)
+    arr = ax.imshow(preds_array, interpolation='none', cmap=plt.cm.RdYlBu, vmin=0, vmax=1, alpha=0.4)
     ax.set_title(f"{slide} Classification Confidences")
     divider = make_axes_locatable(ax)
 
