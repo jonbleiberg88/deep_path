@@ -25,6 +25,7 @@ def create_preds_array(slide_name):
         (2D numpy array): 2D array containing the predicted class confidence values
         (list): List of coordinates containing a predicted value for computational
             efficiency
+        (tuple): (width, height) tuple of slide tile dimensions
     """
     slide_to_dims = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/slide_name_to_tile_dims_map")
     dims = slide_to_dims[slide_name]
@@ -131,6 +132,7 @@ def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save')
         preds_array (numpy array): Array of predicted confidences from create_preds_array
         slide (str): name of slide to visualize
         label_to_class (dict): dictionary to convert labels to class names
+        dims (tuple): (width, height) tuple of slide tile dimensions
         mode (str, optional): Either 'save', which saves the visualization to disk or
             'jupyter' which can show the visualization in an IPython console. Defaults
             to 'save'.
@@ -180,6 +182,15 @@ def process_label(label):
     return label.replace("_"," ").title()
 
 def get_slide_path(slide):
+    """
+    Helper function to extract the path to a raw slide image from the slide name
+
+    Args:
+        slide (str): the class label to format
+
+    Returns:
+        (str): The path to the raw slide file
+    """
     if "Scan" in slide:
         path = f"{constants.SLIDE_FILE_DIRECTORY}/" + "/".join(slide.split("_")) + f"/{slide}.qptiff"
     else:
@@ -240,7 +251,7 @@ def process_predictions(slide):
         slide (str): the slide to process
 
     Returns:
-        (defualtdict): Dict containing the true and predicted class surface area ratios
+        (defaultdict): Dict containing the true and predicted class surface area ratios
             for each class
 
     """
