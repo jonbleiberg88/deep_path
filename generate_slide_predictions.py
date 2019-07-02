@@ -157,6 +157,8 @@ def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save')
     cax = divider.append_axes("right", size="5%", pad=0.05)
     cbar = plt.colorbar(arr, ticks=[0.0, 0.5, 1.0], cax=cax)
     cbar.set_ticklabels([process_label(label_to_class[0]), '', process_label(label_to_class[1])])
+    cbar.solids.set_rasterized(True)
+    cbar.solids.set_edgecolor("face")
 
     if mode == 'jupyter':
         plt.show()
