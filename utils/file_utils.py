@@ -19,13 +19,13 @@ def load_pickle_from_disk(file_path):
         return pickle_contents
     except Exception as error:
         print("Couldn't open " + file_path + ". Did you run the helper scripts first?")
-        print("Exitting...")
+        print("Exiting...")
         sys.exit()
 
 def write_pickle_to_disk(file_name, python_object):
     """
     Helper function to write python_object to disk
-    as a pickle file with name file_name.  Used to 
+    as a pickle file with name file_name.  Used to
     make other code easier to read
 
     Args:
@@ -41,5 +41,5 @@ def write_pickle_to_disk(file_name, python_object):
     except Exception as error:
         print(error)
         print("Unable to write pickle " + file_name + " to disk.  Do you have sufficient permissions?")
-        print("Exitting...")
+        print("Exiting...")
         sys.exit()

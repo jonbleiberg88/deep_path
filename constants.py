@@ -21,7 +21,9 @@ CYCLE_MULT = 2
 GPUS = 2
 
 # Dataset Parameters
+DEFAULT_CLASS_NAME = "normal_tissue"
 STRATIFY = False
+
 
 BALANCE_CLASSES = True
 WEIGHT_BY_SIZE = True
@@ -80,9 +82,9 @@ SMOOTH_FACTOR = 0.7
 
 # Data directories
 
-MODE = 'remote'
+# MODE = 'remote'
 # MODE ='jupyter'
-# MODE = 'local'
+MODE = 'local'
 
 DATASET = 'FL'
 # DATASET = 'CLL'
@@ -122,7 +124,7 @@ if MODE == 'jupyter':
 elif MODE == 'local':
     if DATASET == 'FL':
         SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
-        OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/FL/test3/"
+        OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/datasets/FL/test/"
         ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj/annotation_csv_files/"
         MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
@@ -148,6 +150,7 @@ elif MODE == 'local':
 
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
+HELPER_FILES_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "helper_files")
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 
@@ -168,31 +171,10 @@ OUTPUT_LAYER            = "final_result"
 TEST_SLIDE_FOLDER       = "/dp/models/testing_slide_lists_" + str(PATCH_SIZE)
 TEST_SLIDE_LIST         = "testing_slide_list"
 
-
-#Visualization output locations
-HISTOGRAM_FOLDER = "histograms"
-def HISTOGRAM_SUBFOLDER(fold_number):
-    return os.path.join(HISTOGRAM_FOLDER, "fold_" + str(fold_number))
-HEATMAP_FOLDER = "heatmaps"
-def HEATMAP_SUBFOLDER(fold_number):
-    return os.path.join(HEATMAP_FOLDER, "fold_" + str(fold_number))
-
 #Visualization helper files
-VISUALIZATION_HELPER_FILE_FOLDER = os.path.join(OUTPUT_DIRECTORY, "visualization_helper_files")
+VISUALIZATION_HELPER_FILE_FOLDER = os.path.join(HELPER_FILES_DIRECTORY, "visualization_helper_files")
 
 PATCH_CONFIDENCE_FOLDER          = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "patch_confidences")
 PATCH_NAME_TO_COORDS_MAP         = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "patch_name_to_coords_map")
 SLIDE_NAME_TO_TILE_DIMS_MAP      = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "slide_name_to_tile_dims_map")
 SLIDE_NAME_TO_PATCHES_MAP        = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "slide_name_to_patches_map")
-FOLD_VOTE_CONTAINER_LISTS_PATH   = os.path.join(VISUALIZATION_HELPER_FILE_FOLDER, "fold_vote_container_lists")
-
-def PATCH_CONFIDENCE_FOLD_SUBFOLDER(fold_number):
-    return os.path.join(PATCH_CONFIDENCE_FOLDER, "fold_" + str(fold_number))
-def PATCH_NAME_TO_CONFIDENCE_MAP(fold_number):
-    return os.path.join(PATCH_CONFIDENCE_FOLDER, "fold_" + str(fold_number), "patch_name_to_confidence_map")
-def CONFIDENCE_CONTAINER_LIST(fold_number):
-    return os.path.join(PATCH_CONFIDENCE_FOLDER, "fold_" + str(fold_number), "confidence_containers")
-def POS_SLIDE_CONFIDENCE_LISTS(fold_number):
-    return os.path.join(PATCH_CONFIDENCE_FOLDER, "fold_" + str(fold_number), "pos_slide_confidence_lists")
-def NEG_SLIDE_CONFIDENCE_LISTS(fold_number):
-    return os.path.join(PATCH_CONFIDENCE_FOLDER, "fold_" + str(fold_number), "neg_slide_confidence_lists")
