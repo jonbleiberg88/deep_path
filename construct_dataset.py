@@ -17,6 +17,122 @@ import re
 import constants
 import os
 
+def construct_training_dataset(slide_file_directory,
+        file_extension,
+        output_dir,
+        annotation_csv_directory):
+    """
+    Recursively searches for files of the given slide file format starting at
+    the provided top level directory.  As slide files are found, they are broken
+    up into nonoverlapping patches that can be used to train our model
+
+    Args:
+        slide_file_directory (String): Location of the top-level directory, within which
+                                      lie all of our files
+        file_extension (String): File extension for slide files
+        output_dir (String): Folder in which patch files will be saved
+        annotation_csv_directory (String): Path to top level directory containing slide annotation csv files
+        annotations_only (Boolean): When true, only saves patches that have at least one corner within an annotation path
+    Returns:
+        None (Patches saved to disk)
+    """
+
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+
+    annotation_class_dirs, output_class_dirs = create_directory_structure()
+
+    slide_name_to_tile_dims_map = {}
+    patch_name_to_coords_map = {}
+
+    for root, dirnames, filenames in os.walk(slide_file_directory):
+        for filename in filenames:
+            # if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
+            if filename == "FLN06_Scan1.qptiff":
+
+                full_path = os.path.join(root, filename)
+                slide_name = os.path.splitext(os.path.basename(full_path))[0]
+
+                print("Splitting " + slide_name)
+
+                slide_class_dirs = {class_name:os.path.join(dir, slide_name)
+                    for class_name, dir in output_class_dirs.items()}
+
+
+                for class_dir in slide_class_dirs.values():
+                    os.makedirs(class_dir)
+
+                slide = load_slide(full_path)
+
+                class_path_lists = {class_name:construct_annotation_path_list(slide_name, dir)
+                    for class_name, dir in annotation_class_dirs.items()}
+
+
+                tiles = get_patch_generator(slide)
+                tile_size = constants.PATCH_SIZE + (2 * constants.OVERLAP)
+                level = len(tiles.level_tiles) - 1
+                x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
+                tiled_dims = (y_tiles, x_tiles)
+                print(tiled_dims)
+                slide_name_to_tile_dims_map[slide_name] = tiled_dims
+
+                x, y = 0, 0
+                patch_counter = 0
+                num_since_annotation = 0
+                default_counter = 0
+
+                patch_name_list = []
+                coordinate_list = []
+
+                while y < y_tiles:
+                    while x < x_tiles:
+                        patch_coords = tiles.get_tile_coordinates(level, (x,y))
+                        patch = Patch(patch_coords)
+                        patch_coordinates = (y,x)
+                        coordinate_list.append(patch_coordinates)
+
+                        for class_name, path_list in class_path_lists.items():
+                            if patch_in_paths(patch, path_list):
+                                num_since_annotation = 0
+                                patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
+                                if np.shape(patch.img) == (tile_size, tile_size, 3):
+                                    patch_name = os.path.join(slide_class_dirs[class_name], slide_name + "_" + str(patch_counter))
+                                    patch_name_list.append(patch_name)
+                                    patch.save_img_to_disk(patch_name)
+                                    patch_name_to_coords_map[patch_name] = patch_coordinates
+                                    patch_counter += 1
+                                    if patch_counter % 1000 == 0:
+                                        print(patch_counter)
+                                    break
+                        else:
+                            default_counter += 1
+                            num_since_annotation += 1
+                            if num_since_annotation < 15 or default_counter % 200 == 0:
+                                patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
+                                if np.shape(patch.img) == (tile_size, tile_size, 3):
+                                    patch_name = os.path.join(slide_class_dirs[constants.DEFAULT_CLASS_NAME],
+                                        slide_name + "_" + str(patch_counter))
+                                    patch_name_list.append(patch_name)
+                                    patch.save_img_to_disk(patch_name)
+                                    patch_name_to_coords_map[patch_name] = patch_coordinates
+                                    patch_counter += 1
+                                    if patch_counter % 1000 == 0:
+                                        print(patch_counter)
+
+                        x += 1
+                    y += 1
+                    x = 0
+
+                print("Total patches for " + slide_name + ": " + str(patch_counter))
+
+    if os.path.exists(constants.VISUALIZATION_HELPER_FILE_FOLDER):
+        shutil.rmtree(constants.VISUALIZATION_HELPER_FILE_FOLDER)
+
+    os.makedirs(constants.VISUALIZATION_HELPER_FILE_FOLDER)
+
+    write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP, patch_name_to_coords_map)
+    write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP, slide_name_to_tile_dims_map)
+
 
 def create_directory_structure():
     if not os.path.isdir(constants.HELPER_FILES_DIRECTORY):
@@ -143,164 +259,7 @@ def balance_classes(image_dir):
                     copy_name = file_path_no_extension + "_" + str(i) + extension
                     shutil.copy(full_file_path, copy_name)
 
-def construct_training_dataset(slide_file_directory,
-        file_extension,
-        output_dir,
-        annotation_csv_directory):
-    """
-    Recursively searches for files of the given slide file format starting at
-    the provided top level directory.  As slide files are found, they are broken
-    up into nonoverlapping patches that can be used to train our model
 
-    Args:
-        slide_file_directory (String): Location of the top-level directory, within which
-                                      lie all of our files
-        file_extension (String): File extension for slide files
-        output_dir (String): Folder in which patch files will be saved
-        annotation_csv_directory (String): Path to top level directory containing slide annotation csv files
-        annotations_only (Boolean): When true, only saves patches that have at least one corner within an annotation path
-    Returns:
-        None (Patches saved to disk)
-    """
-
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-
-    annotation_class_dirs, output_class_dirs = create_directory_structure()
-
- #  BYE BYE:
-    # large_tumor_cells_folder = os.path.join(output_dir, "large_tumor")
-    # small_tumor_cells_folder = os.path.join(output_dir, "small_tumor")
-    #
-
-    #
-    # os.makedirs(output_dir)
-    # os.makedirs(large_tumor_cells_folder)
-    # os.makedirs(small_tumor_cells_folder)
-
-    slide_name_to_tile_dims_map = {}
-    patch_name_to_coords_map = {}
-
-    for root, dirnames, filenames in os.walk(slide_file_directory):
-        for filename in filenames:
-            # if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
-            if filename == "FLN06_Scan1.qptiff":
-
-                full_path = os.path.join(root, filename)
-                slide_name = os.path.splitext(os.path.basename(full_path))[0]
-
-                print("Splitting " + slide_name)
-
-                # BYEEEEE
-                # slide_large_cells_dir = os.path.join(large_tumor_cells_folder, slide_name)
-                # slide_small_cells_dir = os.path.join(small_tumor_cells_folder, slide_name)
-
-                slide_class_dirs = {class_name:os.path.join(dir, slide_name) for class_name, dir in output_class_dirs.items()}
-
-                # adios
-                # os.makedirs(slide_large_cells_dir)
-                # os.makedirs(slide_small_cells_dir)
-
-                for class_dir in slide_class_dirs.values():
-                    os.makedirs(class_dir)
-
-                slide = load_slide(full_path)
-
-                # adieu mon cherie
-                # large_cells_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
-                #     "large_tumor_csv_files"))
-                # small_cells_path_list = construct_annotation_path_list(slide_name, os.path.join(annotation_csv_directory,
-                #     "small_tumor_csv_files"))
-
-                class_path_lists = {class_name:construct_annotation_path_list(slide_name, dir)
-                    for class_name, dir in annotation_class_dirs.items()}
-
-
-                # ate logo!
-                # if large_cells_path_list == [] and small_cells_path_list == []:
-                #     continue
-
-                tiles = get_patch_generator(slide)
-                tile_size = constants.PATCH_SIZE + (2 * constants.OVERLAP)
-                level = len(tiles.level_tiles) - 1
-                x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
-                tiled_dims = (y_tiles, x_tiles)
-                print(tiled_dims)
-                slide_name_to_tile_dims_map[slide_name] = tiled_dims
-
-                x, y = 0, 0
-                patch_counter = 0
-                num_since_annotation = 0
-                default_counter = 0
-
-                patch_name_list = []
-                coordinate_list = []
-
-                while y < y_tiles:
-                    while x < x_tiles:
-                        patch_coords = tiles.get_tile_coordinates(level, (x,y))
-                        patch = Patch(patch_coords)
-                        patch_coordinates = (y,x)
-                        coordinate_list.append(patch_coordinates)
-
-                        for class_name, path_list in class_path_lists.items():
-                            if patch_in_paths(patch, path_list):
-                                num_since_annotation = 0
-                                patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
-                                if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                    patch_name = os.path.join(slide_class_dirs[class_name], slide_name + "_" + str(patch_counter))
-                                    patch_name_list.append(patch_name)
-                                    patch.save_img_to_disk(patch_name)
-                                    patch_name_to_coords_map[patch_name] = patch_coordinates
-                                    patch_counter += 1
-                                    if patch_counter % 1000 == 0:
-                                        print(patch_counter)
-                                    break
-                        else:
-                            default_counter += 1
-                            num_since_annotation += 1
-                            if num_since_annotation < 15 or default_counter % 200 == 0:
-                                patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
-                                if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                    patch_name = os.path.join(slide_class_dirs[constants.DEFAULT_CLASS_NAME],
-                                        slide_name + "_" + str(patch_counter))
-                                    patch_name_list.append(patch_name)
-                                    patch.save_img_to_disk(patch_name)
-                                    patch_name_to_coords_map[patch_name] = patch_coordinates
-                                    patch_counter += 1
-                                    if patch_counter % 1000 == 0:
-                                        print(patch_counter)
-
-                        # arrivedercci!!
-                        # if patch_in_paths(patch, large_cells_path_list):
-                        #     patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
-                        #     if np.shape(patch.img) == (tile_size, tile_size, 3):
-                        #         patch_name = os.path.join(slide_large_cells_dir, slide_name + "_" + str(counter))
-                        #         patch_name_list.append(patch_name)
-                        #         patch.save_img_to_disk(patch_name)
-                        #         patch_name_to_coords_map[patch_name] = patch_coordinates
-                        #         counter += 1
-                        # elif patch_in_paths(patch, small_cells_path_list):
-                        #     patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
-                        #     if np.shape(patch.img) == (tile_size, tile_size, 3):
-                        #         patch_name = os.path.join(slide_small_cells_dir, slide_name + "_" + str(counter))
-                        #         patch_name_list.append(patch_name)
-                        #         patch.save_img_to_disk(patch_name)
-                        #         patch_name_to_coords_map[patch_name] = patch_coordinates
-                        #         counter += 1
-                        x += 1
-                    y += 1
-                    x = 0
-
-                print("Total patches for " + slide_name + ": " + str(patch_counter))
-
-    if os.path.exists(constants.VISUALIZATION_HELPER_FILE_FOLDER):
-        shutil.rmtree(constants.VISUALIZATION_HELPER_FILE_FOLDER)
-
-    os.makedirs(constants.VISUALIZATION_HELPER_FILE_FOLDER)
-
-    write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP, patch_name_to_coords_map)
-    write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP, slide_name_to_tile_dims_map)
 
 def construct_annotation_path_list(slide_name, annotation_base_path):
     """

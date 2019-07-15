@@ -15,34 +15,36 @@ Code for Kluger Lab project to classify breast cancer tissue into HER2+ or HER2-
 Openslide can be installed by following the instructions at https://openslide.org/download/.  All
 other libraries can be installed via pip.
 
-## Constructing a data set:
+## Training a Model:
 
 **Assumptions**:  The library assumes that the user has available a collection of whole-slide images (WSIs) whose region
 of interests have been annotated using the open source program QuPath.
 
 ### Extracting annotations from QuPath
 
-**Usage**: Starting from QuPath, the user should first open their qpproj file encompassing their annotations and then
-run the `extract_polygons.groovy` script from QuPath's automation interface.  Doing so will generate a folder
-for each slide containing CSV files with the coordinates of that slide's annotations.
+**Usage**: The user first open their qpproj file encompassing their annotations. If certain naming conventions are followed, the `create_qupath_proj.py` script can be used to create the qpproj file. Next,
+run the `extract_qupath_data.groovy` script from QuPath's automation interface. Doing so will generate a folder for each slide containing CSV files with the coordinates of that slide's annotations as well as a folder containing CSV files with the surface area of each annotated region.
 
 ### Extracting patches from WSI's
 
 **Usage**: `python3 construct_training_dataset`
 
-**Description**: Creates a dataset of non-overlapping patches from the slides.  
+**Description**: Creates a dataset of patches from the slides.  
 
 **Relevant Constants**:
 
 	* `SLIDE_FILE_DIRECTORY`
 	* `SLIDE_FILE_EXTENSION`
-	* `PATCH_OUTPUT_DIRECTORY` 
+	* `PATCH_OUTPUT_DIRECTORY`
 	* `LABEL_FILE_PATH`
 	* `ANNOTATION_CSV_DIRECTORY`
 
-## Model (re-)Trainng
+### Dataset Preprocessing
 
-**Usage**: `python3 train_network_kfold.py`.  Outputs trained model files to `MODEL_FILE_FOLDER` found in `constants.py`. 
+
+### Model Trainng
+
+**Usage**: `python3 train_network_kfold.py`.  Outputs trained model files to `MODEL_FILE_FOLDER` found in `constants.py`.
 
 **Description**:  Retrains the final layer of a pre-trained model (ex. Inceptionv3, ResNet50) to classify patches of
 whole-slide images.  To better evaluate the robustness of the model, the script will train k models, each with a different
@@ -72,7 +74,7 @@ giving a train/test ratio of 80%/20%.
 **Description**: Evaluates model on testing data and saves results in helper files used in the visualization scripts (below).
 
 **Relevant Constants**:
-	
+
 	* `TEST_SLIDE_FOLDER`
 	* `MODEL_FILE_FOLDER`
 	* `LABEL_FILE_PATH`
@@ -90,7 +92,7 @@ giving a train/test ratio of 80%/20%.
 
 ### Histograms
 
-**Usage**: `python3 draw_histograms.py`.  Outputs PNG files in the directory `HISTOGRAM_FOLDER` as specified in `constants.py`. 
+**Usage**: `python3 draw_histograms.py`.  Outputs PNG files in the directory `HISTOGRAM_FOLDER` as specified in `constants.py`.
 
 **Description**: Display the relative frequencies of patches for each test patient classified as positive by the network for a given fold.
 
@@ -99,7 +101,7 @@ giving a train/test ratio of 80%/20%.
 	* `POS_SLIDE_CONFIDENCE_LISTS`
 	* `NEG_SLIDE_CONFIDENCE_LISTS`
 	* `HISTOGRAM_FOLDER`
-	* `HISTOGRAM_SUBFOLDER` 
+	* `HISTOGRAM_SUBFOLDER`
 
 **Example**:
 
@@ -137,7 +139,7 @@ for being classified as positive.
 
 **Example**:
 
-<img align="center" src="https://raw.githubusercontent.com/ethanweinberger/deep_path/master/example_images/patch_visualizer_example.png"/> 
+<img align="center" src="https://raw.githubusercontent.com/ethanweinberger/deep_path/master/example_images/patch_visualizer_example.png"/>
 
 ### Confidence Heatmaps
 
@@ -155,9 +157,8 @@ as positive.
 	* `PATCH_NAME_TO_CONFIDENCE_MAP`
 	* `TEST_SLIDE_FOLDER`
 	* `TEST_SLIDE_LIST`
-	* `SLIDE_FILE_DIRECTORY` 
+	* `SLIDE_FILE_DIRECTORY`
 
 **Example**:
 
 <img align="center" src="https://raw.githubusercontent.com/ethanweinberger/deep_path/master/example_images/heatmap_example.png"/>
- 
