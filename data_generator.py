@@ -124,9 +124,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
             y[i] = self.labels_for_epoch[idx]
 
         if self.n_classes > 2:
-            print(y.shape)
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
-            print(y.shape)
 
         return X, y
 
@@ -217,6 +215,8 @@ class ValDataGenerator(tf.keras.utils.Sequence):
         # Generate data
         X, y = self.__data_generation(batch_paths, batch_labels)
         # print("get item")
+        if self.n_classes > 2:
+            y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
 
         return X, y
 

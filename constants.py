@@ -88,9 +88,9 @@ SMOOTH_FACTOR = 0.7
 
 # Data directories
 
-# MODE = 'remote'
+MODE = 'remote'
 # MODE ='jupyter'
-MODE = 'local'
+# MODE = 'local'
 
 DATASET = 'FL'
 # DATASET = 'CLL'
