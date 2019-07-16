@@ -124,7 +124,9 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
             y[i] = self.labels_for_epoch[idx]
 
         if self.n_classes > 2:
+            print(y.shape)
             y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
+            print(y.shape)
 
         return X, y
 
