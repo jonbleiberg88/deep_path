@@ -227,59 +227,6 @@ def get_patch_generator(slide, tile_size=constants.PATCH_SIZE, overlap=constants
     return DeepZoomGenerator(slide, tile_size=tile_size, overlap=overlap,
                 limit_bounds=limit_bounds)
 
-def balance_classes(image_dir):
-    """
-    Given the top level directory pointing to where our image class folders live,
-    attempts to balance the number of images belonging to each class
-
-    Args:
-        image_dir (String): Path to top-level directory
-    Returns:
-        None (output saved to disk)
-    """
-
-    class_dirs = []
-
-    for directory in os.listdir(image_dir):
-        class_dirs.append(os.path.join(image_dir, directory))
-
-    class_count_list = []
-    for class_directory in class_dirs:
-        class_count = 0
-        for patient in os.listdir(class_directory):
-            full_patient_dir = os.path.join(class_directory, patient)
-            class_count += len(os.listdir(full_patient_dir))
-        class_count_list.append(class_count)
-
-    max_class_count = 0
-    most_represented_class = ""
-    for image_class, class_count in zip(class_dirs, class_count_list):
-        if class_count > max_class_count:
-            max_class_count = class_count
-            most_represented_class = image_class
-
-    num_times_to_copy_list = []
-    for class_count in class_count_list:
-        ratio = class_count / max_class_count
-        num_times_to_copy = int(1 / ratio) - 1
-        num_times_to_copy_list.append(num_times_to_copy)
-
-    for (image_class, num_copy_rounds) in zip(class_dirs, num_times_to_copy_list):
-        slide_list = os.listdir(image_class)
-        slide_to_patch_names = []
-        for slide in slide_list:
-            slide_dir = os.path.join(image_class, slide)
-            slide_to_patch_names.append(os.listdir(slide_dir))
-
-        for i in range(num_copy_rounds):
-            for (j, slide) in enumerate(slide_list):
-                slide_dir = os.path.join(image_class, slide)
-                for file_name in slide_to_patch_names[j]:
-                    full_file_path = os.path.join(slide_dir, file_name)
-                    file_path_no_extension, extension = os.path.splitext(full_file_path)
-                    copy_name = file_path_no_extension + "_" + str(i) + extension
-                    shutil.copy(full_file_path, copy_name)
-
 
 
 def construct_annotation_path_list(slide_name, annotation_base_path):
@@ -321,23 +268,9 @@ def read_annotation(csv_path):
         vertex_list (Nx2 numpy array): Nx2 array containing all
                                        vertices in the annotaiton
     """
+    df = pd.read_csv(csv_path, header=None)
 
-    f = open(csv_path)
-    reader = csv.reader(f)
-    row_count = sum(1 for line in reader)
-    vertex_list = np.zeros((row_count, 2))
-    f.close()
-###### fix
-    f = open(csv_path)
-    reader = csv.reader(f)
-    current_row = 0
-    for row in reader:
-        vertex_list[current_row,] = row
-        current_row += 1
-
-    f.close()
-
-    return vertex_list
+    return df.values
 
 def construct_annotation_path(vertices):
     """

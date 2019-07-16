@@ -2,8 +2,8 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 3
-BATCH_SIZE = 32
+EPOCHS = 6
+BATCH_SIZE = 64
 BATCHES_PER_EPOCH = 200
 
 OPTIMIZER = 'adam'
@@ -31,6 +31,8 @@ DEFAULT_CLASS_REMOVE_THRESHOLD = 0.5
 BLUR_RADIUS = 7
 EXPORT_RESULTS = False
 EXPORT_DIR = None
+
+NUM_CLASSES = 4
 
 
 STRATIFY = False
@@ -86,9 +88,9 @@ SMOOTH_FACTOR = 0.7
 
 # Data directories
 
-MODE = 'remote'
+# MODE = 'remote'
 # MODE ='jupyter'
-# MODE = 'local'
+MODE = 'local'
 
 DATASET = 'FL'
 # DATASET = 'CLL'
