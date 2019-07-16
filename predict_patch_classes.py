@@ -78,7 +78,8 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
 
     print(f"Saving predictions...")
 
-    preds_df = pd.DataFrame({'filepath': paths, 'labels':predict_gen.get_labels(),'prediction': preds})
+    preds_df = pd.DataFrame({'filepath': paths, 'labels':predict_gen.get_labels()})
+    preds_df = pd.concat([preds_df, pd.DataFrame(preds)], axis=1)
     preds_df.to_csv(f"{predict_dir}/{predict_slide}.csv")
 
 

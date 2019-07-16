@@ -215,10 +215,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y = self.__data_generation(batch_paths, batch_labels)
-        # print("get item")
-        if self.n_classes > 2:
-            y = tf.keras.utils.to_categorical(y, num_classes=self.n_classes)
-
+        
         return X, y
 
     def on_epoch_end(self):
@@ -410,7 +407,10 @@ class TestDataGenerator(tf.keras.utils.Sequence):
              predict_lists[path].append(pred)
 
         for path, pred_list in predict_lists.items():
-            pred = np.mean(pred_list)
+            if self.n_classes > 2:
+                pred = np.mean(pred_list, axis = 0)
+            else:
+                pred = np.mean(pred_list)
             predictions[path] = pred
 
         if return_dict:
@@ -424,16 +424,22 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
     def eval(self, preds):
         if self.use_tta:
-            loss = log_loss(self.unique_labels, preds,labels=[0,1], eps=1e-8)
-            pred_class = np.rint(preds)
+            loss = log_loss(self.unique_labels, preds,labels=list(range(self.n_classes)), eps=1e-8)
+            if self.n_classes > 2:
+                pred_class = np.argmax(preds, axis=1)
+            else:
+                pred_class = np.rint(preds)
             accuracy = np.mean(pred_class == self.unique_labels)
 
 
             return loss, accuracy
 
         else:
-            loss = log_loss(self.labels, preds, labels=[0,1], eps=1e-8)
-            pred_class = np.rint(preds)
+            loss = log_loss(self.labels, preds, labels=list(range(self.n_classes)), eps=1e-8)
+            if self.n_classes > 2:
+                pred_class = np.argmax(preds, axis = 1)
+            else:
+                pred_class = np.rint(preds)
             accuracy = np.mean(pred_class == self.labels)
 
             return loss, accuracy
