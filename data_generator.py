@@ -9,13 +9,14 @@ import constants
 from collections import defaultdict, Counter
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import to_categorical
 
 
 class TrainDataGenerator(tf.keras.utils.Sequence):
     """Loads train images for Keras fit_generator function"""
     def __init__(self, data_dict, batch_size=constants.BATCH_SIZE,
                     batches_per_epoch=constants.BATCHES_PER_EPOCH, out_dim=constants.OUTPUT_IMAGE_DIM,
-                    resize=constants.RESIZE_IMAGES, n_channels=constants.N_CHANNELS, n_classes=2,
+                    resize=constants.RESIZE_IMAGES, n_channels=constants.N_CHANNELS, n_classes=constants.NUM_CLASSES,
                     balance_classes=constants.BALANCE_CLASSES, weight_by_size=constants.WEIGHT_BY_SIZE,
                     use_aug=constants.USE_AUGMENTATION):
         'Initialization'
@@ -173,7 +174,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
     """Loads validation or test images for Keras fit_generator function"""
     def __init__(self, data_dict, batch_size=constants.BATCH_SIZE, resize=constants.RESIZE_IMAGES,
                     out_dim=constants.OUTPUT_IMAGE_DIM, n_channels=constants.N_CHANNELS,
-                    n_classes=2, shuffle=True):
+                    n_classes=constants.NUM_CLASSES, shuffle=True):
         'Initialization'
         self.data_dict = data_dict
 
@@ -277,7 +278,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
     def __init__(self, data_dict, use_tta=constants.USE_TTA, aug_times=constants.TTA_AUG_TIMES,
                     batch_size=constants.BATCH_SIZE, resize=constants.RESIZE_IMAGES,
                     out_dim=constants.OUTPUT_IMAGE_DIM, n_channels=constants.N_CHANNELS,
-                    n_classes=2):
+                    n_classes=constants.NUM_CLASSES):
         'Initialization'
         self.data_dict = data_dict
 
