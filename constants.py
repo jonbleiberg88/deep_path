@@ -22,19 +22,23 @@ GPUS = 2
 
 # Dataset Parameters
 DEFAULT_CLASS_NAME = "normal_tissue"
+
+HISTOGRAM_THRESHOLD = True
+REMOVE_BLANK_TILES = True
+BLACK_WHITE_THRESHOLD = 0.9
+REMOVE_THRESHOLD = 0.9
+DEFAULT_CLASS_REMOVE_THRESHOLD = 0.5
+BLUR_RADIUS = 7
+EXPORT_RESULTS = False
+EXPORT_DIR = None
+
+
 STRATIFY = False
 
 
 BALANCE_CLASSES = True
 WEIGHT_BY_SIZE = True
 
-# Preprocessing Parameters
-REMOVE_BLANK_TILES = True
-BLACK_WHITE_THRESHOLD = 0.9
-REMOVE_THRESHOLD = 0.9
-BLUR_RADIUS = 7
-EXPORT_RESULTS = False
-EXPORT_DIR = None
 
 
 USE_AUGMENTATION = True
@@ -82,9 +86,9 @@ SMOOTH_FACTOR = 0.7
 
 # Data directories
 
-# MODE = 'remote'
+MODE = 'remote'
 # MODE ='jupyter'
-MODE = 'local'
+# MODE = 'local'
 
 DATASET = 'FL'
 # DATASET = 'CLL'

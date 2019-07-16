@@ -4,7 +4,7 @@ Code for Kluger Lab project to classify breast cancer tissue into HER2+ or HER2-
 
 ## Requirements:
 
-* Python 3.4 or higher
+* Python 3.6 or higher
 * Numpy
 * PIL
 * matplotlib
@@ -36,7 +36,6 @@ run the `extract_qupath_data.groovy` script from QuPath's automation interface. 
 	* `SLIDE_FILE_DIRECTORY`
 	* `SLIDE_FILE_EXTENSION`
 	* `PATCH_OUTPUT_DIRECTORY`
-	* `LABEL_FILE_PATH`
 	* `ANNOTATION_CSV_DIRECTORY`
 
 ### Dataset Preprocessing

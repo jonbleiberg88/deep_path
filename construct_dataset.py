@@ -1,21 +1,27 @@
+import os
+import sys
+import re
+import csv
+
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageFilter
 import shutil
 
 import pickle
 import constants
 import openslide
-import csv
+
 from openslide.deepzoom import DeepZoomGenerator
+import matplotlib.pyplot as plt
 from matplotlib.path import Path
 from patch import Patch
-from utils.file_utils import write_pickle_to_disk
-import os
-import sys
-import re
-import constants
-import os
+from utils.file_utils import write_pickle_to_disk, load_pickle_from_disk
+
+from collections import defaultdict
+from random import shuffle
+
+
 
 def construct_training_dataset(slide_file_directory,
         file_extension,
@@ -47,8 +53,8 @@ def construct_training_dataset(slide_file_directory,
 
     for root, dirnames, filenames in os.walk(slide_file_directory):
         for filename in filenames:
-            # if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
-            if filename == "FLN06_Scan1.qptiff":
+            if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
+            # if filename == "FLN06_Scan1.qptiff":
 
                 full_path = os.path.join(root, filename)
                 slide_name = os.path.splitext(os.path.basename(full_path))[0]
@@ -73,7 +79,7 @@ def construct_training_dataset(slide_file_directory,
                 level = len(tiles.level_tiles) - 1
                 x_tiles, y_tiles = tiles.level_tiles[level] #Note: Highest level == Highest resolution
                 tiled_dims = (y_tiles, x_tiles)
-                print(tiled_dims)
+                print(f"Tiling Dimensions: {tiled_dims}")
                 slide_name_to_tile_dims_map[slide_name] = tiled_dims
 
                 x, y = 0, 0
@@ -96,28 +102,30 @@ def construct_training_dataset(slide_file_directory,
                                 num_since_annotation = 0
                                 patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
                                 if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                    patch_name = os.path.join(slide_class_dirs[class_name], slide_name + "_" + str(patch_counter))
-                                    patch_name_list.append(patch_name)
-                                    patch.save_img_to_disk(patch_name)
-                                    patch_name_to_coords_map[patch_name] = patch_coordinates
-                                    patch_counter += 1
-                                    if patch_counter % 1000 == 0:
-                                        print(patch_counter)
-                                    break
+                                    if not threshold_image(patch.img, remove_threshold=constants.DEFAULT_CLASS_REMOVE_THRESHOLD) and constants.HISTOGRAM_THRESHOLD:
+                                        patch_name = os.path.join(slide_class_dirs[class_name], slide_name + "_" + str(patch_counter))
+                                        patch_name_list.append(patch_name)
+                                        patch.save_img_to_disk(patch_name)
+                                        patch_name_to_coords_map[patch_name] = patch_coordinates
+                                        patch_counter += 1
+                                        if patch_counter % 1000 == 0:
+                                            print(patch_counter)
+                                        break
                         else:
                             default_counter += 1
                             num_since_annotation += 1
                             if num_since_annotation < 15 or default_counter % 200 == 0:
                                 patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
                                 if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                    patch_name = os.path.join(slide_class_dirs[constants.DEFAULT_CLASS_NAME],
-                                        slide_name + "_" + str(patch_counter))
-                                    patch_name_list.append(patch_name)
-                                    patch.save_img_to_disk(patch_name)
-                                    patch_name_to_coords_map[patch_name] = patch_coordinates
-                                    patch_counter += 1
-                                    if patch_counter % 1000 == 0:
-                                        print(patch_counter)
+                                    if not threshold_image(patch.img, remove_threshold=0.5) and constants.HISTOGRAM_THRESHOLD:
+                                        patch_name = os.path.join(slide_class_dirs[constants.DEFAULT_CLASS_NAME],
+                                            slide_name + "_" + str(patch_counter))
+                                        patch_name_list.append(patch_name)
+                                        patch.save_img_to_disk(patch_name)
+                                        patch_name_to_coords_map[patch_name] = patch_coordinates
+                                        patch_counter += 1
+                                        if patch_counter % 1000 == 0:
+                                            print(patch_counter)
 
                         x += 1
                     y += 1
@@ -133,6 +141,19 @@ def construct_training_dataset(slide_file_directory,
     write_pickle_to_disk(constants.PATCH_NAME_TO_COORDS_MAP, patch_name_to_coords_map)
     write_pickle_to_disk(constants.SLIDE_NAME_TO_TILE_DIMS_MAP, slide_name_to_tile_dims_map)
 
+def threshold_image(image, bw_threshold=constants.BLACK_WHITE_THRESHOLD, blur_radius=constants.BLUR_RADIUS,
+    remove_threshold=constants.REMOVE_THRESHOLD):
+
+    im = Image.fromarray(image)
+    # convert to grayscale
+    im = im.convert('L')
+    # add gaussian blur
+    im = im.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+
+    pixel_vals = np.array(im) / 255
+    percent_whitespace = np.mean((pixel_vals > bw_threshold).astype(np.uint8))
+
+    return percent_whitespace > remove_threshold
 
 def create_directory_structure():
     if not os.path.isdir(constants.HELPER_FILES_DIRECTORY):
@@ -353,9 +374,12 @@ def patch_in_paths(patch, path_list):
     return in_path
 
 if __name__ == "__main__":
+    print("Building dataset...")
     construct_training_dataset(
         constants.SLIDE_FILE_DIRECTORY,
         constants.SLIDE_FILE_EXTENSION,
         constants.PATCH_OUTPUT_DIRECTORY,
         constants.ANNOTATION_CSV_DIRECTORY
     )
+
+    print("Training dataset successfully constructed!")
