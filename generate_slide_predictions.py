@@ -346,16 +346,19 @@ def process_all_predictions():
     Returns:
         None
     """
+    df = pd.DataFrame(columns=['slide', 'predicted_ratio', 'true_ratio'])
+
     confusion_mat = np.zeros((constants.NUM_CLASSES, constants.NUM_CLASSES), dtype=np.int32)
     for slide_file in os.listdir(constants.PREDICTIONS_DIRECTORY):
         if '.csv' not in slide_file:
             continue
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
-        _,_, confuse = process_predictions(slide)
+        true, pred, confuse = process_predictions(slide)
         print()
         print()
         confusion_mat += confuse
+        df = df.append({'slide':slide, 'predicted_ratio':pred, 'true_ratio':true}, ignore_index=True)
 
     class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
     label_to_class = {v:k for k,v in class_to_label.items()}
@@ -363,6 +366,8 @@ def process_all_predictions():
     print("Final Confusion Matrix")
     print()
     print_cm(confusion_mat, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
+
+    df.to_csv(os.path.join(constants.PREDICTIONS_DIRECTORY, "predicted_ratios.csv"))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
