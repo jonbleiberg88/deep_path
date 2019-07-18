@@ -26,10 +26,11 @@ def create_preds_array(slide_name):
         (list): List of coordinates containing a predicted value for computational
             efficiency
         (tuple): (width, height) tuple of slide tile dimensions
+        (pandas DataFrame): dataframe containing predicted confidences
     """
     slide_to_dims = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/slide_name_to_tile_dims_map")
     dims = slide_to_dims[slide_name]
-    preds_array = np.full(dims, fill_value=np.nan, dtype=np.float32)
+    preds_array = np.full((*dims, constants.NUM_CLASSES), fill_value=np.nan, dtype=np.float32)
 
     preds_file = f"{constants.PREDICTIONS_DIRECTORY}/{slide_name}.csv"
     df = pd.read_csv(preds_file)
@@ -38,10 +39,56 @@ def create_preds_array(slide_name):
 
     for _, row in df.iterrows():
         coords = patch_to_coords[row['filepath'].replace('.jpg', '')]
-        preds_array[coords] = row['prediction']
+        preds_array[coords] = np.array(row[3:])
         coords_list.append(coords)
 
-    return preds_array, coords_list, dims
+    return preds_array, coords_list, dims, df
+
+def get_confusion_matrix(slide, preds_df):
+    confusion_mat = np.zeros((constants.NUM_CLASSES, constants.NUM_CLASSES), dtype=np.int32)
+
+    for _,row in preds_df.iterrows():
+        pred = np.argmax(np.array(row[3:]))
+        confusion_mat[row['labels'], pred] +=1
+
+    return confusion_mat
+
+#
+
+def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False, hide_threshold=None):
+    """
+    Pretty print for confusion matrices
+    from https://gist.github.com/zachguo/10296432
+    """
+    columnwidth = max([len(x) for x in labels] + [5])  # 5 is value length
+    empty_cell = " " * columnwidth
+
+    # Begin CHANGES
+    fst_empty_cell = (columnwidth-3)//2 * " " + "t/p" + (columnwidth-3)//2 * " "
+
+    if len(fst_empty_cell) < len(empty_cell):
+        fst_empty_cell = " " * (len(empty_cell) - len(fst_empty_cell)) + fst_empty_cell
+    # Print header
+    print("    " + fst_empty_cell, end=" ")
+    # End CHANGES
+
+    for label in labels:
+        print("%{0}s".format(columnwidth) % label, end=" ")
+
+    print()
+    # Print rows
+    for i, label1 in enumerate(labels):
+        print("    %{0}s".format(columnwidth) % label1, end=" ")
+        for j in range(len(labels)):
+            cell = "%{0}s".format(columnwidth) % cm[i, j]
+            if hide_zeroes:
+                cell = cell if float(cm[i, j]) != 0 else empty_cell
+            if hide_diagonal:
+                cell = cell if i != j else empty_cell
+            if hide_threshold:
+                cell = cell if cm[i, j] > hide_threshold else empty_cell
+            print(cell, end=" ")
+        print()
 
 def knn_smooth(preds_array, coords, knn_range=constants.KNN_RANGE, smooth_factor=constants.SMOOTH_FACTOR):
     """
@@ -64,13 +111,13 @@ def knn_smooth(preds_array, coords, knn_range=constants.KNN_RANGE, smooth_factor
 
     for c in coords:
         x, y = c
-        adj = preds_array[x-knn_range:x+knn_range+1, y-knn_range:y+knn_range+1]
+        adj = preds_array[max(0,x-knn_range):x+knn_range+1, max(y-knn_range,0):y+knn_range+1]
         if smooth_factor != 1:
             weights = np.invert(np.isnan(adj)) * smooth_factor
             weights[knn_range, knn_range] = 1
-            result_array[c] = np.nansum(adj * weights) / np.sum(weights)
+            result_array[c] = np.nansum(adj * weights, axis=(0,1)) / np.sum(weights, axis=(0,1))
         else:
-            result_array[c] = np.nanmean(adj)
+            result_array[c] = np.nanmean(adj, axis=(0,1))
 
     return result_array
 
@@ -86,13 +133,14 @@ def estimate_surface_areas(preds_array, label_to_class):
         (defaultdict): Dict containing the number of patches predicted for a given class
         (defaultdict): Dict containing the estimated surface area for a given class
     """
-    class_preds = preds_array.round()
-    n_classes = np.nanmax(class_preds) + 1
+    p = np.argmax(preds_array, axis=-1)
+    pred_class = np.where(np.isnan(preds_array[:,:,0]), preds_array[:,:,0], p)
+
     num_per_class = defaultdict(int)
 
 
-    for label in range(int(n_classes)):
-        num_per_class[label_to_class[label]] = np.sum(class_preds == label)
+    for label in label_to_class.keys():
+        num_per_class[label_to_class[label]] = np.sum(pred_class == label)
 
     patch_area = constants.PATCH_SIZE ** 2
     sa_per_class = {c:n*patch_area for c,n in num_per_class.items()}
@@ -123,7 +171,7 @@ def get_sa_for_slide(slide_name):
 
     return sa_dict
 
-def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save'):
+def visualize_predictions(preds_array, slide, class_to_label, label_to_class, dims, mode='save'):
     """
     Visualizes class label predictions for a given slide, either printed to
     jupyter notebook or saved in a file in the visualization helper files folder
@@ -131,6 +179,7 @@ def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save')
     Args:
         preds_array (numpy array): Array of predicted confidences from create_preds_array
         slide (str): name of slide to visualize
+        class_to_label (dict): dictionary to convert class names to labels
         label_to_class (dict): dictionary to convert labels to class names
         dims (tuple): (width, height) tuple of slide tile dimensions
         mode (str, optional): Either 'save', which saves the visualization to disk or
@@ -143,26 +192,50 @@ def visualize_predictions(preds_array, slide, label_to_class, dims, mode='save')
     """
     path = get_slide_path(slide)
     slide_obj = openslide.OpenSlide(path)
-    im = slide_obj.get_thumbnail((dims[1], dims[0])).resize((dims[1], dims[0]))
+    im = slide_obj.get_thumbnail((dims[1], dims[0])).resize((dims[1], dims[0])).convert('L')
     dpi = 100
-    dims_in = ((dims[1] / dpi) + 1, (dims[0] / dpi) + 1)
+    dims_in = (dims[0] / dpi, dims[1] / dpi)
+
+    p = np.argmax(preds_array, axis=-1)
+    pred_class = np.where(np.isnan(preds_array[:,:,0]), preds_array[:,:,0], p)
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', r'All-NaN (slice|axis) encountered')
+        pred_conf = np.nanmax(preds_array, axis=-1)
+
+    default_confs = np.where(pred_class==class_to_label[constants.DEFAULT_CLASS_NAME],
+                                 pred_conf, np.full(pred_class.shape, np.nan))
+    large_confs = np.where(pred_class==class_to_label['large_tumor'], pred_conf, np.full(pred_class.shape, np.nan))
+    small_confs = np.where(pred_class==class_to_label['small_tumor'], pred_conf, np.full(pred_class.shape, np.nan))
+
 
     fig = plt.figure(figsize=dims_in, dpi=dpi)
     ax = plt.gca()
-    ax.imshow(im, alpha = 0.7)
-    arr = ax.imshow(preds_array, interpolation='none', cmap=plt.cm.BrBG, vmin=0, vmax=1, alpha=0.4)
-    ax.set_title(f"{slide} Classification Confidences")
+    ax.imshow(im, cmap=plt.cm.gray)
+
+
+    default_im = ax.imshow(default_confs, interpolation='none', cmap=plt.cm.Greens, vmin=0, vmax=1, alpha=0.5)
+    large_im = ax.imshow(large_confs, interpolation='none', cmap=plt.cm.Blues, vmin=0, vmax=1, alpha=0.5)
+    small_im = ax.imshow(small_confs, interpolation='none', cmap=plt.cm.Reds, vmin=0, vmax=1, alpha=0.5)
+
+    ax.set_title(f"{slide}")
     divider = make_axes_locatable(ax)
 
     cax = divider.append_axes("right", size="5%", pad=0.05)
-    cbar = plt.colorbar(arr, ticks=[0.0, 0.5, 1.0], cax=cax)
-    cbar.set_ticklabels([process_label(label_to_class[0]), '', process_label(label_to_class[1])])
-    cbar.solids.set_rasterized(True)
-    cbar.solids.set_edgecolor("face")
+    cax2 = divider.append_axes("right", size="5%", pad=.75)
+    cax3 = divider.append_axes("right", size="5%", pad=.75)
+
+    default_cbar = plt.colorbar(default_im, ticks=[0.0, 0.5, 1.0], cax=cax)
+    default_cbar.ax.set_title('Normal', fontsize=8)
+
+    large_cbar = plt.colorbar(large_im, ticks=[0.0, 0.5, 1.0], cax=cax2)
+    large_cbar.ax.set_title('Large', fontsize=8)
+
+    small_cbar = plt.colorbar(small_im, ticks=[0.0, 0.5, 1.0], cax=cax3)
+    small_cbar.ax.set_title('Small', fontsize=8)
 
     if mode == 'jupyter':
         plt.show()
-        plt.close([args_0])
+        plt.close()
 
     elif mode == 'save':
         viz_dir = f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/visualizations"
@@ -216,34 +289,17 @@ def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
         class_to_label (dict): dictionary to convert class names to labels
 
     Returns:
-        (defaultdict): Dict containing the true and predicted class surface area ratios
-            for each class
+        (float): true ratio of large to small tumor cells
+        (float): predicted ratio of large to small tumor cells
     """
     total_num = sum(list(num_per_class.values()))
 
-    true_total_sa = sum([v for k,v in sa_dict.items() if k != "normal_marrow"])
+    true_ls_ratio = sa_dict['large_tumor'] / (sa_dict['large_tumor'] + sa_dict['small_tumor'])
+    pred_ls_ratio = num_per_class['large_tumor'] / (num_per_class['large_tumor'] + num_per_class['small_tumor'])
 
-    results_dict = defaultdict(lambda: {'true': None, 'pred': None})
+    print(f"Predicted Large-Small Ratio: {pred_ls_ratio:.2f}; True ratio: {true_ls_ratio:.2f}")
 
-    for class_name, val in num_per_class.items():
-        true_ratio = sa_dict[class_name] / true_total_sa
-        predicted_ratio = val / total_num
-
-        results_dict[class_name]['true'] = true_ratio
-        results_dict[class_name]['pred'] = predicted_ratio
-
-        if class_to_label[class_name] == 1:
-            mean_confidence = np.nanmean(preds_array)
-            print()
-            print(f"Class {process_label(class_name)}:")
-            print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}; Mean Confidence: {mean_confidence:.2f}")
-        else:
-            print()
-            print(f"Class {process_label(class_name)}:")
-            print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}")
-
-
-    return results_dict
+    return true_ls_ratio, pred_ls_ratio
 
 def process_predictions(slide):
     """
@@ -258,20 +314,25 @@ def process_predictions(slide):
 
     """
 
-    preds_array, coords, dims = create_preds_array(slide)
+    preds_array, coords, dims, df = create_preds_array(slide)
     if constants.KNN_SMOOTH:
         preds_array = knn_smooth(preds_array, coords)
+
+    confusion_matrix = get_confusion_matrix(slide, df)
 
     class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
     label_to_class = {v:k for k,v in class_to_label.items()}
 
+    print_cm(confusion_matrix, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
+
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
-    visualize_predictions(preds_array, slide, label_to_class, dims)
+    visualize_predictions(preds_array, slide, class_to_label, label_to_class, dims)
 
     sa_dict = get_sa_for_slide(slide)
-    results_dict = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
-    return results_dict
+    true_ratio, pred_ratio = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
+
+    return true_ratio, pred_ratio, confusion_matrix
 
 def process_all_predictions():
     """
@@ -284,12 +345,22 @@ def process_all_predictions():
     Returns:
         None
     """
+    confusion_mat = np.zeros((constants.NUM_CLASSES, constants.NUM_CLASSES), dtype=np.int32)
     for slide_file in os.listdir(constants.PREDICTIONS_DIRECTORY):
+        if '.csv' not in slide_file:
+            continue
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
-        process_predictions(slide)
+        _,_, confuse = process_predictions(slide)
         print()
         print()
+        confusion_mat += confuse
+
+    class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
+    label_to_class = {v:k for k,v in class_to_label.items()}
+
+    print("Final Confusion Matrix")
+    print_cm(confusion_matrix, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
