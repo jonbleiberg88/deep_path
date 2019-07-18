@@ -361,7 +361,8 @@ def process_all_predictions():
     label_to_class = {v:k for k,v in class_to_label.items()}
 
     print("Final Confusion Matrix")
-    print_cm(confusion_matrix, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
+    print()
+    print_cm(confusion_mat, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
