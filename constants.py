@@ -84,8 +84,8 @@ MODE = 'remote'
 # MODE ='jupyter'
 # MODE = 'local'
 
-# DATASET = 'FL'
-DATASET = 'CLL'
+DATASET = 'FL'
+# DATASET = 'CLL'
 
 if MODE == 'remote':
     if DATASET == 'FL':
