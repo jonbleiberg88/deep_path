@@ -2,7 +2,7 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 3
+EPOCHS = 6
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
@@ -84,8 +84,8 @@ MODE = 'remote'
 # MODE ='jupyter'
 # MODE = 'local'
 
-DATASET = 'FL'
-# DATASET = 'CLL'
+# DATASET = 'FL'
+DATASET = 'CLL'
 
 if MODE == 'remote':
     if DATASET == 'FL':
