@@ -41,7 +41,53 @@ def create_preds_array(slide_name):
         preds_array[coords] = row['prediction']
         coords_list.append(coords)
 
-    return preds_array, coords_list, dims
+    return preds_array, coords_list, dims, df
+
+
+def get_confusion_matrix(slide, preds_df):
+    confusion_mat = np.zeros((2, 2), dtype=np.int32)
+
+    for _,row in preds_df.iterrows():
+        pred = int(round(row['prediction']))
+        confusion_mat[row['labels'], pred] +=1
+
+    return confusion_mat
+
+
+def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False, hide_threshold=None):
+    """
+    Pretty print for confusion matrices
+    from https://gist.github.com/zachguo/10296432
+    """
+    columnwidth = max([len(x) for x in labels] + [5])  # 5 is value length
+    empty_cell = " " * columnwidth
+
+    # Begin CHANGES
+    fst_empty_cell = (columnwidth-3)//2 * " " + "t/p" + (columnwidth-3)//2 * " "
+
+    if len(fst_empty_cell) < len(empty_cell):
+        fst_empty_cell = " " * (len(empty_cell) - len(fst_empty_cell)) + fst_empty_cell
+    # Print header
+    print("    " + fst_empty_cell, end=" ")
+    # End CHANGES
+
+    for label in labels:
+        print("%{0}s".format(columnwidth) % label, end=" ")
+
+    print()
+    # Print rows
+    for i, label1 in enumerate(labels):
+        print("    %{0}s".format(columnwidth) % label1, end=" ")
+        for j in range(len(labels)):
+            cell = "%{0}s".format(columnwidth) % cm[i, j]
+            if hide_zeroes:
+                cell = cell if float(cm[i, j]) != 0 else empty_cell
+            if hide_diagonal:
+                cell = cell if i != j else empty_cell
+            if hide_threshold:
+                cell = cell if cm[i, j] > hide_threshold else empty_cell
+            print(cell, end=" ")
+        print()
 
 def knn_smooth(preds_array, coords, knn_range=constants.KNN_RANGE, smooth_factor=constants.SMOOTH_FACTOR):
     """
@@ -64,7 +110,7 @@ def knn_smooth(preds_array, coords, knn_range=constants.KNN_RANGE, smooth_factor
 
     for c in coords:
         x, y = c
-        adj = preds_array[x-knn_range:x+knn_range+1, y-knn_range:y+knn_range+1]
+        adj = preds_array[max(x-knn_range, 0):x+knn_range+1, max(y-knn_range,0):y+knn_range+1]
         if smooth_factor != 1:
             weights = np.invert(np.isnan(adj)) * smooth_factor
             weights[knn_range, knn_range] = 1
@@ -87,7 +133,7 @@ def estimate_surface_areas(preds_array, label_to_class):
         (defaultdict): Dict containing the estimated surface area for a given class
     """
     class_preds = preds_array.round()
-    n_classes = np.nanmax(class_preds) + 1
+    n_classes = 2
     num_per_class = defaultdict(int)
 
 
@@ -221,29 +267,13 @@ def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
     """
     total_num = sum(list(num_per_class.values()))
 
-    true_total_sa = sum([v for k,v in sa_dict.items() if k != "normal_marrow"])
+    true_ls_ratio = sa_dict['large_tumor'] / (sa_dict['large_tumor'] + sa_dict['small_tumor'])
+    pred_ls_ratio = num_per_class['large_tumor'] / (num_per_class['large_tumor'] + num_per_class['small_tumor'])
 
-    results_dict = defaultdict(lambda: {'true': None, 'pred': None})
+    print(f"Predicted Large-Small Ratio: {pred_ls_ratio:.2f}; True ratio: {true_ls_ratio:.2f}")
 
-    for class_name, val in num_per_class.items():
-        true_ratio = sa_dict[class_name] / true_total_sa
-        predicted_ratio = val / total_num
+    return true_ls_ratio, pred_ls_ratio
 
-        results_dict[class_name]['true'] = true_ratio
-        results_dict[class_name]['pred'] = predicted_ratio
-
-        if class_to_label[class_name] == 1:
-            mean_confidence = np.nanmean(preds_array)
-            print()
-            print(f"Class {process_label(class_name)}:")
-            print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}; Mean Confidence: {mean_confidence:.2f}")
-        else:
-            print()
-            print(f"Class {process_label(class_name)}:")
-            print(f"Predicted ratio: {predicted_ratio:.2f}; True ratio: {true_ratio:.2f}")
-
-
-    return results_dict
 
 def process_predictions(slide):
     """
@@ -258,20 +288,25 @@ def process_predictions(slide):
 
     """
 
-    preds_array, coords, dims = create_preds_array(slide)
+    preds_array, coords, dims, df = create_preds_array(slide)
     if constants.KNN_SMOOTH:
         preds_array = knn_smooth(preds_array, coords)
 
     class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
     label_to_class = {v:k for k,v in class_to_label.items()}
 
+    confusion_matrix = get_confusion_matrix(slide, df)
+    print_cm(confusion_matrix, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
+    print()
+
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
     visualize_predictions(preds_array, slide, label_to_class, dims)
 
     sa_dict = get_sa_for_slide(slide)
-    results_dict = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
-    return results_dict
+    true, pred = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
+
+    return true, pred, confusion_matrix
 
 def process_all_predictions():
     """
@@ -284,12 +319,22 @@ def process_all_predictions():
     Returns:
         None
     """
+    confusion_mat = np.zeros((2, 2), dtype=np.int32)
+    df = pd.DataFrame(columns=['slide', 'predicted_ratio', 'true_ratio'])
+
     for slide_file in os.listdir(constants.PREDICTIONS_DIRECTORY):
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
-        process_predictions(slide)
-        print()
-        print()
+        true, pred, confuse = process_predictions(slide)
+
+        confusion_mat += confuse
+        df = df.append({'slide':slide, 'predicted_ratio':pred, 'true_ratio':true}, ignore_index=True)
+
+    df.to_csv(os.path.join(constants.PREDICTIONS_DIRECTORY, "predicted_ratios.csv"))
+
+    print("Final Confusion Matrix")
+    print()
+    print_cm(confusion_mat, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
