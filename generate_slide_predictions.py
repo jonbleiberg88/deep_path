@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import re
 import openslide
+import warnings
 
 import constants
 from utils.file_utils import load_pickle_from_disk
