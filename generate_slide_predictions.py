@@ -324,7 +324,7 @@ def process_predictions(slide):
     class_to_label = load_pickle_from_disk(f"{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label")
     label_to_class = {v:k for k,v in class_to_label.items()}
 
-    print_cm(confusion_matrix, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
+    print_cm(confusion_matrix, labels = [process_label(label_to_class[i]) for i in range(max(label_to_class.keys()) + 1)])
 
     num_per_class, sa_per_class = estimate_surface_areas(preds_array, label_to_class)
 
@@ -362,7 +362,7 @@ def process_all_predictions():
 
     print("Final Confusion Matrix")
     print()
-    print_cm(confusion_mat, labels = [label_to_class[i] for i in range(max(label_to_class.keys()) + 1)])
+    print_cm(confusion_mat, labels = [process_label(label_to_class[i]) for i in range(max(label_to_class.keys()) + 1)])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
