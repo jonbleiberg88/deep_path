@@ -98,7 +98,7 @@ DATASET = 'FL'
 if MODE == 'remote':
     if DATASET == 'FL':
         SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
-        OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
@@ -106,7 +106,7 @@ if MODE == 'remote':
 
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/dp/datasets/CLL/raw_slides/slide_imgs"
-        OUTPUT_DIRECTORY = f"/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        OUTPUT_DIRECTORY = f"/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/annotations/"
         MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
@@ -114,7 +114,7 @@ if MODE == 'remote':
 if MODE == 'jupyter':
     if DATASET == 'FL':
         SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/FL/raw_slides/slide_imgs"
-        OUTPUT_DIRECTORY = f"/tf/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        OUTPUT_DIRECTORY = f"/tf/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
@@ -122,7 +122,7 @@ if MODE == 'jupyter':
 
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/CLL/raw_slides/slide_imgs"
-        OUTPUT_DIRECTORY = f"/tf/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
+        OUTPUT_DIRECTORY = f"/tf/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/CLL/raw_slides/annotations/"
         MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
