@@ -2,8 +2,8 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 6
-BATCH_SIZE = 32
+EPOCHS = 10
+BATCH_SIZE = 64
 BATCHES_PER_EPOCH = 200
 
 OPTIMIZER = 'adam'
@@ -13,7 +13,7 @@ LEARNING_RATE = 0.01
 USE_SGDR = True
 MIN_LR = 1e-6
 MAX_LR = 0.03
-LR_DECAY = 0.5
+LR_DECAY = 0.9
 CYCLE_LENGTH = 3
 CYCLE_MULT = 2
 
@@ -24,7 +24,7 @@ GPUS = 2
 STRATIFY = False
 
 BALANCE_CLASSES = True
-WEIGHT_BY_SIZE = True
+WEIGHT_BY_SIZE = False
 
 # Preprocessing Parameters
 REMOVE_BLANK_TILES = True
