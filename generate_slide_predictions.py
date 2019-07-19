@@ -323,6 +323,8 @@ def process_all_predictions():
     df = pd.DataFrame(columns=['slide', 'predicted_ratio', 'true_ratio'])
 
     for slide_file in os.listdir(constants.PREDICTIONS_DIRECTORY):
+        if '.csv' not in slide_file or slide_file == "predicted_ratios.csv":
+            continue
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
         true, pred, confuse = process_predictions(slide)
