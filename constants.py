@@ -167,15 +167,9 @@ SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 
 
 #Constants for pre-trained models
-HOW_MANY_TRAINING_STEPS = 50
 
-BOTTLENECK_DIR          = "/dp/.tmp/bottleneck_" + str(PATCH_SIZE)
-MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+MODEL_FILE_FOLDER   = f"/dp/models/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
 
-INPUT_LAYER             = "Placeholder"
-OUTPUT_LAYER            = "final_result"
-TEST_SLIDE_FOLDER       = "/dp/models/testing_slide_lists_" + str(PATCH_SIZE)
-TEST_SLIDE_LIST         = "testing_slide_list"
 
 #Visualization helper files
 VISUALIZATION_HELPER_FILE_FOLDER = os.path.join(HELPER_FILES_DIRECTORY, "visualization_helper_files")
