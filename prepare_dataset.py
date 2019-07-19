@@ -70,8 +70,8 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label):
 
 def get_full_dataset(data_dir, slides, class_to_label):
     """
-    Given the root directory holding the dataset, and the train test split,
-    gets paths and creates labels for all of the images in the train and test sets
+    Given the root directory holding the dataset and a list of slides,
+    gets paths and creates labels for all of the images
 
     Args:
         data_dir (String): Path to top-level directory of dataset
