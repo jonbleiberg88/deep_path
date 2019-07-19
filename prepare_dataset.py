@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 import constants
 
 from collections import defaultdict
@@ -183,8 +184,10 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
         folds_list (dict of dicts): Split of slide folder into train and test set for each
             fold, in the format folds_list[fold_number]['train' or 'test'] = [SLIDE NAMES,...]
     """
-    classes = os.listdir(data_dir)
-    class_to_label = {c:i for i,c in enumerate(classes)}
+
+    class_to_label = {'ND':0, 'D':1}
+    labels_df = pd.read_csv(constants.LABEL_FILE)
+    
 
     if stratified:
         image_class_counts = get_class_counts_for_images(data_dir)
