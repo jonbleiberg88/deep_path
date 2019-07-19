@@ -49,9 +49,9 @@ def get_percent_whitespace(data_dir, threshold=0.9, blur_radius=7):
 def threshold(whitespace, threshold = 0.9):
     initial_count = len(whitespace)
     remove_count = 0
+
     for file, percent in whitespace:
         if percent > threshold:
-            whitespace.remove((file, percent))
             os.remove(file)
             remove_count += 1
 
