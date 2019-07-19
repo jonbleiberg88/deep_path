@@ -102,7 +102,7 @@ def construct_training_dataset(slide_file_directory,
                                 num_since_annotation = 0
                                 patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
                                 if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                    if not threshold_image(patch.img, remove_threshold=constants.DEFAULT_CLASS_REMOVE_THRESHOLD) and constants.HISTOGRAM_THRESHOLD:
+                                    if not threshold_image(patch.img, remove_threshold=constants.REMOVE_THRESHOLD) and constants.HISTOGRAM_THRESHOLD:
                                         patch_name = os.path.join(slide_class_dirs[class_name], slide_name + "_" + str(patch_counter))
                                         patch_name_list.append(patch_name)
                                         patch.save_img_to_disk(patch_name)
@@ -117,7 +117,7 @@ def construct_training_dataset(slide_file_directory,
                             if num_since_annotation < 15 or default_counter % 200 == 0:
                                 patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
                                 if np.shape(patch.img) == (tile_size, tile_size, 3):
-                                    if not threshold_image(patch.img, remove_threshold=0.5) and constants.HISTOGRAM_THRESHOLD:
+                                    if not threshold_image(patch.img, remove_threshold=constants.DEFAULT_CLASS_REMOVE_THRESHOLD) and constants.HISTOGRAM_THRESHOLD:
                                         patch_name = os.path.join(slide_class_dirs[constants.DEFAULT_CLASS_NAME],
                                             slide_name + "_" + str(patch_counter))
                                         patch_name_list.append(patch_name)
