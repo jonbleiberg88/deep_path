@@ -101,14 +101,14 @@ if MODE == 'remote':
         OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        MODEL_FILE_FOLDER       = f"/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/dp/datasets/CLL/raw_slides/slide_imgs"
         OUTPUT_DIRECTORY = f"/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/annotations/"
-        MODEL_FILE_FOLDER       = "/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        MODEL_FILE_FOLDER       = f"/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
 
 if MODE == 'jupyter':
@@ -117,14 +117,14 @@ if MODE == 'jupyter':
         OUTPUT_DIRECTORY = f"/tf/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        MODEL_FILE_FOLDER       = f"tf/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/CLL/raw_slides/slide_imgs"
         OUTPUT_DIRECTORY = f"/tf/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/CLL/raw_slides/annotations/"
-        MODEL_FILE_FOLDER       = "/tf/dp/models/output_graph_files_" + str(PATCH_SIZE)
+        MODEL_FILE_FOLDER       = f"tf/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
 
 elif MODE == 'local':
@@ -132,7 +132,7 @@ elif MODE == 'local':
         SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL Scans"
         OUTPUT_DIRECTORY   = f"/Volumes/Backup/Projects/cancer_project/datasets/FL/test/"
         ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/FL_Proj/annotation_csv_files/"
-        MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
+        MODEL_FILE_FOLDER       = f"//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
         # QuPath constants
@@ -145,7 +145,7 @@ elif MODE == 'local':
         SLIDE_FILE_DIRECTORY     = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL Scans"
         OUTPUT_DIRECTORY = f"/Volumes/Backup/Projects/cancer_project/5:21:19/Datasets/CLL/test/"
         ANNOTATION_CSV_DIRECTORY = "/Volumes/Backup/Projects/cancer_project/5:21:19/CLL_Proj2/annotation_csv_files/"
-        MODEL_FILE_FOLDER       = "//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/output_graph_files_" + str(PATCH_SIZE)
+        MODEL_FILE_FOLDER       = f"//Users/jonathanbleiberg/Documents/College/Research/cancer_project/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
 
         # QuPath constants
@@ -157,18 +157,9 @@ elif MODE == 'local':
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
 HELPER_FILES_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "helper_files")
-LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor")
-SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
+# LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor")
+# SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 
-#LABEL_FILE_PATH         = "/data/ethan/Breast_Deep_Learning/labels.csv"
-#LABEL_FILE               = "/data/ethan/lymphoma_case_codes.csv"
-
-
-
-
-#Constants for pre-trained models
-
-MODEL_FILE_FOLDER   = f"/dp/models/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}_multiclass/"
 
 
 #Visualization helper files
