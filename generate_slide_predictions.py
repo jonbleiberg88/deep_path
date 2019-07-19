@@ -350,7 +350,7 @@ def process_all_predictions():
 
     confusion_mat = np.zeros((constants.NUM_CLASSES, constants.NUM_CLASSES), dtype=np.int32)
     for slide_file in os.listdir(constants.PREDICTIONS_DIRECTORY):
-        if '.csv' not in slide_file:
+        if '.csv' not in slide_file or slide_file == "predicted_ratios.csv":
             continue
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
