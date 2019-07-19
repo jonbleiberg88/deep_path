@@ -270,9 +270,17 @@ def get_metrics(num_per_class, sa_dict, preds_array, class_to_label):
     true_ls_ratio = sa_dict['large_tumor'] / (sa_dict['large_tumor'] + sa_dict['small_tumor'])
     pred_ls_ratio = num_per_class['large_tumor'] / (num_per_class['large_tumor'] + num_per_class['small_tumor'])
 
-    print(f"Predicted Large-Small Ratio: {pred_ls_ratio:.2f}; True ratio: {true_ls_ratio:.2f}")
+    if class_to_label['large_tumor'] == 1:
+        mean_conf = np.nanmean(preds_array)
+    else:
+        mean_conf = 1 - np.nanmean(preds_array)
 
-    return true_ls_ratio, pred_ls_ratio
+
+
+    print(f"Predicted Large-Small Ratio: {pred_ls_ratio:.2f}; True ratio: {true_ls_ratio:.2f}")
+    print(f"Mean Confidence: {mean_conf:.2f}")
+
+    return true_ls_ratio, pred_ls_ratio, mean_conf
 
 
 def process_predictions(slide):
@@ -304,9 +312,9 @@ def process_predictions(slide):
     visualize_predictions(preds_array, slide, label_to_class, dims)
 
     sa_dict = get_sa_for_slide(slide)
-    true, pred = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
+    true, pred, mean_conf = get_metrics(num_per_class, sa_dict, preds_array, class_to_label)
 
-    return true, pred, confusion_matrix
+    return true, pred, confusion_matrix, mean_conf
 
 def process_all_predictions():
     """
@@ -320,17 +328,17 @@ def process_all_predictions():
         None
     """
     confusion_mat = np.zeros((2, 2), dtype=np.int32)
-    df = pd.DataFrame(columns=['slide', 'predicted_ratio', 'true_ratio'])
+    df = pd.DataFrame(columns=['slide', 'predicted_ratio', 'true_ratio', 'mean_conf'])
 
     for slide_file in os.listdir(constants.PREDICTIONS_DIRECTORY):
         if '.csv' not in slide_file or slide_file == "predicted_ratios.csv":
             continue
         slide = slide_file.replace(".csv", "")
         print(f"Results for Slide {slide}")
-        true, pred, confuse = process_predictions(slide)
+        true, pred, confuse, mean_conf = process_predictions(slide)
 
         confusion_mat += confuse
-        df = df.append({'slide':slide, 'predicted_ratio':pred, 'true_ratio':true}, ignore_index=True)
+        df = df.append({'slide':slide, 'predicted_ratio':pred, 'true_ratio':true, 'mean_conf':mean_conf}, ignore_index=True)
 
     df.to_csv(os.path.join(constants.PREDICTIONS_DIRECTORY, "predicted_ratios.csv"))
 
