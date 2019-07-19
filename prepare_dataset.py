@@ -16,9 +16,9 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label):
         fold (int): Fold for which to extract data
     Returns:
         dict containing the paths, labels for train images in the form
-            train_dict[SLIDE_FOLDER] = [(PATH, LABEL), ...]
+            train_dict[IMG_CLASS][SLIDE_FOLDER] = [(PATH, LABEL), ...]
         dict containing the paths, labels for test images in the form
-            test_dict[SLIDE_FOLDER] = [(PATH, LABEL), ...]
+            test_dict[IMG_CLASS][SLIDE_FOLDER] = [(PATH, LABEL), ...]
         dict to convert between class names and integer labels
     """
     train_slides = folds_list[fold]['train']
@@ -66,6 +66,47 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label):
                 print(f"{class_name}: {len(list(class_dict.keys()))}")
 
     return train_dict, test_dict
+
+
+def get_full_dataset(data_dir, slides, class_to_label):
+    """
+    Given the root directory holding the dataset, and the train test split,
+    gets paths and creates labels for all of the images in the train and test sets
+
+    Args:
+        data_dir (String): Path to top-level directory of dataset
+        folds_list (dict of dicts): Output of split_train_test
+        fold (int): Fold for which to extract data
+    Returns:
+        dict containing the paths, labels for train images in the form
+            train_dict[IMG_CLASS][SLIDE_FOLDER] = [(PATH, LABEL), ...]
+
+        dict to convert between class names and integer labels
+    """
+
+    train_dict = defaultdict(lambda: defaultdict(list))
+
+    for img_class in os.listdir(data_dir):
+        class_path = os.path.join(data_dir, img_class)
+        class_idx = class_to_label[img_class]
+        slide_folders = os.listdir(class_path)
+
+        for slide in slide_folders:
+            if slide in slides:
+                slide_path = os.path.join(class_path, slide)
+                for img in os.listdir(os.path.join(class_path, slide)):
+                    if img.endswith('.jpg'):
+                        path = os.path.join(slide_path, img)
+                        label = class_idx
+                        train_dict[img_class][slide].append((path, label))
+
+
+        for class_name, class_dict in train_dict.items():
+            for slide in list(class_dict.keys()):
+                if len(class_dict[slide]) == 0:
+                    del train_dict[class_name][slide]
+
+    return train_dict
 
 # def get_dataset_for_fold(data_dir, folds_list, fold):
 #     """

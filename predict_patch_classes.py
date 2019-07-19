@@ -116,8 +116,29 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
     losses = np.delete(losses, empty)
     accs = np.delete(accs, empty)
 
-    print("Training and prediction complete!")
+    print("Training model on full dataset...")
+    slides = folds_list[0]['train'] + folds_list[0]['test']
 
+    train_dict = get_full_dataset(data_dir, slides, class_to_label)
+    train_gen = TrainDataGenerator(train_dict)
+
+    model = TransferCNN().compile_model()
+    if constants.USE_SGDR:
+        scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
+                                    lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
+                                    mult_factor=constants.CYCLE_MULT)
+    else:
+        scheduler = None
+
+    print("Fitting...")
+    model.fit_generator(train_gen, None,epochs=epochs, callbacks=[scheduler])
+
+    print("Saving final model...")
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+    model.save(os.path.join(model_dir, f"final_model"))
+
+    print("Training and prediction complete!")
     return losses, accs
 
 if __name__ == "__main__":
