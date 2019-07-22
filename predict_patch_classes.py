@@ -90,7 +90,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     return loss, accuracy
 
 def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
-        epochs=constants.EPOCHS):
+        epochs=constants.EPOCHS, model_dir=constants.MODEL_FILE_FOLDER):
 
     folds_list, class_to_label = create_leave_one_out_lists(data_dir)
     write_pickle_to_disk(f'{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label',
