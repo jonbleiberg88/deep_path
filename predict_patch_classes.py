@@ -130,7 +130,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
         scheduler = None
 
     print("Fitting...")
-    model.fit_generator(train_gen, None,epochs=epochs, callbacks=[scheduler])
+    model.fit_generator(train_gen, None, epochs=epochs, callbacks=[scheduler])
 
     print("Saving final model...")
     if not os.path.exists(model_dir):
