@@ -20,7 +20,7 @@ class TransferCNN:
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
         optimizer='adam', metrics=constants.METRICS):
         self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING, dropout=constants.CNN_DROPOUT)
+        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING)#, dropout=constants.CNN_DROPOUT)
         self.layer_sizes = layer_sizes
         self.n_classes = n_classes
         self.use_bn = use_bn
