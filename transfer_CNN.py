@@ -70,7 +70,19 @@ class TransferCNN:
 
 
 def class_0_acc(y_true, y_pred):
-    return K.mean(y_pred[y_true == 0] == y_true[y_true == 0])
+    class_id_true = K.argmax(y_true, axis=-1)
+    class_id_preds = K.argmax(y_pred, axis=-1)
+    # Replace class_id_preds with class_id_true for recall here
+    accuracy_mask = K.cast(K.equal(class_id_preds, 0), 'int32')
+    class_acc_tensor = K.cast(K.equal(class_id_true, class_id_preds), 'int32') * accuracy_mask
+    class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
+    return class_acc
 
 def class_1_acc(y_true, y_pred):
-    return K.mean(y_pred[y_true == 1] == y_true[y_true == 1])
+    class_id_true = K.argmax(y_true, axis=-1)
+    class_id_preds = K.argmax(y_pred, axis=-1)
+    # Replace class_id_preds with class_id_true for recall here
+    accuracy_mask = K.cast(K.equal(class_id_preds, 1), 'int32')
+    class_acc_tensor = K.cast(K.equal(class_id_true, class_id_preds), 'int32') * accuracy_mask
+    class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
+    return class_acc
