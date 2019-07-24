@@ -3,8 +3,8 @@ import tensorflow.keras
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.xception import Xception
-from tensorflow.keras.applications.mobilenet import MobileNet
-from tensorflow.keras.applications.densenet import DenseNet121, preprocess_input
+from tensorflow.keras.applications.mobilenet import MobileNet, preprocess_input
+from tensorflow.keras.applications.densenet import DenseNet121
 # from tensorflow.keras.applications.vgg19 import VGG19, preprocess_input
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
