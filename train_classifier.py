@@ -30,7 +30,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
                                     mult_factor=constants.CYCLE_MULT)
         hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
-                                    validation_steps=None, callbacks=[scheduler])
+                                    validation_steps=None, callbacks=[scheduler], metrics=)
     else:
         hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
                                     validation_steps=None)
@@ -65,6 +65,7 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
     print("Training complete!")
 
     return val_losses, val_accs
+
 
 if __name__ == "__main__":
     val_losses, val_accs = train_k_folds()

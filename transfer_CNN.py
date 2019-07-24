@@ -10,6 +10,7 @@ from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.utils import multi_gpu_model
+import tensorflow.keras.backend as K
 
 import constants
 # SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True)
@@ -57,12 +58,19 @@ class TransferCNN:
         if constants.GPUS > 1:
             self.model = multi_gpu_model(self.model, gpus=constants.GPUS, cpu_merge=False)
         if self.n_classes == 2:
-            self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
+            self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=[*self.metrics, class_0_acc, class_1_acc])
         if self.n_classes > 2:
-            self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=self.metrics)
+            self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=[*self.metrics, class_0_acc, class_1_acc])
 
         return self.model
 
     def set_trainable(self, trainable):
         for layer in self.base_model.layers:
             layer.trainable = trainable
+
+
+def class_0_acc(y_true, y_pred):
+    return K.mean(y_pred[y_true == 0] == y_true[y_true == 0])
+
+def class_1_acc(y_true, y_pred):
+    return K.mean(y_pred[y_true == 1] == y_true[y_true == 1])
