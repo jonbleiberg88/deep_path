@@ -30,7 +30,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
                                     mult_factor=constants.CYCLE_MULT)
         hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
-                                    validation_steps=None, callbacks=[scheduler], metrics=)
+                                    validation_steps=None, callbacks=[scheduler])
     else:
         hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
                                     validation_steps=None)
