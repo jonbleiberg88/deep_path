@@ -53,14 +53,16 @@ class TransferCNN:
     def compile_model(self):
         if self.model is None:
             self.init_model()
+        self.base_model = self.model
+
         if constants.GPUS > 1:
-            self.model = multi_gpu_model(self.model, gpus=constants.GPUS, cpu_merge=False)
+            self.model = multi_gpu_model(self.base_model, gpus=constants.GPUS, cpu_merge=False)
         if self.n_classes == 2:
             self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=self.metrics)
         if self.n_classes > 2:
             self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=self.metrics)
 
-        return self.model
+        return self.model, self.base_model
 
     def set_trainable(self, trainable):
         for layer in self.base_model.layers:

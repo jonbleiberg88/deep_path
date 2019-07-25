@@ -50,7 +50,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     predict_gen = TestDataGenerator(test_dict)
 
     print("Compiling model...")
-    model = TransferCNN().compile_model()
+    model, base_model = TransferCNN().compile_model()
     if fold == 0:
         print(model.summary())
     if constants.USE_SGDR:
@@ -86,7 +86,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     print("Saving model...")
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    model.save_weights(os.path.join(model_dir, f"weights_fold_{fold}"))
+    base_model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
     return loss, accuracy
 
@@ -122,7 +122,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
     train_dict = get_full_dataset(data_dir, slides, class_to_label)
     train_gen = TrainDataGenerator(train_dict)
 
-    model = TransferCNN().compile_model()
+    model, base_model = TransferCNN().compile_model()
     if constants.USE_SGDR:
         scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
@@ -136,7 +136,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
     print("Saving final model...")
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    model.save(os.path.join(model_dir, f"final_model"))
+    base_model.save(os.path.join(model_dir, f"final_model"))
 
     print("Training and prediction complete!")
     return losses, accs
