@@ -71,3 +71,5 @@ def get_patches_for_slide(slide_path,
 
 if __name__ == "__main__":
     TEST_SLIDE = "/dp/datasets/FL/raw_slides/slide_imgs/FLN01/Scan1/FLN01_Scan1.qptiff"
+
+    get_patches_for_slide(TEST_SLIDE)
