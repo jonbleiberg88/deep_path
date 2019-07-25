@@ -263,8 +263,9 @@ class ValDataGenerator(tf.keras.utils.Sequence):
         for class_dict in self.data_dict.values():
             for slide_data_list in class_dict.values():
                 for path, label in slide_data_list:
-                    self.paths.append(path)
-                    self.labels.append(label)
+                    if "_aug.jpg" not in path: #ignore stride aug in test set
+                        self.paths.append(path)
+                        self.labels.append(label)
 
         self.paths = np.array(self.paths)
         self.labels = np.array(self.labels, dtype =int)
@@ -374,16 +375,17 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         for class_dict in self.data_dict.values():
             for slide_data_list in class_dict.values():
                 for path, label in slide_data_list:
-                    if self.use_tta:
-                        for _ in range(self.aug_times):
+                    if "_aug.jpg" not in path: #ignore stride aug in test set
+                        if self.use_tta:
+                            for _ in range(self.aug_times):
+                                self.paths.append(path)
+                                self.labels.append(label)
+                            self.unique_paths.append(path)
+                            self.unique_labels.append(label)
+
+                        else:
                             self.paths.append(path)
                             self.labels.append(label)
-                        self.unique_paths.append(path)
-                        self.unique_labels.append(label)
-
-                    else:
-                        self.paths.append(path)
-                        self.labels.append(label)
         # Fix for Keras bug with batch size of 1 passed to predict_on_batch
         if len(self.paths) % self.batch_size == 1:
             self.paths.append(self.paths[-1])

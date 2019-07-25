@@ -34,6 +34,12 @@ BLUR_RADIUS = 7
 EXPORT_RESULTS = False
 EXPORT_DIR = None
 
+# Stride augmentation parameters
+MAX_IMAGES = 10e5
+MAX_OVERLAP = 100
+MIN_OVERLAP_DIFFERENCE = 4
+
+
 
 USE_AUGMENTATION = True
 # Augmentation Parameters
