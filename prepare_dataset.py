@@ -204,7 +204,7 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
                 folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
 
         if verbose:
-            print_class_counts(folds_list, image_class_counts, num_classes)
+            counts = print_class_counts(folds_list, image_class_counts, num_classes)
     else:
         img_list = []
         folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
@@ -224,9 +224,11 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
             image_class_counts = get_class_counts_for_images(data_dir)
             class_assignments = assign_folders_to_class(image_class_counts)
             num_classes = len(class_assignments.keys())
-            print_class_counts(folds_list, image_class_counts, num_classes)
-
-    return folds_list, class_to_label
+            counts = print_class_counts(folds_list, image_class_counts, num_classes)
+    if verbose:
+        return folds_list, class_to_label, counts
+    else:
+        return folds_list, class_to_label
 
 def get_class_counts_for_images(data_dir):
     """
@@ -280,7 +282,8 @@ def print_class_counts(folds_list, image_class_counts, num_classes):
         image_class_counts (dict of dicts): Output of get_class_counts_for_images
         num_classes (int): Number of classes in the dataset
     Returns:
-        None (prints output to console)
+        (dict) : counts of images per class per fold
+        (prints output to console)
     """
     class_counts = [{'train':defaultdict(int), 'test':defaultdict(int)} for _ in folds_list]
 
@@ -305,3 +308,5 @@ def print_class_counts(folds_list, image_class_counts, num_classes):
                 print(f"{name.title()}: {num}")
 
         print("_______________________________________")
+
+    return class_counts

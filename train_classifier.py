@@ -10,9 +10,19 @@ import constants
 
 
 def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
-        model_dir=constants.MODEL_FILE_FOLDER):
+        model_dir=constants.MODEL_FILE_FOLDER, class_counts=None):
 
     train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label)
+
+    if class_counts is not None:
+        fold_counts = class_counts[fold]['train']
+        class_weights = {}
+        total_num = sum(list(fold_counts.values()))
+        for class_name, num in fold_counts.items():
+            class_weights[class_to_label[class_name]] = (1 / num) / (1/ num + 1/(total_num - num))
+        print(class_weights)
+    else:
+        class_weights = None
 
     print("Making generators")
     train_gen = TrainDataGenerator(train_dict)
@@ -30,10 +40,10 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
                                     mult_factor=constants.CYCLE_MULT)
         hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
-                                    validation_steps=None, callbacks=[scheduler])
+                                    validation_steps=None, callbacks=[scheduler], class_weight=class_weights)
     else:
         hist = model.fit_generator(train_gen, None,epochs=epochs,validation_data=test_gen,
-                                    validation_steps=None)
+                                    validation_steps=None, class_weight=class_weights)
 
     print("Making model dir...")
     if not os.path.exists(model_dir):
@@ -47,7 +57,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
 def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.NUM_FOLDS,
         epochs=constants.EPOCHS):
 
-    folds_list, class_to_label = split_train_test(data_dir, num_folds)
+    folds_list, class_to_label, class_counts = split_train_test(data_dir, num_folds)
 
     val_losses = np.zeros(num_folds)
     val_accs = np.zeros(num_folds)
