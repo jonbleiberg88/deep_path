@@ -65,7 +65,7 @@ def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.
 
     for fold in range(num_folds):
         print(f"Beginning Fold {fold} of {num_folds - 1}")
-        val_loss, val_acc = train_fold(folds_list, fold, class_to_label, data_dir, epochs, class_counts)
+        val_loss, val_acc = train_fold(folds_list, fold, class_to_label, data_dir, epochs, class_counts=class_counts)
 
         val_losses[fold] = val_loss[-1]
         val_accs[fold] = val_acc[-1]
