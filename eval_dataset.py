@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import numpy as np
 
 import constants
 from patch import Patch
