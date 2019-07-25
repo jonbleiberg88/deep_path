@@ -128,8 +128,8 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
     prev_image_count = sum(list(patch_counts.values()))
 
     aug_round = 1
-    if max_overlap >= 128:
-        max_overlap = 127
+    if max_overlap >= constants.INPUT_IMAGE_DIM[0]:
+        max_overlap = constants.INPUT_IMAGE_DIM[0] -1
     overlap_vals = np.append(np.arange(0,constants.OVERLAP, min_overlap_diff),
         np.arange(constants.OVERLAP, max_overlap+1, min_overlap_diff)[1:])
 
@@ -298,8 +298,8 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
     print(f"Imbalance of {diff} images...")
 
     aug_round = 1
-    if max_overlap >= 128:
-        max_overlap = 127
+    if max_overlap >= constants.INPUT_IMAGE_DIM[0]:
+        max_overlap = constants.INPUT_IMAGE_DIM[0] -1
     overlap_vals = np.append(np.arange(0,constants.OVERLAP, min_overlap_diff),
         np.arange(constants.OVERLAP, max_overlap+1, min_overlap_diff)[1:])
 
@@ -326,7 +326,7 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
         new_overlap = overlap_vals[idx]
         overlap_vals = np.delete(overlap_vals,idx)
 
-        new_tile_size = 256 - (new_overlap * 2)
+        new_tile_size = constants.INPUT_IMAGE_DIM[0] - (new_overlap * 2)
 
         print(f"Beginning augmentation round {aug_round} with overlap {new_overlap}")
         aug_count, patch_counts, round_patch_to_coords, round_slide_to_dims = augment_class(aug_dir, augment_large, new_tile_size, new_overlap, diff, aug_round,

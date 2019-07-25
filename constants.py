@@ -36,7 +36,7 @@ EXPORT_DIR = None
 
 # Stride augmentation parameters
 MAX_IMAGES = 10e5
-MAX_OVERLAP = 100
+MAX_OVERLAP = 64
 MIN_OVERLAP_DIFFERENCE = 4
 
 
