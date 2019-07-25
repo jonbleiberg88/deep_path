@@ -4,7 +4,7 @@ from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.applications.xception import Xception
 from tensorflow.keras.applications.mobilenet import MobileNet, preprocess_input
-from tensorflow.keras.applications.densenet import DenseNet121
+from tensorflow.keras.applications.densenet import DenseNet121, preprocess_input
 # from tensorflow.keras.applications.vgg19 import VGG19, preprocess_input
 from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
@@ -16,7 +16,7 @@ import constants
 # SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True)
 
 class TransferCNN:
-    def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=MobileNet,layer_sizes=constants.LAYER_SIZES,
+    def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=DenseNet121,layer_sizes=constants.LAYER_SIZES,
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
         optimizer='adam', metrics=constants.METRICS):
         self.input_shape = input_shape
@@ -58,9 +58,9 @@ class TransferCNN:
         if constants.GPUS > 1:
             self.model = multi_gpu_model(self.model, gpus=constants.GPUS, cpu_merge=False)
         if self.n_classes == 2:
-            self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=[*self.metrics, class_0_acc, class_1_acc])
+            self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=[*self.metrics, class_0_precision, class_1_precision, class_0_recall, class_1_recall])
         if self.n_classes > 2:
-            self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=[*self.metrics, class_0_acc, class_1_acc])
+            self.model.compile(optimizer=self.optimizer, loss='categorical_crossentropy', metrics=[*self.metrics, class_0_precision, class_1_precision, class_0_recall, class_1_recall])
 
         return self.model
 
@@ -69,7 +69,7 @@ class TransferCNN:
             layer.trainable = trainable
 
 
-def class_0_acc(y_true, y_pred):
+def class_0_precision(y_true, y_pred):
     class_id_true = K.round(y_true)
     class_id_preds = K.round(y_pred)
     # Replace class_id_preds with class_id_true for recall here
@@ -78,11 +78,30 @@ def class_0_acc(y_true, y_pred):
     class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
     return class_acc
 
-def class_1_acc(y_true, y_pred):
+def class_1_precision(y_true, y_pred):
     class_id_true = K.round(y_true)
     class_id_preds = K.round(y_pred)
     # Replace class_id_preds with class_id_true for recall here
     accuracy_mask = K.cast(K.equal(class_id_preds, 1), 'int32')
+    class_acc_tensor = K.cast(K.equal(class_id_true, class_id_preds), 'int32') * accuracy_mask
+    class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
+    return class_acc
+
+
+def class_0_recall(y_true, y_pred):
+    class_id_true = K.round(y_true)
+    class_id_preds = K.round(y_pred)
+    # Replace class_id_preds with class_id_true for recall here
+    accuracy_mask = K.cast(K.equal(class_id_true, 0), 'int32')
+    class_acc_tensor = K.cast(K.equal(class_id_true, class_id_preds), 'int32') * accuracy_mask
+    class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
+    return class_acc
+
+def class_1_recall(y_true, y_pred):
+    class_id_true = K.round(y_true)
+    class_id_preds = K.round(y_pred)
+    # Replace class_id_preds with class_id_true for recall here
+    accuracy_mask = K.cast(K.equal(class_id_true, 1), 'int32')
     class_acc_tensor = K.cast(K.equal(class_id_true, class_id_preds), 'int32') * accuracy_mask
     class_acc = K.sum(class_acc_tensor) / K.maximum(K.sum(accuracy_mask), 1)
     return class_acc

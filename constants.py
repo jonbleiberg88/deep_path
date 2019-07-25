@@ -70,6 +70,8 @@ USE_DROPOUT = True
 DROPOUT_RATE = 0.5
 CNN_DROPOUT = 0.5
 
+LOSS_WEIGHTING = False
+
 
 
 METRICS = ['accuracy']

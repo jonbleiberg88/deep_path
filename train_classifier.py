@@ -14,7 +14,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
 
     train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label)
 
-    if class_counts is not None:
+    if class_counts is not None and constants.LOSS_WEIGHTING:
         fold_counts = class_counts[fold]['train']
         class_weights = {}
         total_num = sum(list(fold_counts.values()))
