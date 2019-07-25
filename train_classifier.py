@@ -30,7 +30,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
     test_gen = ValDataGenerator(test_dict)
 
     print("Compiling model...")
-    model = TransferCNN().compile_model()
+    model, base_model = TransferCNN().compile_model()
     if fold == 0:
         print(model.summary())
 
@@ -51,7 +51,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
         os.makedirs(model_dir)
 
     print("Saving...")
-    model.save(os.path.join(model_dir, f"model_fold_{fold}"))
+    base_model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
     return hist.history['val_loss'], hist.history['val_acc']
 
