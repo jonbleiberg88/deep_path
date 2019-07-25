@@ -175,6 +175,7 @@ def augment_all_classes(tile_size, overlap,
     patch_name_to_coords_map = {}
 
     total_count = 0
+    large_count, small_count = 0, 0
     for root, dirnames, filenames in os.walk(slide_file_dir):
         for filename in filenames:
             if filename.endswith(file_extension) and filename not in constants.FILES_TO_SKIP:
@@ -208,9 +209,10 @@ def augment_all_classes(tile_size, overlap,
                 slide_name_to_tile_dims_map[slide_name] = tiled_dims
 
                 x, y = 0, 0
-                large_count, small_count = 0, 0
                 patch_name_list = []
                 coordinate_list = []
+                slide_large_count = 0
+                slide_small_count = 0
 
                 while y < y_tiles:
                     while x < x_tiles:
@@ -218,8 +220,6 @@ def augment_all_classes(tile_size, overlap,
                         patch = Patch(patch_coords)
                         patch_coordinates = (y,x)
                         coordinate_list.append(patch_coordinates)
-                        slide_large_count = 0
-                        slide_small_count = 0
 
                         if patch_in_paths(patch, small_path_list):
                             patch.img = np.array(tiles.get_tile(level, (x,y)), dtype=np.uint8)
