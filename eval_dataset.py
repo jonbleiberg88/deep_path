@@ -4,7 +4,7 @@ import shutil
 
 import constants
 from patch import Patch
-from utils.slide_utils import load_slide, get_patch_generator, threshold_image
+from construct_dataset import load_slide, get_patch_generator, threshold_image
 
 def get_patches_for_slide(slide_path,
                             file_extension=constants.SLIDE_FILE_EXTENSION,
