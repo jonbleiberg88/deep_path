@@ -105,4 +105,4 @@ if __name__ == "__main__":
     TEST_SLIDE = "/dp/datasets/FL/raw_slides/slide_imgs/FLN01/Scan1/FLN01_Scan1.qptiff"
 
     slide_name, patch_list, patch_name_to_coords_map, tiled_dims = get_patches_for_slide(TEST_SLIDE)
-    paths, preds = get_patch_generator(slide_name, patch_list)
+    paths, preds = get_patch_predictions(slide_name, patch_list)
