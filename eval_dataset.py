@@ -86,6 +86,7 @@ def get_patch_predictions(slide_name, patch_list,
     predict_gen = EvalDataGenerator(patch_list)
 
     model = load_model(saved_model)
+    print(model.summary())
 
     preds = model.predict_generator(predict_gen, None, verbose=1)
 
