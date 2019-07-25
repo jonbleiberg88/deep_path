@@ -157,12 +157,12 @@ elif MODE == 'local':
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
 PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
 HELPER_FILES_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "helper_files")
-# LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor")
-# SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 
+# Evaluation Mode constants
 EVAL_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "eval")
 PATCH_EVAL_DIRECTORY = os.path.join(EVAL_DIRECTORY, "data")
 PREDICTIONS_EVAL_DIRECTORY = os.path.join(EVAL_DIRECTORY, "predictions")
+SAVED_MODEL = os.path.join(MODEL_FILE_FOLDER, "final_model")
 
 #Visualization helper files
 VISUALIZATION_HELPER_FILE_FOLDER = os.path.join(HELPER_FILES_DIRECTORY, "visualization_helper_files")

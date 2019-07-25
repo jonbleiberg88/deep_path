@@ -86,7 +86,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     print("Saving model...")
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    model.save(os.path.join(model_dir, f"model_fold_{fold}"))
+    model.save_weights(os.path.join(model_dir, f"weights_fold_{fold}"))
 
     return loss, accuracy
 

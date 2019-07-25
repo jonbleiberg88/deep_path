@@ -215,7 +215,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         X, y = self.__data_generation(batch_paths, batch_labels)
-        
+
         return X, y
 
     def on_epoch_end(self):
@@ -449,6 +449,150 @@ class TestDataGenerator(tf.keras.utils.Sequence):
             return self.unique_labels
         else:
             return self.labels
+
+    def get_predictions(self, preds):
+        if self.use_tta:
+            return self.extract_TTA_preds(preds)
+        else:
+            if self.append_fix:
+                preds = preds[:-1]
+            return self.paths, preds
+
+
+class EvalDataGenerator(tf.keras.utils.Sequence):
+    """ Generates data batches for prediction on unlabeled test images, optionally with test time augmentation"""
+    def __init__(self, path_list, use_tta=constants.USE_TTA, aug_times=constants.TTA_AUG_TIMES,
+                    batch_size=constants.BATCH_SIZE, resize=constants.RESIZE_IMAGES,
+                    out_dim=constants.OUTPUT_IMAGE_DIM, n_channels=constants.N_CHANNELS,
+                    n_classes=constants.NUM_CLASSES):
+        'Initialization'
+        self.path_list = path_list
+
+        self.use_tta = use_tta
+        if self.use_tta:
+            self.aug = ImageDataGenerator(rotation_range=constants.ROTATION_RANGE,
+                                            width_shift_range=constants.WIDTH_SHIFT_RANGE,
+                                            height_shift_range=constants.HEIGHT_SHIFT_RANGE,
+                                            horizontal_flip=constants.HORIZONTAL_FLIP,
+                                            vertical_flip=constants.VERTICAL_FLIP,
+                                            zoom_range=constants.ZOOM_RANGE,
+                                            fill_mode=constants.FILL_MODE,
+                                            data_format='channels_last')
+            self.aug_times = aug_times
+
+        self.batch_size = batch_size
+        self.out_dim = out_dim
+
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.resize = resize
+        self.append_fix = False
+
+        self.extract_paths()
+        self.on_epoch_end()
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(np.ceil(len(self.paths) / self.batch_size))
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        if (index + 1) * self.batch_size > len(self.indexes):
+            indexes = self.indexes[index*self.batch_size:]
+        else:
+            indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
+
+        # Find list of paths
+        batch_paths = self.paths[indexes]
+
+        # Generate data
+        X = self.__data_generation(batch_paths)
+        return X
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.paths))
+
+    def on_train_end(self):
+        if self.append_fix and not self.use_tta:
+            self.paths = self.paths[:-1]
+            self.labels = self.labels[:-1]
+
+    def __data_generation(self, batch_paths):
+        'Generates data containing batch_size samples' # X : (n_samples, *out_dim, n_channels)
+        # Initialization
+        size = len(batch_paths)
+        X = np.empty((size, *self.out_dim, self.n_channels))
+
+        # Generate data
+        for i, path in enumerate(batch_paths):
+            # Store sample
+            X[i,] = self.get_img(path)
+
+        return X
+
+    def get_img(self, path):
+        # im = Image.open(path)
+        # if self.resize:
+        #     im = im.resize(self.out_dim)
+        # return (np.array(im) / 127.5).astype(np.float32) - 1.
+
+        im = tf.keras.preprocessing.image.load_img(path, target_size=self.out_dim)
+        im = tf.keras.preprocessing.image.img_to_array(im)
+        if self.use_tta:
+            im = self.aug.random_transform(im)
+        im = np.expand_dims(im, axis=0)
+        im = preprocess_input(im)
+        return np.squeeze(im)
+
+    def extract_paths(self):
+        self.paths = []
+        if self.use_tta:
+            self.unique_paths = []
+
+
+        for path in self.path_list:
+            if self.use_tta:
+                for _ in range(self.aug_times):
+                    self.paths.append(path)
+                self.unique_paths.append(path)
+            else:
+                self.paths.append(path)
+
+        # Fix for Keras bug with batch size of 1 passed to predict_on_batch
+        if len(self.paths) % self.batch_size == 1:
+            self.paths.append(self.paths[-1])
+            self.append_fix = True
+
+        self.paths = np.array(self.paths)
+
+        if self.use_tta:
+            self.unique_paths = np.array(self.unique_paths)
+
+    def extract_TTA_preds(self, preds, return_dict=False):
+        predict_lists = {p:[] for p in self.unique_paths}
+        predictions = {p:0 for p in self.unique_paths}
+
+        for pred, path in zip(preds, self.paths):
+             predict_lists[path].append(pred)
+
+        for path, pred_list in predict_lists.items():
+            if self.n_classes > 2:
+                pred = np.mean(pred_list, axis = 0)
+            else:
+                pred = np.mean(pred_list)
+            predictions[path] = pred
+
+        if return_dict:
+            return predictions
+        else:
+            items = list(predictions.items())
+            paths = np.array([path for path, _ in items])
+            preds = np.array([pred for _,pred in items])
+
+            return paths, preds
+
 
     def get_predictions(self, preds):
         if self.use_tta:

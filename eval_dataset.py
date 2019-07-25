@@ -2,10 +2,16 @@ import os
 import sys
 import shutil
 import numpy as np
+import pandas as pd
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 
 import constants
 from patch import Patch
 from construct_dataset import load_slide, get_patch_generator, threshold_image
+from data_generator import EvalDataGenerator
+
+
 
 def get_patches_for_slide(slide_path,
                             file_extension=constants.SLIDE_FILE_EXTENSION,
@@ -27,6 +33,8 @@ def get_patches_for_slide(slide_path,
 
     os.makedirs(slide_dir)
 
+    print(f"Splitting slide {slide_name}...")
+
     tiles = get_patch_generator(slide)
     tile_size = constants.PATCH_SIZE + (2 * constants.OVERLAP)
     level = len(tiles.level_tiles) - 1
@@ -38,7 +46,7 @@ def get_patches_for_slide(slide_path,
     x, y = 0, 0
     patch_counter = 0
 
-    patch_name_list = []
+    patch_list = []
     coordinate_list = []
 
     while y < y_tiles:
@@ -53,7 +61,7 @@ def get_patches_for_slide(slide_path,
                 if not threshold_image(patch.img, remove_threshold=constants.DEFAULT_CLASS_REMOVE_THRESHOLD) and constants.HISTOGRAM_THRESHOLD:
                     patch_name = os.path.join(slide_dir,
                         slide_name + "_" + str(patch_counter))
-                    patch_name_list.append(patch_name)
+                    patch_list.append(patch_name)
                     patch.save_img_to_disk(patch_name)
                     patch_name_to_coords_map[patch_name] = patch_coordinates
                     patch_counter += 1
@@ -67,10 +75,34 @@ def get_patches_for_slide(slide_path,
     print("Total patches for " + slide_name + ": " + str(patch_counter))
 
 
-    return patch_name_to_coords_map, tiled_dims
+    return slide_name, patch_list, patch_name_to_coords_map, tiled_dims
+
+
+def get_patch_predictions(slide_name, patch_list,
+                            saved_model=constants.SAVED_MODEL,
+                            predict_dir=constants.PREDICTIONS_EVAL_DIRECTORY):
+
+    print(f"Generating predictions for {slide_name}")
+    predict_gen = EvalDataGenerator(patch_list)
+
+    model = load_model(saved_model)
+
+    preds = model.predict_generator(predict_gen, None, verbose=1)
+
+    paths, preds = predict_gen.get_predictions(preds)
+
+    preds_df = pd.DataFrame({'filepath': paths})
+    preds_df = pd.concat([preds_df, pd.DataFrame(preds)], axis=1)
+    preds_df.to_csv(f"{predict_dir}/{slide_name}.csv")
+
+    return paths, preds
+
+
+
 
 
 if __name__ == "__main__":
     TEST_SLIDE = "/dp/datasets/FL/raw_slides/slide_imgs/FLN01/Scan1/FLN01_Scan1.qptiff"
 
-    get_patches_for_slide(TEST_SLIDE)
+    slide_name, patch_list, patch_name_to_coords_map, tiled_dims = get_patches_for_slide(TEST_SLIDE)
+    paths, preds = get_patch_generator(slide_name, patch_list)
