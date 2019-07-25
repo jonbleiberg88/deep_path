@@ -145,7 +145,7 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
         new_overlap = overlap_vals[idx]
         overlap_vals = np.delete(overlap_vals,idx)
 
-        new_tile_size = 256 - (new_overlap * 2)
+        new_tile_size = constants.INPUT_IMAGE_DIM[0] - (new_overlap * 2)
 
         print(f"Beginning augmentation round {aug_round} with overlap {new_overlap}")
         aug_count, aug_small, aug_large, patch_counts, round_patch_to_coords, round_slide_to_dims= augment_all_classes(new_tile_size, new_overlap, total_image_count, aug_round,
