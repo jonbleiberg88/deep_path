@@ -23,6 +23,7 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
         print(class_weights)
     else:
         class_weights = None
+        print("Weights are None")
 
     print("Making generators")
     train_gen = TrainDataGenerator(train_dict)
