@@ -121,7 +121,10 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
             img_path = os.path.join(class_path, img_dir)
             max_idx = 0
             for img_name in os.listdir(img_path):
-                idx = int(img_name.rpartition("_")[-1][:-4])
+                if "_aug.jpg" in img_name:
+                    idx = int(img_name.rpartition("_")[-2])
+                else:
+                    idx = int(img_name.rpartition("_")[-1][:-4])
                 max_idx = max(max_idx, idx)
             patch_counts[img_dir] = max_idx
 
@@ -312,7 +315,10 @@ def balance_classes_overlap(data_dir, accept_margin = 0.1, max_overlap=64, min_o
         img_path = os.path.join(aug_dir, img_dir)
         max_idx = 0
         for img_name in os.listdir(img_path):
-            idx = int(img_name.rpartition("_")[-1][:-4])
+            if "_aug.jpg" in img_name:
+                idx = int(img_name.rpartition("_")[-2])
+            else:
+                idx = int(img_name.rpartition("_")[-1][:-4])
             max_idx = max(max_idx, idx)
         patch_counts[img_dir] = max_idx
 
