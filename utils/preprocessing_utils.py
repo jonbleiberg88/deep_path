@@ -139,7 +139,7 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
     total_image_count = prev_image_count
 
     if total_image_count > max_images:
-        print("Current image count already exceeds the given maximum!")
+        print(f"Current image count ({total_image_count}) already exceeds the given maximum of {max_images}!")
         return
 
     while max_images > total_image_count:
