@@ -9,7 +9,8 @@ from learning_rate_utils import SGDRScheduler
 from utils.file_utils import write_pickle_to_disk
 import constants
 
-def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
+def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY, label_file=constants.LABEL_FILE):
+    
     labels_df = pd.read_csv(label_file)
     label_set = set(labels_df.iloc[:,1])
 
