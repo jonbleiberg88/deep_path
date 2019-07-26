@@ -35,14 +35,14 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_la
         for slide in slide_folders:
             if slide in train_slides:
                 slide_path = os.path.join(orig_class_path, slide)
-                for img in os.listdir(os.path.join(orig_class_path, slide)):
+                for img in os.listdir(slide_path):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
                         label = slide_to_label[slide]
                         train_dict[label][slide].append((path, label))
             elif slide in test_slides:
                 slide_path = os.path.join(orig_class_path, slide)
-                for img in os.listdir(os.path.join(orig_class_path, slide)):
+                for img in os.listdir(slide_path):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
                         label = slide_to_label[slide]
@@ -68,7 +68,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_la
     return train_dict, test_dict
 
 
-def get_full_dataset(data_dir, slides, class_to_label):
+def get_full_dataset(data_dir, slides, class_to_label, slide_to_label):
     """
     Given the root directory holding the dataset and a list of slides,
     gets paths and creates labels for all of the images
@@ -79,26 +79,25 @@ def get_full_dataset(data_dir, slides, class_to_label):
         fold (int): Fold for which to extract data
     Returns:
         dict containing the paths, labels for train images in the form
-            train_dict[IMG_CLASS][SLIDE_FOLDER] = [(PATH, LABEL), ...]
+            train_dict[CLASS_LABEL][SLIDE_FOLDER] = [(PATH, LABEL), ...]
 
         dict to convert between class names and integer labels
     """
 
     train_dict = defaultdict(lambda: defaultdict(list))
 
-    for img_class in os.listdir(data_dir):
-        class_path = os.path.join(data_dir, img_class)
-        class_idx = class_to_label[img_class]
-        slide_folders = os.listdir(class_path)
+    for orig_class in os.listdir(data_dir):
+        orig_class_path = os.path.join(data_dir, orig_class)
+        slide_folders = os.listdir(orig_class_path)
 
         for slide in slide_folders:
             if slide in slides:
-                slide_path = os.path.join(class_path, slide)
-                for img in os.listdir(os.path.join(class_path, slide)):
+                slide_path = os.path.join(orig_class_path, slide)
+                for img in os.listdir(slide_path):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
-                        label = class_idx
-                        train_dict[img_class][slide].append((path, label))
+                        label = slide_to_label[slide]
+                        train_dict[label][slide].append((path, label))
 
 
         for class_name, class_dict in train_dict.items():
