@@ -9,10 +9,10 @@ from utils.file_utils import write_pickle_to_disk
 import constants
 
 
-def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
+def train_fold(folds_list, fold, class_to_label, slide_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER):
 
-    train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label)
+    train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_label)
 
     print("Making generators")
     train_gen = TrainDataGenerator(train_dict)
@@ -44,17 +44,17 @@ def train_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT
 
     return hist.history['val_loss'], hist.history['val_acc']
 
-def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY,num_folds=constants.NUM_FOLDS,
+def train_k_folds(data_dir=constants.PATCH_OUTPUT_DIRECTORY, num_folds=constants.NUM_FOLDS,
         epochs=constants.EPOCHS):
 
-    folds_list, class_to_label = split_train_test(data_dir, num_folds)
+    folds_list, class_to_label, slide_to_label = split_train_test(data_dir, num_folds)
 
     val_losses = np.zeros(num_folds)
     val_accs = np.zeros(num_folds)
 
     for fold in range(num_folds):
         print(f"Beginning Fold {fold}")
-        val_loss, val_acc = train_fold(folds_list, fold, class_to_label, data_dir, epochs)
+        val_loss, val_acc = train_fold(folds_list, fold, class_to_label, slide_to_label, data_dir, epochs)
 
         val_losses[fold] = val_loss[-1]
         val_accs[fold] = val_acc[-1]

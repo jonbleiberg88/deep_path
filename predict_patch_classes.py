@@ -10,14 +10,24 @@ from utils.file_utils import write_pickle_to_disk
 import constants
 
 def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
-    img_list = []
-    classes = os.listdir(data_dir)
-    class_to_label = {c:i for i,c in enumerate(classes)}
+    labels_df = pd.read_csv(label_file,)
+    label_set = set(labels_df.iloc[:,1])
 
-    for class_dir in classes:
-        full_path = os.path.join(data_dir, class_dir)
-        img_list += os.listdir(full_path)
-    img_list = set(img_list)
+    class_to_label = {c:idx for idx, c in enumerate(label_set)}
+
+    slide_to_class = dict(zip(labels_df.iloc[:,0], labels_df.iloc[:,1]))
+    slide_to_label = {slide: class_to_label[c] for slide, c in slide_to_class.items()}
+
+    img_list = []
+
+
+    for orig_class_dir in os.listdir(data_dir):
+        full_path = os.path.join(data_dir, orig_class_dir)
+        img_list += [slide for slide in os.listdir(full_path) if slide.split("_")[0] in slide_to_class.keys()]
+
+
+    img_list = set([(img, slide_to_class[img.split("_")[0]]) for img in list(set(img_list))])
+    slide_to_label = {img:class_to_label[c] for img, c in img_list}
 
     folds_list = [{'train':[], 'test': []} for _ in range(len(img_list))]
 
@@ -25,7 +35,7 @@ def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
         folds_list[idx]['train'] = list(img_list - set([img]))
         folds_list[idx]['test'] = [img]
 
-    return folds_list, class_to_label
+    return folds_list, class_to_label, slide_to_label
 
 
 def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
