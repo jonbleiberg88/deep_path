@@ -10,7 +10,7 @@ from utils.file_utils import write_pickle_to_disk
 import constants
 
 def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY, label_file=constants.LABEL_FILE):
-    
+
     labels_df = pd.read_csv(label_file)
     label_set = set(labels_df.iloc[:,1])
 
@@ -39,13 +39,13 @@ def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY, label_
     return folds_list, class_to_label, slide_to_label
 
 
-def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
+def train_and_predict_fold(folds_list, fold, class_to_label, slide_to_label, data_dir=constants.PATCH_OUTPUT_DIRECTORY, epochs=constants.EPOCHS,
         model_dir=constants.MODEL_FILE_FOLDER, predict_dir=constants.PREDICTIONS_DIRECTORY, show_val=False):
 
     if not os.path.isdir(predict_dir):
         os.makedirs(predict_dir)
 
-    train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label)
+    train_dict, test_dict = get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_label)
 
     if len(test_dict.keys()) == 0:
         print(f"No image files found for fold {fold}")
@@ -61,7 +61,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     predict_gen = TestDataGenerator(test_dict)
 
     print("Compiling model...")
-    model = TransferCNN().compile_model()
+    model, base_model = TransferCNN().compile_model()
     if fold == 0:
         print(model.summary())
     if constants.USE_SGDR:
@@ -96,14 +96,14 @@ def train_and_predict_fold(folds_list, fold, class_to_label, data_dir=constants.
     print("Saving model...")
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    model.save(os.path.join(model_dir, f"model_fold_{fold}"))
+    base_model.save(os.path.join(model_dir, f"model_fold_{fold}"))
 
     return loss, accuracy
 
 def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
         epochs=constants.EPOCHS):
 
-    folds_list, class_to_label = create_leave_one_out_lists(data_dir)
+    folds_list, class_to_label, slide_to_label = create_leave_one_out_lists(data_dir)
     write_pickle_to_disk(f'{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label',
                             class_to_label)
     num_slides = len(folds_list)
@@ -129,10 +129,10 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
     print("Training model on full dataset...")
     slides = folds_list[0]['train'] + folds_list[0]['test']
 
-    train_dict = get_full_dataset(data_dir, slides, class_to_label)
+    train_dict = get_full_dataset(data_dir, slides, class_to_label, slide_to_label)
     train_gen = TrainDataGenerator(train_dict)
 
-    model = TransferCNN().compile_model()
+    model, base_model = TransferCNN().compile_model()
     if constants.USE_SGDR:
         scheduler = SGDRScheduler(min_lr=constants.MIN_LR, max_lr=constants.MAX_LR,
                                     lr_decay=constants.LR_DECAY, cycle_length=constants.CYCLE_LENGTH,
@@ -146,15 +146,13 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
     print("Saving final model...")
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    model.save(os.path.join(model_dir, f"final_model"))
+    base_model.save(os.path.join(model_dir, f"final_model"))
 
     print("Training and prediction complete!")
 
     return losses, accs
 
 if __name__ == "__main__":
-    tf.logging.set_verbosity(tf.logging.ERROR)
-
     losses, accs = train_and_predict_all()
 
     print(f"Test Loss: Mean: {np.mean(losses):.2f}, Median: {np.median(losses):.2f}, Max: {np.max(losses):.2f}, Min: {np.min(losses):.2f}")
