@@ -152,7 +152,7 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
 
         print(f"Beginning augmentation round {aug_round} with overlap {new_overlap}")
         aug_count, aug_small, aug_large, patch_counts, round_patch_to_coords, round_slide_to_dims= augment_all_classes(new_tile_size, new_overlap, total_image_count, aug_round,
-            patch_counts)
+            patch_counts, total_image_count, max_images)
         total_image_count += aug_count
 
         aug_patch_to_coords[aug_round] = round_patch_to_coords
@@ -169,7 +169,7 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
 
 
 def augment_all_classes(tile_size, overlap,
-        img_count, aug_round, patch_counts,
+        img_count, aug_round, patch_counts, current_count, max_images,
         slide_file_dir=constants.SLIDE_FILE_DIRECTORY,
         file_extension = constants.SLIDE_FILE_EXTENSION,
         annotation_csv_directory=constants.ANNOTATION_CSV_DIRECTORY):
@@ -251,8 +251,12 @@ def augment_all_classes(tile_size, overlap,
                 large_count += slide_large_count
                 small_count += slide_small_count
 
+
                 print(f"Total patches for {slide_name}: {slide_large_count + slide_small_count}")
                 print(f"Large: {slide_large_count};  Small: {slide_small_count}")
+
+                if total_count + current_count >= max_images:
+                    return
 
     return total_count, small_count, large_count, patch_counts, patch_name_to_coords_map, slide_name_to_tile_dims_map
 
