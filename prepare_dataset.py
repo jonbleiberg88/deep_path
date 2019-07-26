@@ -171,7 +171,8 @@ def get_full_dataset(data_dir, slides, class_to_label):
 #     return data, labels, class_to_label
 
 
-def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STRATIFY):
+def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
+                        verbose=True, stratified=constants.STRATIFY):
     """
     Given the root directory holding the dataset and a number of folds, splits the dataset
     into train and test set by patient
@@ -185,9 +186,9 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
             fold, in the format folds_list[fold_number]['train' or 'test'] = [SLIDE NAMES,...]
     """
 
-    class_to_label = {'ND':0, 'D':1}
-    labels_df = pd.read_csv(constants.LABEL_FILE)
-    
+    labels_df = pd.read_csv(label_file)
+
+
 
     if stratified:
         image_class_counts = get_class_counts_for_images(data_dir)
@@ -224,6 +225,7 @@ def split_train_test(data_dir, num_folds, verbose=True, stratified=constants.STR
             folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
 
         if verbose:
+
             image_class_counts = get_class_counts_for_images(data_dir)
             class_assignments = assign_folders_to_class(image_class_counts)
             num_classes = len(class_assignments.keys())
