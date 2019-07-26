@@ -30,9 +30,7 @@ class TransferCNN:
 
             # Only allow a total of half the GPU memory to be allocated
             config.gpu_options.per_process_gpu_memory_fraction = 0.5
-            # config.log_device_placement = False
-            #
-            # tf.logging.set_verbosity()
+
             os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
             # Create a session with the above options specified.
