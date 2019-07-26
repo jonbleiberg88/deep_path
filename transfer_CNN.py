@@ -20,6 +20,9 @@ class TransferCNN:
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
         optimizer='adam', metrics=constants.METRICS):
 
+        # filter "INFO" logging
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
         if constants.CAP_MEMORY_USAGE:
             # https://michaelblogscode.wordpress.com/2017/10/10/reducing-and-profiling-gpu-memory-usage-in-keras-with-tensorflow-backend/
             # TensorFlow wizardry
