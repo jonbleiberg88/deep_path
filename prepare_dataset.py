@@ -30,7 +30,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_la
 
     for orig_class in os.listdir(data_dir):
         orig_class_path = os.path.join(data_dir, orig_class)
-        slide_folders = os.listdir(class_path)
+        slide_folders = os.listdir(orig_class_path)
 
         for slide in slide_folders:
             if slide in train_slides:
