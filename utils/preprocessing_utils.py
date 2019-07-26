@@ -138,6 +138,10 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
 
     total_image_count = prev_image_count
 
+    if total_image_count > max_images:
+        print("Current image count already exceeds the given maximum!")
+        return
+
     while max_images > total_image_count:
 
         if len(overlap_vals) == 0:
@@ -165,7 +169,6 @@ def run_overlap_augmentation(data_dir, max_images=10e5, max_overlap=64, min_over
 
     write_pickle_to_disk(os.path.join(constants.VISUALIZATION_HELPER_FILE_FOLDER, "aug_patch_name_to_coords_map"), aug_patch_to_coords)
     write_pickle_to_disk(os.path.join(constants.VISUALIZATION_HELPER_FILE_FOLDER, "aug_slide_to_dims_map"), aug_slide_to_dims)
-
 
 
 def augment_all_classes(tile_size, overlap,
@@ -256,6 +259,7 @@ def augment_all_classes(tile_size, overlap,
                 print(f"Large: {slide_large_count};  Small: {slide_small_count}")
 
                 if total_count + current_count >= max_images:
+                    print("Maximum number of images reached!")
                     return
 
     return total_count, small_count, large_count, patch_counts, patch_name_to_coords_map, slide_name_to_tile_dims_map
