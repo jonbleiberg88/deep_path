@@ -35,14 +35,14 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_la
         for slide in slide_folders:
             if slide in train_slides:
                 slide_path = os.path.join(orig_class_path, slide)
-                for img in os.listdir(os.path.join(class_path, slide)):
+                for img in os.listdir(os.path.join(orig_class_path, slide)):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
                         label = slide_to_label[slide]
                         train_dict[label][slide].append((path, label))
             elif slide in test_slides:
-                slide_path = os.path.join(class_path, slide)
-                for img in os.listdir(os.path.join(class_path, slide)):
+                slide_path = os.path.join(orig_class_path, slide)
+                for img in os.listdir(os.path.join(orig_class_path, slide)):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
                         label = slide_to_label[slide]
