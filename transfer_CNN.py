@@ -9,6 +9,7 @@ from tensorflow.keras.layers import Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.utils import multi_gpu_model
+import tensorflow.keras.backend as K
 
 import constants
 # SGD(lr=0.2, decay=1e-6, momentum=0.9,nesterov=True)
