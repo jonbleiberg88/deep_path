@@ -6,7 +6,7 @@ import constants
 from collections import defaultdict
 from sklearn.model_selection import KFold
 
-def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label):
+def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_label):
     """
     Given the root directory holding the dataset, and the train test split,
     gets paths and creates labels for all of the images in the train and test sets
@@ -22,32 +22,31 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label):
             test_dict[SLIDE_FOLDER] = [(PATH, LABEL), ...]
         dict to convert between class names and integer labels
     """
-    train_slides = folds_list[fold]['train']
-    test_slides = folds_list[fold]['test']
+    train_slides = [s for s, _ in folds_list[fold]['train']]
+    test_slides = [s for s, _ in folds_list[fold]['test']]
 
     train_dict = defaultdict(lambda: defaultdict(list))
     test_dict = defaultdict(lambda: defaultdict(list))
 
-    for img_class in os.listdir(data_dir):
-        class_path = os.path.join(data_dir, img_class)
-        class_idx = class_to_label[img_class]
+    for orig_class in os.listdir(data_dir):
+        orig_class_path = os.path.join(data_dir, orig_class)
         slide_folders = os.listdir(class_path)
 
         for slide in slide_folders:
             if slide in train_slides:
-                slide_path = os.path.join(class_path, slide)
+                slide_path = os.path.join(orig_class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
-                        label = class_idx
-                        train_dict[img_class][slide].append((path, label))
+                        label = slide_to_label[slide]
+                        train_dict[label][slide].append((path, label))
             elif slide in test_slides:
                 slide_path = os.path.join(class_path, slide)
                 for img in os.listdir(os.path.join(class_path, slide)):
                     if img.endswith('.jpg'):
                         path = os.path.join(slide_path, img)
-                        label = class_idx
-                        test_dict[img_class][slide].append((path, label))
+                        label = slide_to_label[slide]
+                        test_dict[label][slide].append((path, label))
             else:
                 print(f"{slide} not assigned to train or test...")
 
@@ -201,6 +200,7 @@ def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
 
         for class_name, class_list in class_lists.keys():
             img_list = [(img, class_name) for img in class_list]
+            slide_to_class = {img:c for img, c in img_list}
             kf = KFold(n_splits=num_folds, shuffle=True)
             split = list(kf.split(img_list))
             for idx, split in enumerate(split):
@@ -218,6 +218,7 @@ def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
             img_list += [slide for slide in os.listdir(full_path) if slide.split("_")[0] in slide_to_class.keys()]
 
         img_list = [(img, slide_to_class[img.split("_")[0]]) for img in list(set(img_list))]
+        slide_to_label = {img:class_to_label[c] for img, c in img_list}
         kf = KFold(n_splits=num_folds, shuffle=True)
         split = list(kf.split(img_list))
         for idx, split in enumerate(split):
