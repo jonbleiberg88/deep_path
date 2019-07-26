@@ -88,6 +88,9 @@ MODE = 'remote'
 DATASET = 'FL'
 # DATASET = 'CLL'
 
+TARGET = 'nucleoli'
+# TARGET = 'outcome'
+
 if MODE == 'remote':
     if DATASET == 'FL':
         SLIDE_FILE_DIRECTORY     = "/dp/datasets/FL/raw_slides/slide_imgs"
@@ -96,8 +99,10 @@ if MODE == 'remote':
         SA_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = f"/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
-
-        LABEL_FILE = "/dp/datasets/FL/raw_slides/nucleoli_targets.csv"
+        if TARGET == 'nucleoli':
+            LABEL_FILE = "/dp/datasets/FL/raw_slides/nucleoli_targets.csv"
+        elif TARGET == 'outcome':
+            LABEL_FILE = "/dp/datasets/FL/raw_slides/outcome_targets.csv"
 
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/dp/datasets/CLL/raw_slides/slide_imgs"
@@ -116,7 +121,10 @@ if MODE == 'jupyter':
         MODEL_FILE_FOLDER       = f"tf/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
-        LABEL_FILE = "tf/dp/datasets/FL/raw_slides/nucleoli_targets.csv"
+        if TARGET == 'nucleoli':
+            LABEL_FILE = "/tf/dp/datasets/FL/raw_slides/nucleoli_targets.csv"
+        elif TARGET == 'outcome':
+            LABEL_FILE = "/tf/dp/datasets/FL/raw_slides/outcome_targets.csv"
 
     elif DATASET == 'CLL':
         SLIDE_FILE_DIRECTORY     = "/tf/dp/datasets/CLL/raw_slides/slide_imgs"
