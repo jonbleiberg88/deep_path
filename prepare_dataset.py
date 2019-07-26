@@ -124,7 +124,7 @@ def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
             fold, in the format folds_list[fold_number]['train' or 'test'] = [SLIDE NAMES,...]
     """
 
-    labels_df = pd.read_csv(label_file,)
+    labels_df = pd.read_csv(label_file)
     label_set = set(labels_df.iloc[:,1])
     class_to_label = {c:idx for idx, c in enumerate(label_set)}
     slide_to_class = dict(zip(labels_df.iloc[:,0], labels_df.iloc[:,1]))

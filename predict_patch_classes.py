@@ -10,7 +10,7 @@ from utils.file_utils import write_pickle_to_disk
 import constants
 
 def create_leave_one_out_lists(data_dir=constants.PATCH_OUTPUT_DIRECTORY):
-    labels_df = pd.read_csv(label_file,)
+    labels_df = pd.read_csv(label_file)
     label_set = set(labels_df.iloc[:,1])
 
     class_to_label = {c:idx for idx, c in enumerate(label_set)}
