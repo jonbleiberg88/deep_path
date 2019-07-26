@@ -114,7 +114,7 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
 
     for fold in range(num_slides):
         print(f"Beginning Fold {fold} of {num_slides - 1}")
-        loss, acc = train_and_predict_fold(folds_list, fold, class_to_label, data_dir, epochs)
+        loss, acc = train_and_predict_fold(folds_list, fold, class_to_label, slide_to_label, data_dir, epochs)
         if loss == -1 and acc == -1:
             empty.append(fold)
         else:
