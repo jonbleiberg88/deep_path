@@ -20,6 +20,8 @@ class TransferCNN:
         n_classes=constants.NUM_CLASSES, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
         optimizer='adam', metrics=constants.METRICS):
 
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
         if constants.CAP_MEMORY_USAGE:
             # https://michaelblogscode.wordpress.com/2017/10/10/reducing-and-profiling-gpu-memory-usage-in-keras-with-tensorflow-backend/
             # TensorFlow wizardry
@@ -30,8 +32,6 @@ class TransferCNN:
 
             # Only allow a total of half the GPU memory to be allocated
             config.gpu_options.per_process_gpu_memory_fraction = 0.5
-
-            os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
             # Create a session with the above options specified.
             K.set_session(tf.Session(config=config))
