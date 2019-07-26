@@ -186,21 +186,21 @@ def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
             fold, in the format folds_list[fold_number]['train' or 'test'] = [SLIDE NAMES,...]
     """
 
-    labels_df = pd.read_csv(label_file)
-
+    labels_df = pd.read_csv(label_file,)
+    label_set = set(labels_df.iloc[:,1])
+    class_to_label = {c:idx for idx, c in enumerate(label_set)}
+    slide_to_class = dict(zip(labels_df.iloc[:,0], labels_df.iloc[:,1]))
+    slide_to_label = {slide: class_to_label[c] for slide, c in slide_to_class.items()}
 
 
     if stratified:
-        image_class_counts = get_class_counts_for_images(data_dir)
-        class_assignments = assign_folders_to_class(image_class_counts)
-        num_classes = len(class_assignments.keys())
-
+        image_counts = get_class_counts_for_images(data_dir)
+        class_lists = create_class_lists(image_counts)
 
         folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
 
-
-        for class_name in class_assignments.keys():
-            img_list = class_assignments[class_name]
+        for class_name, class_list in class_lists.keys():
+            img_list = [(img, class_name) for img in class_list]
             kf = KFold(n_splits=num_folds, shuffle=True)
             split = list(kf.split(img_list))
             for idx, split in enumerate(split):
@@ -208,16 +208,16 @@ def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
                 folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
 
         if verbose:
-            print_class_counts(folds_list, image_class_counts, num_classes)
+            print_class_counts(folds_list, image_counts, slide_to_class)
     else:
         img_list = []
         folds_list = [{'train':[], 'test': []} for _ in range(num_folds)]
 
         for class_dir in os.listdir(data_dir):
             full_path = os.path.join(data_dir, class_dir)
-            img_list += os.listdir(full_path)
+            img_list += [slide for slide in os.listdir(full_path) if slide.split("_")[0] in slide_to_class.keys()]
 
-        img_list = list(set(img_list))
+        img_list = [(img, slide_to_class[img.split("_")[0]]) for img in list(set(img_list))]
         kf = KFold(n_splits=num_folds, shuffle=True)
         split = list(kf.split(img_list))
         for idx, split in enumerate(split):
@@ -225,39 +225,36 @@ def split_train_test(data_dir, num_folds, label_file = constants.LABEL_FILE,
             folds_list[idx]['test'] += list(np.array(img_list)[split[1]])
 
         if verbose:
+            image_counts = get_counts_for_images(data_dir)
+            print_class_counts(folds_list, image_counts, slide_to_class)
 
-            image_class_counts = get_class_counts_for_images(data_dir)
-            class_assignments = assign_folders_to_class(image_class_counts)
-            num_classes = len(class_assignments.keys())
-            print_class_counts(folds_list, image_class_counts, num_classes)
+    return folds_list, class_to_label, slide_to_label
 
-    return folds_list, class_to_label
-
-def get_class_counts_for_images(data_dir):
+def get_counts_for_images(data_dir):
     """
     Given the root directory holding the dataset, calculates the number of images
-    per class for each slide
+    for each slide
 
     Args:
         data_dir (String): Path to top-level directory of dataset
     Returns:
-        dict of dicts containing the number of images per class per slide, in the
-        format: image_class_counts[SLIDE][CLASS] = # of images
+        dict of dicts containing the number of images per slide, in the
+        format: image_class_counts[SLIDE] = # of images
     """
-    class_dirs = [dir for dir in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, dir))]
-    image_class_counts = defaultdict(lambda: {dir:0 for dir in class_dirs})
+    orig_class_dirs = [dir for dir in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, dir))]
+    image_counts = defaultdict(int)
 
-    for dir in class_dirs:
+    for dir in orig_class_dirs:
         full_path = os.path.join(data_dir, dir)
-        image_dirs = [(img ,os.path.join(full_path, img)) for img in os.listdir(full_path)]
+        image_dirs = [(img, os.path.join(full_path, img)) for img in os.listdir(full_path)]
         for img, path in image_dirs:
-            image_class_counts[img][dir] += len(os.listdir(path))
+            image_counts[img] += len(os.listdir(path))
 
-    return image_class_counts
+    return image_counts
 
-def assign_folders_to_class(image_class_counts):
+def create_class_lists(image_counts, slide_to_class):
     """
-    Given counts of images per slide per class (see get_class_counts_for_images),
+    Given counts of images per slide per class (see get_counts_for_images),
     assigns each patient to a class for the purposes of stratified splitting
 
     Args:
@@ -266,15 +263,15 @@ def assign_folders_to_class(image_class_counts):
         dict of form image_lists[CLASS] = [SLIDES_FOR_CLASS,...]
     """
     image_lists = defaultdict(list)
-    class_counts = defaultdict(int)
-    for img in image_class_counts.keys():
-        count_dict = image_class_counts[img]
-        max_class = max(count_dict.items(), key=lambda x: x[1])[0]
-        image_lists[max_class].append(img)
+
+    for img, count in image_counts.items():
+        slide_name = img.split("_")[0]
+        if slide_name in slide_to_class.keys():
+            image_lists[slide_to_class[slide_name]].append(img)
 
     return image_lists
 
-def print_class_counts(folds_list, image_class_counts, num_classes):
+def print_class_counts(folds_list, image_counts, slide_to_class):
     """
     Given the folds_list (see split_train_test), and the number of images of each class per slide
     (see get_class_counts_for_images), nicely prints train and test statistics to
@@ -292,15 +289,13 @@ def print_class_counts(folds_list, image_class_counts, num_classes):
     for idx, fold in enumerate(folds_list):
         train_imgs = fold['train']
         test_imgs = fold['test']
-        for img in train_imgs:
-            counts = image_class_counts[img]
-            for key in counts.keys():
-                class_counts[idx]['train'][key] += counts[key]
+        for img, class_name in train_imgs:
+            count = image_counts[img]
+            class_counts[idx]['train'][class_name] += count
 
-        for img in test_imgs:
-            counts = image_class_counts[img]
-            for key in counts.keys():
-                class_counts[idx]['test'][key] += counts[key]
+        for img, class_name in test_imgs:
+            count = image_counts[img]
+            class_counts[idx]['test'][class_name] += count
 
     for idx, fold in enumerate(class_counts):
         print(f"Fold {idx}")
