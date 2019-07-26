@@ -19,18 +19,7 @@ class TransferCNN:
     def __init__(self, input_shape=constants.INPUT_SHAPE, base_model=DenseNet121,layer_sizes=constants.LAYER_SIZES,
         n_classes=2, use_bn=constants.USE_BATCH_NORM, use_dropout=constants.USE_DROPOUT,
         optimizer='adam', metrics=constants.METRICS):
-        self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING)#, dropout=constants.CNN_DROPOUT)
-        self.layer_sizes = layer_sizes
-        self.n_classes = n_classes
-        self.use_bn = use_bn
-        self.use_dropout = use_dropout
-        self.optimizer = optimizer
-        self.metrics = metrics
-        self.model = None
-
-
-    def init_model(self):
+        
         if constants.CAP_MEMORY_USAGE:
             # https://michaelblogscode.wordpress.com/2017/10/10/reducing-and-profiling-gpu-memory-usage-in-keras-with-tensorflow-backend/
             # TensorFlow wizardry
@@ -43,8 +32,20 @@ class TransferCNN:
             config.gpu_options.per_process_gpu_memory_fraction = 0.5
 
             # Create a session with the above options specified.
-            K.tensorflow_backend.set_session(tf.Session(config=config))
+            K.set_session(tf.Session(config=config))
 
+        self.input_shape = input_shape
+        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING)#, dropout=constants.CNN_DROPOUT)
+        self.layer_sizes = layer_sizes
+        self.n_classes = n_classes
+        self.use_bn = use_bn
+        self.use_dropout = use_dropout
+        self.optimizer = optimizer
+        self.metrics = metrics
+        self.model = None
+
+
+    def init_model(self):
         layer_list = [self.base_model, Flatten(), BatchNormalization()]
         for units in self.layer_sizes:
             layer_list.append(Dense(units, activation='relu'))
