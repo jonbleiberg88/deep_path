@@ -3,7 +3,7 @@ import os
 # Training Parameters
 NUM_FOLDS = 5
 EPOCHS = 2
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
 OPTIMIZER = 'adam'
