@@ -90,7 +90,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, slide_to_label, dat
     print(f"Saving predictions...")
 
     preds_df = pd.DataFrame({'filepath': paths, 'labels':predict_gen.get_labels(),'prediction': preds})
-    preds_df.to_csv(f"{predict_dir}/{predict_slide}.csv")
+    preds_df.to_csv(f"{predict_dir}/{predict_slide[0]}.csv")
 
 
     print("Saving model...")

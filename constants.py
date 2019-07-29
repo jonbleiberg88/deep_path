@@ -97,7 +97,7 @@ if MODE == 'remote':
         OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = f"/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
+        MODEL_FILE_FOLDER       = f"/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/nuc/"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
         if TARGET == 'nucleoli':
             LABEL_FILE = "/dp/datasets/FL/raw_slides/nucleoli_targets.csv"
@@ -111,6 +111,10 @@ if MODE == 'remote':
         SA_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = f"/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+        if TARGET == 'nucleoli':
+            LABEL_FILE = "/dp/datasets/CLL/raw_slides/CLL_nucleoli_targets.csv"
+        elif TARGET == 'outcome':
+            LABEL_FILE = "/dp/datasets/CLL/raw_slides/CLL_outcome_targets.csv"
 
 if MODE == 'jupyter':
     if DATASET == 'FL':
@@ -133,6 +137,10 @@ if MODE == 'jupyter':
         SA_CSV_DIRECTORY = "tf/dp/datasets/CLL/raw_slides/surface_areas/"
         MODEL_FILE_FOLDER       = f"tf/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
+        if TARGET == 'nucleoli':
+            LABEL_FILE = "/tf/dp/datasets/CLL/raw_slides/CLL_nucleoli_targets.csv"
+        elif TARGET == 'outcome':
+            LABEL_FILE = "/tf/dp/datasets/CLL/raw_slides/CLL_outcome_targets.csv"
 
 elif MODE == 'local':
     if DATASET == 'FL':
@@ -164,7 +172,8 @@ elif MODE == 'local':
         PROJECT_FILE = "project.qpproj"
 
 PATCH_OUTPUT_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "data")
-PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions")
+# Remember to change once...
+PREDICTIONS_DIRECTORY = os.path.join(OUTPUT_DIRECTORY, "predictions", "nuc")
 LARGE_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "large_tumor")
 SMALL_CELL_PATCHES       = os.path.join(PATCH_OUTPUT_DIRECTORY, "small_tumor")
 
