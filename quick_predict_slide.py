@@ -37,7 +37,7 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
 
         true_class, pred_class = label_to_class[true_label], label_to_class[pred_label]
 
-        confusion_mat[true_class][pred_class] += 1
+        confusion_mat[true_label, pred_label] += 1
 
         correct = (true_label == pred_label)
         correct_list.append(true_label == pred_label)
