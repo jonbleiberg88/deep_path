@@ -79,6 +79,9 @@ KNN_SMOOTH = True
 KNN_RANGE = 1
 SMOOTH_FACTOR = 0.7
 
+
+AGGREGATION_METHOD = 'mean'
+
 # Data directories
 
 MODE = 'remote'

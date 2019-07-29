@@ -7,14 +7,17 @@ from utils.file_utils import load_pickle_from_disk
 
 
 
-def get_slide_metrics(preds_file, label_to_class):
+def get_slide_metrics(preds_file, label_to_class, method=constants.AGGREGATION_METHOD):
     df = pd.read_csv(preds_file)
 
     preds = df.prediction.values
 
     mean_pred = np.mean(preds)
 
-    pred_label = int(mean_pred)
+    if method == "mean":
+        pred_label = int(mean_pred)
+    elif method == "mode":
+        pred_label = int(np.mean(np.round(preds)))
     true_label = df.labels[0]
 
 
@@ -59,5 +62,3 @@ if __name__ == "__main__":
     label_to_class = {v:k for k,v in class_to_label.items()}
 
     get_overall_metrics(label_to_class, constants.PREDICTIONS_DIRECTORY)
-
-    
