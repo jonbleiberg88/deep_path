@@ -100,7 +100,7 @@ if MODE == 'remote':
         OUTPUT_DIRECTORY = f"/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/dp/datasets/FL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = f"/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/nuc/"
+        MODEL_FILE_FOLDER       = f"/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/nuc"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
         if TARGET == 'nucleoli':
             LABEL_FILE = "/dp/datasets/FL/raw_slides/nucleoli_targets.csv"
@@ -112,7 +112,7 @@ if MODE == 'remote':
         OUTPUT_DIRECTORY = f"/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/dp/datasets/CLL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = f"/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
+        MODEL_FILE_FOLDER       = f"/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/nuc"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
         if TARGET == 'nucleoli':
             LABEL_FILE = "/dp/datasets/CLL/raw_slides/CLL_nucleoli_targets.csv"
@@ -125,7 +125,7 @@ if MODE == 'jupyter':
         OUTPUT_DIRECTORY = f"/tf/dp/datasets/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "/tf/dp/datasets/FL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = f"tf/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
+        MODEL_FILE_FOLDER       = f"tf/dp/models/FL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/nuc"
         FILES_TO_SKIP           = ['FLN02_Scan1.qptiff', 'FLN04_Scan1.qptiff']
 
         if TARGET == 'nucleoli':
@@ -138,7 +138,7 @@ if MODE == 'jupyter':
         OUTPUT_DIRECTORY = f"/tf/dp/datasets/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/"
         ANNOTATION_CSV_DIRECTORY = "/tf/dp/datasets/CLL/raw_slides/annotations/"
         SA_CSV_DIRECTORY = "tf/dp/datasets/CLL/raw_slides/surface_areas/"
-        MODEL_FILE_FOLDER       = f"tf/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}"
+        MODEL_FILE_FOLDER       = f"tf/dp/models/CLL/{str(PATCH_SIZE)}_{str(OVERLAP)}_{str(NUM_VERTICES_IN_ANNOTATION)}/nuc"
         FILES_TO_SKIP         = ['CLT10_Scan3.qptiff', 'CLN17_Scan1.qptiff', 'CLN28_Scan1.qptiff']
         if TARGET == 'nucleoli':
             LABEL_FILE = "/tf/dp/datasets/CLL/raw_slides/CLL_nucleoli_targets.csv"
