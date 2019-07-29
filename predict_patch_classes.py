@@ -108,28 +108,28 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
                             class_to_label)
     num_slides = len(folds_list)
 
-    # losses = np.zeros(num_slides)
-    # accs = np.zeros(num_slides)
-    # empty = []
-    #
-    # for fold in range(num_slides):
-    #     print(f"Beginning Fold {fold} of {num_slides - 1}")
-    #     loss, acc = train_and_predict_fold(folds_list, fold, class_to_label, slide_to_label, data_dir, epochs)
-    #     if loss == -1 and acc == -1:
-    #         empty.append(fold)
-    #     else:
-    #         losses[fold] = loss
-    #         accs[fold] = acc
-    #
-    #     print(f"Fold {fold} of {num_slides - 1} is complete!")
-    #
-    # losses = np.delete(losses, empty)
-    # accs = np.delete(accs, empty)
+    losses = np.zeros(num_slides)
+    accs = np.zeros(num_slides)
+    empty = []
+
+    for fold in range(num_slides):
+        print(f"Beginning Fold {fold} of {num_slides - 1}")
+        loss, acc = train_and_predict_fold(folds_list, fold, class_to_label, slide_to_label, data_dir, epochs)
+        if loss == -1 and acc == -1:
+            empty.append(fold)
+        else:
+            losses[fold] = loss
+            accs[fold] = acc
+
+        print(f"Fold {fold} of {num_slides - 1} is complete!")
+
+    losses = np.delete(losses, empty)
+    accs = np.delete(accs, empty)
 
     print("Training model on full dataset...")
     slides = folds_list[0]['train'] + folds_list[0]['test']
     slide_names = [slide for slide, _ in slides]
-    
+
     train_dict = get_full_dataset(data_dir, slide_names, class_to_label, slide_to_label)
     train_gen = TrainDataGenerator(train_dict)
 
