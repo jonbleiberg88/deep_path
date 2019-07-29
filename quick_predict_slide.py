@@ -25,6 +25,7 @@ def get_slide_metrics(preds_file, label_to_class, method=constants.AGGREGATION_M
 
 def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECTORY):
     correct_list = []
+    confusion_mat = np.zeros((2,2), dtype=int)
 
     for preds_file in os.listdir(predict_dir):
         if '.csv' not in preds_file:
@@ -35,6 +36,8 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
         true_label, pred_label, mean_pred = get_slide_metrics(path, label_to_class)
 
         true_class, pred_class = label_to_class[true_label], label_to_class[pred_label]
+
+        confusion_mat[true_class, pred_class] += 1
 
         correct = (true_label == pred_label)
         correct_list.append(true_label == pred_label)
@@ -51,9 +54,11 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     num_correct = len([i for i in correct_list if i])
 
     acc = np.mean(np.array(correct_list))
+    
+    print(confusion_mat)
 
     print("_________________________________________________________________")
-    print(f"Patient Level Accuracy: {acc*100:.2f} ({num_correct}/{num_slides})")
+    print(f"Patient Level Accuracy: {acc*100:.2f}% ({num_correct}/{num_slides})")
     print("_________________________________________________________________")
     return acc, num_correct, num_slides
 
