@@ -25,6 +25,7 @@ def get_slide_metrics(preds_file, label_to_class, method=constants.AGGREGATION_M
 
 def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECTORY):
     correct_list = []
+    wrong_list = []
     confusion_mat = np.zeros((2,2), dtype=int)
 
     for preds_file in os.listdir(predict_dir):
@@ -41,6 +42,8 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
 
         correct = (true_label == pred_label)
         correct_list.append(true_label == pred_label)
+        if not correct:
+            wrong_list.append(slide_name)
 
         print(f"Results for Slide {slide_name}:")
 
@@ -55,6 +58,12 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
 
     acc = np.mean(np.array(correct_list))
 
+    print("_________________________________________________________________")
+    print("Misclassified Slides:")
+    print(", ".join(wrong_list))
+
+    print("_________________________________________________________________")
+    print("Confusion Matrix")
     print_cm(confusion_mat, [label_to_class[0], label_to_class[1]])
 
     print("_________________________________________________________________")
