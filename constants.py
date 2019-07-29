@@ -2,7 +2,7 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 2
+EPOCHS = 1
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
