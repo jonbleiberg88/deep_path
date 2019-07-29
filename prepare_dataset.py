@@ -85,13 +85,14 @@ def get_full_dataset(data_dir, slides, class_to_label, slide_to_label):
     """
 
     train_dict = defaultdict(lambda: defaultdict(list))
+    slide_names = [slide for slide, _ in slides]
 
     for orig_class in os.listdir(data_dir):
         orig_class_path = os.path.join(data_dir, orig_class)
         slide_folders = os.listdir(orig_class_path)
 
         for slide in slide_folders:
-            if slide in slides:
+            if slide in slide_names:
                 slide_path = os.path.join(orig_class_path, slide)
                 for img in os.listdir(slide_path):
                     if img.endswith('.jpg'):
