@@ -53,7 +53,7 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     acc = np.mean(np.array(correct_list))
 
     print("_________________________________________________________________")
-    print(f"Patient Level Accuracy: {acc:.2f} ({num_correct}/{num_slides})")
+    print(f"Patient Level Accuracy: {acc*100:.2f} ({num_correct}/{num_slides})")
     print("_________________________________________________________________")
     return acc, num_correct, num_slides
 
