@@ -68,7 +68,7 @@ def get_dataset_for_fold(data_dir, folds_list, fold, class_to_label, slide_to_la
     return train_dict, test_dict
 
 
-def get_full_dataset(data_dir, slides, class_to_label, slide_to_label):
+def get_full_dataset(data_dir, slide_names, class_to_label, slide_to_label):
     """
     Given the root directory holding the dataset and a list of slides,
     gets paths and creates labels for all of the images
@@ -85,7 +85,6 @@ def get_full_dataset(data_dir, slides, class_to_label, slide_to_label):
     """
 
     train_dict = defaultdict(lambda: defaultdict(list))
-    slide_names = [slide for slide, _ in slides]
 
     for orig_class in os.listdir(data_dir):
         orig_class_path = os.path.join(data_dir, orig_class)

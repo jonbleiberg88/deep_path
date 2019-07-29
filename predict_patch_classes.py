@@ -101,7 +101,7 @@ def train_and_predict_fold(folds_list, fold, class_to_label, slide_to_label, dat
     return loss, accuracy
 
 def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
-        epochs=constants.EPOCHS):
+        epochs=constants.EPOCHS, model_dir=constants.MODEL_FILE_FOLDER):
 
     folds_list, class_to_label, slide_to_label = create_leave_one_out_lists(data_dir)
     write_pickle_to_disk(f'{constants.VISUALIZATION_HELPER_FILE_FOLDER}/class_to_label',
@@ -128,10 +128,9 @@ def train_and_predict_all(data_dir=constants.PATCH_OUTPUT_DIRECTORY,
 
     print("Training model on full dataset...")
     slides = folds_list[0]['train'] + folds_list[0]['test']
-
-    print(slides)
-
-    train_dict = get_full_dataset(data_dir, slides, class_to_label, slide_to_label)
+    slide_names = [slide for slide, _ in slides]
+    
+    train_dict = get_full_dataset(data_dir, slide_names, class_to_label, slide_to_label)
     train_gen = TrainDataGenerator(train_dict)
 
     model, base_model = TransferCNN().compile_model()
