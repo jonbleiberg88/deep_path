@@ -2,8 +2,10 @@ import constants
 import os
 import numpy as np
 import pandas as pd
+from sklearn.metrics import roc_auc_score
 
 from utils.file_utils import load_pickle_from_disk
+
 
 
 
@@ -25,6 +27,9 @@ def get_slide_metrics(preds_file, label_to_class, method=constants.AGGREGATION_M
 def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECTORY):
     correct_list = []
     wrong_list = []
+
+    true_labels = []
+    mean_preds = []
     confusion_mat = np.zeros((2,2), dtype=int)
 
     for preds_file in os.listdir(predict_dir):
@@ -34,6 +39,9 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
         slide_name = preds_file.replace(".csv", "")
 
         true_label, pred_label, mean_pred = get_slide_metrics(path, label_to_class)
+
+        true_labels.append(true_label)
+        mean_preds.append(mean_pred)
 
         true_class, pred_class = label_to_class[true_label], label_to_class[pred_label]
 
@@ -55,6 +63,9 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     num_slides = len(correct_list)
     num_correct = len([i for i in correct_list if i])
 
+    true_labels, mean_preds = np.array(true_labels), np.array(mean_preds)
+    roc_auc = roc_auc_score(true_labels, mean_preds)
+
     acc = np.mean(np.array(correct_list))
 
     print("_________________________________________________________________")
@@ -64,6 +75,9 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     print("_________________________________________________________________")
     print("Confusion Matrix")
     print_cm(confusion_mat, [label_to_class[0], label_to_class[1]])
+
+    print("_________________________________________________________________")
+    print(f"ROC/AUC Score:{roc_auc}")
 
     print("_________________________________________________________________")
     print(f"Patient Level Accuracy: {acc*100:.2f}% ({num_correct}/{num_slides})")
