@@ -77,7 +77,7 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     print_cm(confusion_mat, [label_to_class[0], label_to_class[1]])
 
     print("_________________________________________________________________")
-    print(f"ROC/AUC Score:{roc_auc}")
+    print(f"ROC/AUC Score: {roc_auc:.3f}")
 
     print("_________________________________________________________________")
     print(f"Patient Level Accuracy: {acc*100:.2f}% ({num_correct}/{num_slides})")
