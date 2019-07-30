@@ -19,7 +19,8 @@ def get_slide_metrics(preds_file, label_to_class, method=constants.AGGREGATION_M
     elif method == "mode":
         pred_label = int(np.mean(np.round(preds)))
     true_label = df.labels[0]
-
+    print("Pred:")
+    print(pred_label)
 
     return true_label, pred_label, mean_pred
 
