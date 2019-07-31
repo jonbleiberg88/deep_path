@@ -188,6 +188,8 @@ def logit_extremizer_cv(true_labels, preds_file_paths, a_vals, epsilon=1e-7):
         for train_file, train_label in zip(train_files, train_labels):
             corrected_probs = get_corrected_probs_for_slide(train_file, a_vals).astype(np.float32)
             corrected_probs = np.clip(corrected_probs, epsilon, 1-epsilon)
+            loss = -(train_label * np.log(corrected_probs) + (1 - train_label) * np.log(1 - corrected_probs))
+            print(loss)
             log_losses += -(train_label * np.log(corrected_probs) + (1 - train_label) * np.log(1 - corrected_probs))
 
         log_losses /= len(a_vals)
