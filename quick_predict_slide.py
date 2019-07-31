@@ -90,6 +90,7 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     print("_________________________________________________________________")
     print(f"Patient Level Accuracy: {acc*100:.2f}% ({num_correct}/{num_slides})")
     print("_________________________________________________________________")
+    print()
 
 
     print("Logit Extremizer Correction:")
@@ -180,11 +181,11 @@ def logit_extremizer_cv(true_labels, preds_file_paths, a_vals, epsilon=1e-7):
     splits = splitter.split(preds_file_paths)
 
     for train_idxs, test_idx in splits:
-        train_files, trian_labels = preds_file_paths[train_idxs], true_labels[train_idxs]
+        train_files, train_labels = preds_file_paths[train_idxs], true_labels[train_idxs]
         test_file, test_label = preds_file_paths[test_idx], true_labels[test_idx]
         log_losses = np.zeros(len(a_vals))
 
-        for train_file, train_label in train_files:
+        for train_file, train_label in zip(train_files, train_labels):
             corrected_probs = get_corrected_probs_for_slide(train_file, a_vals).astype(np.float32)
             corrected_probs = np.clip(corrected_probs, epsilon, 1-epsilon)
             log_losses += -(train_label * np.log(corrected_probs) + (1 - train_label) * np.log(1 - corrected_probs))
