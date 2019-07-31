@@ -174,7 +174,7 @@ def logit_extremizer_cv(true_labels, preds_file_paths, a_vals, epsilon=1e-7):
     """
     preds_file_paths = np.array(preds_file_paths)
     true_labels = np.array(true_labels)
-    corrected_probs = np.empty(len(true_labels))
+    corrected_preds = np.empty(len(true_labels))
     selected_a_vals = np.empty(len(true_labels))
 
     splitter = LeaveOneOut()
@@ -196,9 +196,9 @@ def logit_extremizer_cv(true_labels, preds_file_paths, a_vals, epsilon=1e-7):
         best_a_val = a_vals[np.argmin(log_losses)]
 
         selected_a_vals[test_idx] = best_a_val
-        corrected_probs[test_idx] = get_corrected_probs_for_slide(test_file, best_a_val)
+        corrected_preds[test_idx] = get_corrected_probs_for_slide(test_file, best_a_val)
 
-    return corrected_probs, selected_a_vals
+    return corrected_preds, selected_a_vals
 
 def get_corrected_probs_for_slide(preds_file, a_vals, epsilon = 1e-7):
     """
