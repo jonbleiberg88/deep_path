@@ -38,7 +38,7 @@ class TransferCNN:
             K.set_session(tf.Session(config=config))
 
         self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING, dropout = 0.3)
+        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING, dropout = 0.5)
         self.layer_sizes = layer_sizes
         self.n_classes = n_classes
         self.use_bn = use_bn
