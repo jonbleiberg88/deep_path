@@ -198,16 +198,16 @@ def logit_extremizer_cv(true_labels, preds_file_paths, a_vals, epsilon=1e-7):
 
     return corrected_probs, selected_a_vals
 
-def get_corrected_probs_for_slide(preds_file, a_vals):
+def get_corrected_probs_for_slide(preds_file, a_vals, epsilon = 1e-7):
     """
     Returns the MLE extremized prediction for a given set of values of "a"
     References: https://www.sciencedirect.com/science/article/pii/S0169207013001635
     """
     df = pd.read_csv(preds_file)
     preds = df.prediction.values
-
+    clipped_preds = np.clip(preds, epsilon, 1 - epsilon)
     N = len(preds)
-    odds = np.power(np.prod((preds / (1-preds)) ** (1 / N)), a_vals)
+    odds = np.power(np.prod((clipped_preds / (1-clipped_preds)) ** (1 / N)), a_vals)
     corrected_preds = odds / (1 + odds)
 
     return corrected_preds
