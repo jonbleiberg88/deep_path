@@ -44,7 +44,7 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
         slide_name = preds_file.replace(".csv", "")
 
         slide_names.append(slide_name)
-        preds_files.append(preds_file)
+        preds_files.append(os.path.join(predict_dir, preds_file))
 
         true_label, pred_label, mean_pred = get_slide_metrics(path, label_to_class)
 
