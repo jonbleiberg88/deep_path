@@ -121,10 +121,10 @@ def get_overall_metrics(label_to_class, predict_dir=constants.PREDICTIONS_DIRECT
     print_cm(corrected_confusion_mat, [label_to_class[0], label_to_class[1]])
 
     print("_________________________________________________________________")
-    print(f"Corrected ROC/AUC Score: {roc_auc:.3f}")
+    print(f"Corrected ROC/AUC Score: {corrected_roc_auc:.3f}")
 
     print("_________________________________________________________________")
-    print(f"Corrected Patient Level Accuracy: {acc*100:.2f}% ({n_correct}/{num_slides})")
+    print(f"Corrected Patient Level Accuracy: {corrected_acc*100:.2f}% ({n_correct}/{num_slides})")
     print("_________________________________________________________________")
 
 
