@@ -182,7 +182,7 @@ def logit_extremizer_cv(true_labels, preds_file_paths, a_vals, epsilon=1e-7):
 
     for train_idxs, test_idx in splits:
         train_files, train_labels = preds_file_paths[train_idxs], true_labels[train_idxs]
-        test_file, test_label = preds_file_paths[test_idx], true_labels[test_idx]
+        test_file, test_label = preds_file_paths[test_idx][0], true_labels[test_idx]
         log_losses = np.zeros(len(a_vals))
 
         for train_file, train_label in zip(train_files, train_labels):
