@@ -85,4 +85,5 @@ class TransferCNN:
 
     def set_trainable(self, trainable):
         for layer in self.base_model.layers:
+            print(layer)
             layer.trainable = trainable
