@@ -38,7 +38,7 @@ class TransferCNN:
             K.set_session(tf.Session(config=config))
 
         self.input_shape = input_shape
-        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING, dropout=0.3)
+        self.base_model = base_model(weights='imagenet', include_top=False, input_shape=input_shape,pooling=constants.OUTPUT_POOLING)
         self.layer_sizes = layer_sizes
         self.n_classes = n_classes
         self.use_bn = use_bn
@@ -84,5 +84,5 @@ class TransferCNN:
         return self.model, self.base_model
 
     def set_trainable(self, trainable):
-        for layer in self.base_model.layers[1:]:
+        for layer in self.base_model.layers[3:]:
             layer.trainable = trainable
