@@ -2,7 +2,7 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 1
+EPOCHS = 2
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
@@ -88,8 +88,8 @@ MODE = 'remote'
 # MODE ='jupyter'
 # MODE = 'local'
 
-DATASET = 'FL'
-# DATASET = 'CLL'
+# DATASET = 'FL'
+DATASET = 'CLL'
 
 # TARGET = 'nucleoli'
 TARGET = 'outcome'
