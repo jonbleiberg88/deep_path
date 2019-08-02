@@ -19,7 +19,7 @@ CYCLE_MULT = 2
 
 
 GPUS = 2
-CAP_MEMORY_USAGE = True
+CAP_MEMORY_USAGE = False
 
 # Dataset Parameters
 DEFAULT_CLASS_NAME = "normal_tissue"
