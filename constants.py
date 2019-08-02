@@ -2,7 +2,7 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 2
+EPOCHS = 6
 BATCH_SIZE = 32
 BATCHES_PER_EPOCH = 200
 
@@ -19,7 +19,7 @@ CYCLE_MULT = 2
 
 
 GPUS = 2
-CAP_MEMORY_USAGE = True
+CAP_MEMORY_USAGE = False
 
 # Dataset Parameters
 STRATIFY = False
