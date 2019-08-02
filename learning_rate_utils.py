@@ -83,7 +83,7 @@ class SGDRScheduler(Callback):
             n_cycles = ceil(self.epochs / self.cycle_length)
 
             fracs = np.tile(np.linspace(0, 1, num=self.steps_per_epoch * self.epochs), n_cycles)
-            max_lrs = np.repeat([self.lr_decay ** i for i in range(n_cycles)],
+            max_lrs = np.repeat([self.max_lr * (self.lr_decay ** i) for i in range(n_cycles)],
                                     repeats=self.steps_per_epoch * self.cycle_length)
 
             self.lrs = self.min_lr + 0.5 * (max_lrs - self.min_lr) * (1 + np.cos(fracs * np.pi))
