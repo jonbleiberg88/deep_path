@@ -2,7 +2,7 @@ import os
 
 # Training Parameters
 NUM_FOLDS = 5
-EPOCHS = 6
+EPOCHS = 2
 BATCH_SIZE = 64
 BATCHES_PER_EPOCH = 200
 
@@ -12,7 +12,7 @@ LEARNING_RATE = 0.01
 # SGDR Parameters
 USE_SGDR = True
 MIN_LR = 1e-6
-MAX_LR = 0.01
+MAX_LR = 0.003
 LR_DECAY = 0.5
 CYCLE_LENGTH = 3
 CYCLE_MULT = 2
