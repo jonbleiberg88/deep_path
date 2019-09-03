@@ -50,6 +50,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
                                             vertical_flip=constants.VERTICAL_FLIP,
                                             zoom_range=constants.ZOOM_RANGE,
                                             fill_mode=constants.FILL_MODE,
+                                            brightness_range=constants.BRIGHTNESS_RANGE,
                                             data_format='channels_last')
 
         self.paths_for_epoch = []
@@ -194,6 +195,7 @@ class ValDataGenerator(tf.keras.utils.Sequence):
                                             vertical_flip=constants.VERTICAL_FLIP,
                                             zoom_range=constants.ZOOM_RANGE,
                                             fill_mode=constants.FILL_MODE,
+                                            brightness_range=constants.BRIGHTNESS_RANGE,
                                             data_format='channels_last')
 
         self.extract_paths_and_labels()
@@ -288,6 +290,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
                                             vertical_flip=constants.VERTICAL_FLIP,
                                             zoom_range=constants.ZOOM_RANGE,
                                             fill_mode=constants.FILL_MODE,
+                                            brightness_range=constants.BRIGHTNESS_RANGE,
                                             data_format='channels_last')
             self.aug_times = aug_times
 
